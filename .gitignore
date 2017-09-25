@@ -23,3 +23,9 @@ vignettes/*.pdf/*.rdx/*.rdb/*.Rdata# OAuth2 token, see https://github.com/hadley
 *.png
 
 Homework 3/Homework3_cache/html/__packages
+
+*.html
+
+*.md
+
+*.Rproj

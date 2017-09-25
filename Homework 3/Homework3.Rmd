@@ -1,7 +1,7 @@
 ---
-title: "Holsenbeck_S_1"
+title: "Holsenbeck_S_3"
 author: "Stephen Synchronicity"
-date: "September 8, 2017"
+date: "2017-09-24"
 output: 
   html_document: 
     css: C:\Users\Stephen\Documents\R\win-library\3.4\rmarkdown\rmarkdown\templates\neu_hwk\resources\styles.css
