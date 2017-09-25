@@ -1,0 +1,150 @@
+---
+title: "Holsenbeck_S_1"
+author: "Stephen Synchronicity"
+date: "September 8, 2017"
+output: 
+  html_document: 
+    css: C:\Users\Stephen\Documents\R\win-library\3.4\rmarkdown\rmarkdown\templates\neu_hwk\resources\styles.css
+    highlight: zenburn
+    keep_md: yes
+    theme: readable
+    toc: yes
+    toc_float: true
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message=FALSE,warning=FALSE,cache=TRUE, fig.align='center', fig.height=3.5, fig.width=5)
+rmarkdown::html_dependency_jquery()
+rmarkdown::html_dependency_bootstrap("lumen")
+rmarkdown::html_dependency_jqueryui()
+```
+```{r Libraries, echo=FALSE, results='hide'}
+library("tidyverse")
+library("htmltools")
+library("rmarkdown")
+library("gridExtra")
+library("DT")
+```
+
+
+<button data-toggle="collapse" data-target="#demo" class="btn">Homework Outline</button>
+<div id="demo" class="collapse">
+1.
+a. What’s the chance of getting a sequential pair on two rolls of a die (eg, a 3 then a 4 counts, but a 4 then a 3 does not). (Hint: you can calculate this manually if you like, by counting up the sample space and finding the fraction of that sample space that consists of ordered pairs.)
+b. Given a dartboard with a inner circle that is 2/3 of the total area, and a bulls-eye that is 5% of the total area (and entirely within the inner circle): if you are throwing a random dart (that is guaranteed to hit somewhere on the board, but everywhere inside is equally likely), what is the chance of hitting the bulls-eye conditional on knowing your dart is somewhere inside the innner circle?
+c. You take a test for a scary disease, and get a positive result. The disease is quite rare – 1 in 1000 in the general population. The test has a sensitivity of 95%, and a false positive rate of only 5%. What is the chance you have the disease?
+d. What is the chance you have the disease if everything remains the same, but the disease is even rarer, 1 in 10,000?
+e. What does this tell you about the dangers of tests for rare diseases?
+2.
+a. You have a 20-side die. Using sample, roll it 1000 times and count the number of rolls that are 10 or
+less.
+b. Generate a histogram using ggplot of 10,000 draws from a uniform distribution between 2 and 7.
+c. Try to write down the equation for this probability density function.
+d. What is the probability that a draw from this distribution will be between 1.5 and 3.2?
+3.
+a. Using R’s cdf for the binomial, what is the probability of getting 500 or fewer “20”s when rolling your
+20-sided die 10,000 times. Looking back at 2a, what proportion of your rolls were actually 20s?
+b. Using rbinom, roll a 100-sided die 100 times and report the total number of 7s you get.
+c. You are a klutz, and the average number of times you drop your pencil in a day is 1. Using the poisson functions in R, what’s the chance of dropping your pencil two or more times in a day? (Hint: calculate the chance of dropping it one or fewer times, and then take 1 minus that.)
+d. Because he is lazy, your teacher has assigned grades for an exam at random, and to help hide his deception he has given the fake grades a normal distribution with a mean of 70 and a standard deviation of 10. What is the chance your exam got a score of 85 or above? What is the chance you got a score between 50 and 60?
+</div>
+
+# Homework 3
+## 1.
+### a.
+What’s the chance of getting a sequential pair on two rolls of a die (eg, a 3 then a 4 counts, but a 4 then a 3 does not). (Hint: you can calculate this manually if you like, by counting up the sample space and finding the fraction of that sample space that consists of ordered pairs.)
+```{r 1a}
+5/6^2
+```
+### b.
+Given a dartboard with an inner circle that is 2/3 of the total area, and a bulls-eye that is 5% of the total area (and entirely within the inner circle): if you are throwing a random dart (that is guaranteed to hit somewhere on the board, but everywhere inside is equally likely), what is the chance of hitting the bulls-eye conditional on knowing your dart is somewhere inside the inner circle?
+<div class="a">A)$P(B|A)=\frac{P(A)*P(B|A)}{P(A)}=0.03333333$</div>
+```{r 1b}
+2/3*.05
+```
+### c.
+You take a test for a scary disease, and get a positive result. The disease is quite rare – 1 in 1000 in the general population. The test has a sensitivity of 95%, and a false positive rate of only 5%. What is the chance you have the disease?
+<div class="a">A) Bayes theorem $P(A|B)=\frac{P(B|A)P(A)}{P(B)}=0.01866405$</div>
+
+```{r 1c}
+(tibble::tribble(
+ ~Test,~Disease,~Not.Disease,~Totals,
+      "+","95","4995","5090",
+     "-","5","94905","94910",
+    "","100","99900","100000"
+  ))
+(.95*.001)/0.0509
+```
+### d.
+What is the chance you have the disease if everything remains the same, but the disease is even rarer, 1 in 10,000?
+<div class="a">A)0.001896586</div>
+```{r 1d}
+(tibble::tribble(
+ ~Test,~Disease,~Not.Disease,~Totals,
+      "+","95","49995","50090",
+     "-","5","949905","949910",
+    "","100","999900","1000000"
+  ))
+(.95*.0001)/0.05009
+```
+### e.
+What does this tell you about the dangers of tests for rare diseases?
+<div class="a">A)For the majority of people whom wouldn't find calculating the actual probability of having the disease given the test sensitivity appealing, the probabilities given for sensitivity when considering the test might make it sound like the test is highly accurate (though accuracy is different than sensitivity, the average patient would likely equate them), which would lead the patient to beleive that with a positive test result, they are highly likely to have the disease, which in fact is entirely false. If the probabilities weren't properly communicated this might compel a person to voluntarily accept expensive further testing & risky procedures that they might otherwise have turned down if provided with the actual probabilities.</div>
+
+## 2.
+### a. 
+You have a 20-sided die. Using sample, roll it 1000 times and count the number of rolls that are 10 or less.
+```{r 2a}
+onek <- sample(1:20,1000,replace=T)
+sum(onek <= 10)
+```
+### b.
+Generate a histogram using ggplot of 10,000 draws from a uniform distribution between 2 and 7.
+```{r 2b}
+unif.hist <- as.data.frame(runif(10000,min=2,max=7))
+ggplot(data=unif.hist,mapping = aes(x=unif.hist))+
+  geom_histogram(fill='white',color='red')+
+  xlab("X")+
+  ylab("P(X)")+
+  ggtitle("Graph of Uniform Distribution 2<x<7")+
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+### c.
+Try to write down the equation for this probability density function.
+$f(x)=\left\{_{0\text{ for }x<2\text{ or }x>7}^{\frac{1}{b-a}\text{ for }2 \leq x \geq7} \right\}$
+
+### d.
+What is the probability that a draw from this distribution will be between 1.5 and 3.2?
+```{r 2d}
+sum(unif.hist>1.5&unif.hist<3.2)/10000
+punif(3.2,min=2,max=7)-punif(1.5,min=2,max=7)
+```
+
+## 3.
+### a.
+Using R’s cdf for the binomial, what is the probability of getting 500 or fewer “20”s when rolling your 20-sided die 10,000 times. Looking back at 2a, what proportion of your rolls were actually 20s?
+```{r 3a}
+pbinom(500,10000,1/20,lower.tail = T)
+sum(onek <= 10)/1000
+```
+### b.
+Using rbinom, roll a 100-sided die 100 times and report the total number of 7s you get.
+```{r 3b}
+hdie <- rbinom(1:100,100,1/100)
+sum(hdie == 7)
+```
+### c.
+You are a klutz, and the average number of times you drop your pencil in a day is 1. Using the poisson functions in R, what’s the chance of dropping your pencil two or more times in a day? (Hint: calculate the chance of dropping it one or fewer times, and then take 1 minus that.)
+```{r 3c}
+ppois(1,1,lower.tail=F)
+1-ppois(1,1)
+```
+### d.
+Because he is lazy, your teacher has assigned grades for an exam at random, and to help hide his deception he has given the fake grades a normal distribution with a mean of 70 and a standard deviation of 10. What is the chance your exam got a score of 85 or above? What is the chance you got a score between 50 and 60?
+```{r 3d}
+# an 85 or above
+pnorm(85,mean=70,sd=10,lower.tail = F)
+# between 50 & 60
+pnorm(60,mean=70,sd=10,lower.tail = T)-pnorm(50,mean=70,sd=10,lower.tail = T)
+```
+
