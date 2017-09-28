@@ -1,0 +1,238 @@
+---
+title: "Holsenbeck_S_2"
+author: "Stephen Synchronicity"
+date: "2017-09-20"
+output: 
+  html_document: 
+    css: C:\Users\Stephen\Documents\R\win-library\3.4\rmarkdown\rmarkdown\templates\neu_hwk\resources\styles.css
+    highlight: zenburn
+    keep_md: yes
+    theme: readable
+    toc: yes
+    toc_float: true
+---
+```{r setup, include=FALSE, echo=FALSE, results='hide'}
+#Knitr Global Chunk Options
+knitr::opts_chunk$set(echo = TRUE, message=FALSE,warning=FALSE,cache=TRUE, fig.align='center', fig.height=3.5, fig.width=5, tidy=TRUE, tidy.opts=list(width.cutoff=80))
+#HTML Dependencies
+rmarkdown::html_dependency_jquery()
+rmarkdown::html_dependency_bootstrap("readable")
+rmarkdown::html_dependency_jqueryui()
+#Requisite Libraries
+library("tidyverse")
+library("htmltools")
+library("rmarkdown")
+library("gridExtra")
+library("DT")
+```
+<button data-toggle="collapse" data-target="#demo" class="btn">Homework Outline</button>
+<div id="demo" class="collapse">
+1.
+ a. 
+ Write a function that calculates the mean of any numeric vector you give it, without using the built-in
+mean() or sum() functions.
+ b. 
+ Write a function that takes as its input a vector with four elements. If the sum of the first two elements
+is greater than the sum of the second two, the function returns the vector; otherwise it returns 0.
+ c. 
+ Write a function that calculates the Fibonacci sequence up to the nth element, where n is any number
+input into your function (its argument). The Fibonacci sequence is: 1, 1, 2, 3, 5, 8, 13, 21. . . , ie, each
+element is the sum of the previous two elements. One way to do this is to start off with the first two
+elements, c(1,1) and set an internal variable to this sequence. Then write a loop that counts up to
+n, where for each new element, you first calculate it by adding the last two elements of the growing
+sequence, and then stick that new number onto the growing sequence using c(). When the loop is
+finished, the function should return the final vector of Fibonacci numbers.
+ d. 
+ Create a 4x4 matrix of the numbers 1 through 16. Use apply to apply you function from (a) to each of
+the rows in your matrix.
+<hr>
+2.
+ a. 
+ Using the airquality dataset, constuct an aggregated dataset which shows the maximum wind and ozone
+by month.
+ b. 
+ Create the authors and books datasets following the example and data in the lecture, and then create a
+new data set by merging these two datasets by author, preserving all rows.
+ c. 
+ Take the following string and replace every instance of "to" or "To" with "2" :
+To be, or not to be -- that is the question:
+Whether 'tis nobler in the mind to suffer
+The slings and arrows of outrageous fortune,
+Or to take arms against a sea of troubles,
+And by opposing end them. To die -- to sleep --
+No more...
+<hr>
+3.
+ a. 
+ Create a histogram using the base R graphics using some dataset or variable other than the one in the
+lessons. Always make sure your graph has well-labeled x and y axes and an explanatory title.
+ b. 
+ Create a scatter plot using the base R graphics, again with some variable other than the one in the
+lessons.
+ c. 
+ Create a histogram using ggplot, using some new data. In this and the later plots, please tinker with
+the settings using the examples in http://www.cookbook-r.com/Graphs/ to make it prettier.
+ d. 
+ Create a box plot (with multiple categories) using ggplot, using some new data.
+e. Create a scatter plot using ggplot, using some new data.
+</div>
+
+#Homework 2
+## 1
+### a. 
+ Write a function that calculates the mean of any numeric vector you give it, without using the built-in mean() or sum() functions.
+```{r 1a}
+#test sum f(n) for debugging
+v <- seq(2,45,3)
+t <- 0
+sm <- function(x){
+  for(i in seq(1,length(x),2)){
+    xn <- x[i+1]
+    if(is.na(xn)==T){xn <- 0}
+    t <- x[i] + t + xn
+  print(paste("x[i]:",x[i]))
+  print(paste("t:",t))
+  }
+}
+sum(v)
+#mean f(n)
+mn <- function(x){
+  for(i in seq(1,length(x),2)){
+    if(i <= length(x)){xn <- x[i+1]
+    if(is.na(xn)==T){xn <- 0}
+    t <- x[i] + t + xn
+    if(i == length(x)-1|i==length(x)){print(t/length(x))}
+    }
+  }
+}
+(outcome <- c(mn(v),mean(v)))
+```
+
+### b. 
+ Write a function that takes as its input a vector with four elements. If the sum of the first two elements is greater than the sum of the second two, the function returns the vector; otherwise it returns 0.
+```{r 1b}
+v <- c(4:1)
+b <- function(x){
+  if(v[1]+v[2] > v[3]+v[4]){
+  print(v)
+  }else{print(0)}
+}
+b(v)
+```
+
+### c. 
+ Write a function that calculates the Fibonacci sequence up to the nth element, where n is any number input into your function (its argument). The Fibonacci sequence is: 1, 1, 2, 3, 5, 8, 13, 21. . . , ie, each element is the sum of the previous two elements. One way to do this is to start off with the first two
+elements, c(1,1) and set an internal variable to this sequence. Then write a loop that counts up to n, where for each new element, you first calculate it by adding the last two elements of the growing sequence, and then stick that new number onto the growing sequence using c(). When the loop is finished, the function should return the final vector of Fibonacci numbers.
+```{r 1c}
+
+fibseq <- function(x){
+  #vars
+fib <- c(1,1)
+ffib <- c(1,1)
+fend <- c(1:(x-2))
+i <- 1
+#loop
+  for(i in fend){
+  sf <- sum(fib)
+fib <- c(fib[2],sf)
+ffib <- append(ffib,sf,after=length(ffib))
+i <- i+1
+    if(i==(x-1))
+    {return(ffib)}
+  }
+}
+fibseq(6)
+```
+
+### d. 
+ Create a 4x4 matrix of the numbers 1 through 16. Use apply to apply you function from (a) to each of the rows in your matrix.
+```{r 1d}
+(fibm <- matrix(data=c(1:16),nrow=4,ncol=4))
+(fio <- apply(fibm,c(1),'mn'))
+```
+<hr>
+## 2.
+### a. 
+ Using the airquality dataset, constuct an aggregated dataset which shows the maximum wind and ozone by month.
+```{r 2a}
+(wioz_by_mo <- aggregate(cbind(Wind,Ozone)~Month,data=airquality,'max'))
+```
+### b. 
+ Create the authors and books datasets following the example and data in the lecture, and then create a new data set by merging these two datasets by author, preserving all rows.
+```{r 2b}
+(authors <- data.frame(
+  surname = c("Tukey", "Venables", "Tierney", "Ripley", "McNeil"),
+  nationality = c("US", "Australia", "US", "UK", "Australia"),
+  stringsAsFactors=FALSE))
+(books <- data.frame(
+  name = c("Tukey", "Venables", "Tierney",
+           "Ripley", "Ripley", "McNeil", "R Core"),
+  title = c("Exploratory Data Analysis",
+            "Modern Applied Statistics ...",
+            "LISP-STAT",
+            "Spatial Statistics", "Stochastic Simulation",
+            "Interactive Data Analysis",
+            "An Introduction to R"),
+  stringsAsFactors=FALSE))
+merge.data.frame(authors,books,by.x='surname',by.y='name')
+```
+
+### c. 
+ Take the following string and replace every instance of "to" or "To" with "2" :
+```{r 2c}
+to_2 <- "To be, or not to be -- that is the question: Whether 'tis nobler in the mind to suffer  The slings and arrows of outrageous fortune, Or to take arms against a sea of troubles, And by opposing end them. To die -- to sleep -- No more..."
+gsub("[T|t]o",2,to_2)
+```
+<hr>
+## 3.
+### a. 
+ Create a histogram using the base R graphics using some dataset or variable other than the one in the lessons. Always make sure your graph has well-labeled x and y axes and an explanatory title.
+```{r 3a}
+hist(mpg$hwy,main="Frequencies of hwy mpg for 38 popular models of car",xlab = "Highway MPG")
+```
+
+### b. 
+ Create a scatter plot using the base R graphics, again with some variable other than the one in the lessons.
+```{r 3b}
+plot(mpg$cyl,y=mpg$hwy,main="# of Cylinders v Highway MPG",xlab="# of Cylinders",ylab="HWY MPG")
+```
+
+### c. 
+ Create a histogram using ggplot, using some new data. In this and the later plots, please tinker with the settings using the examples in http://www.cookbook-r.com/Graphs/ to make it prettier.
+```{r 3c}
+head(diamonds)
+palette <- c("#4545FF","#B6FF9C","#84FFC9","#7EEA90","#BADB69")
+(dia_1<- diamonds %>%
+  group_by(cut)%>%
+  summarize(mn.price = mean(price),
+            mn.crt = mean(carat),
+            n = n()
+            ))
+ggplot(data=dia_1,mapping=aes(x=cut))+
+  geom_histogram(mapping=aes(y=mn.price,fill=mn.crt,color=n,size=1),stat="identity")+
+  scale_fill_gradient("mn.carat",low = "#FDE4FF", high = "#A065A3")+
+  xlab("Cut")+
+  ylab("Mean Price")+
+  ggtitle("Cut v Avg Price, Fill: Avg Carat, Border: No. in Cut")
+```
+
+### d. 
+ Create a box plot (with multiple categories) using ggplot, using some new data.
+```{r 3d}
+ggplot(data=mpg, mapping=aes(x=class,y=hwy))+
+  geom_boxplot(color="#4545FF",fill="#B6FF9C")+
+  xlab("Class of Car")+
+  ylab("Hwy MPG")+
+  ggtitle("Class of Car v Hwy MPG")+
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+### e. 
+Create a scatter plot using ggplot, using some new data.
+```{r 3e}
+ggplot(data=mpg, mapping=aes(x=cyl,y=cty,color=class))+
+  geom_point()+
+  xlab("No. of Cylinders")+
+  ylab("City MPG")+
+  ggtitle("Cylinders v City MPG, Class of Vehicle by Color")
+```
