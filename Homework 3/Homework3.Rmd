@@ -124,8 +124,8 @@ punif(3.2,min=2,max=7)-punif(1.5,min=2,max=7)
 ### a.
 Using R’s cdf for the binomial, what is the probability of getting 500 or fewer “20”s when rolling your 20-sided die 10,000 times. Looking back at 2a, what proportion of your rolls were actually 20s?
 ```{r 3a}
-pbinom(500,10000,1/20,lower.tail = T)
-sum(onek <= 10)/1000
+pbinom(500,size=10000,prob=(1/20),lower.tail=T)
+sum(onek == 20)/1000
 ```
 ### b.
 Using rbinom, roll a 100-sided die 100 times and report the total number of 7s you get.
