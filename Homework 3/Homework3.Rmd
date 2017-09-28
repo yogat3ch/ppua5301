@@ -143,7 +143,7 @@ ppois(1,1,lower.tail=F)
 Because he is lazy, your teacher has assigned grades for an exam at random, and to help hide his deception he has given the fake grades a normal distribution with a mean of 70 and a standard deviation of 10. What is the chance your exam got a score of 85 or above? What is the chance you got a score between 50 and 60?
 ```{r 3d}
 # an 85 or above
-pnorm(85,mean=70,sd=10,lower.tail = F)
+pnorm(84.99,mean=70,sd=10,lower.tail = F)
 # between 50 & 60
 pnorm(60,mean=70,sd=10,lower.tail = T)-pnorm(50,mean=70,sd=10,lower.tail = T)
 ```
