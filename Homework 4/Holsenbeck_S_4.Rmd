@@ -1,0 +1,155 @@
+---
+title: "Holsenbeck_S_1"
+author: "Stephen Synchronicity"
+date: "September 8, 2017"
+output: 
+  html_document: 
+    css: C:\Users\Stephen\Documents\R\win-library\3.4\rmarkdown\rmarkdown\templates\neu_hwk\resources\styles.css
+    highlight: zenburn
+    keep_md: yes
+    theme: readable
+    toc: yes
+    toc_float: true
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message=FALSE,warning=FALSE,cache=TRUE, fig.align='center', fig.height=3.5, fig.width=5, tidy=TRUE, tidy.opts=list(width.cutoff=80))
+rmarkdown::html_dependency_jquery()
+rmarkdown::html_dependency_bootstrap("readable")
+rmarkdown::html_dependency_jqueryui()
+```
+```{r Libraries, echo=FALSE, results='hide'}
+library("tidyverse")
+library("htmltools")
+library("DT")
+set.seed(1)
+```
+
+
+<button data-toggle="collapse" data-target="#demo" class="btn">Homework Outline</button>
+<div id="demo" class="collapse">
+1.
+a. You get back your exam from problem 3.d of Homework 3, and you got a 45. What is your z score?
+b. What percentile are you?
+c. What is the total chance of getting something at least that far from the mean, in either direction? (Ie, the chance of getting 45 or below or equally far or farther above the mean.)
+2.
+a. Write a script that generates a population of at least 10,000 numbers and samples at random 9 of them.
+b. Calculate by hand the sample mean. Please show your work using proper mathematical notation using
+latex.
+c. Calculate by hand the sample standard deviation.
+d. Calculate by hand the standard error.
+e. Calculate by hand the 95% CI using the normal (z) distribution. (You can use R or tables to get the
+score.)
+f. Calculate by hand the 95% CI using the t distribution. (You can use R or tables to get the score.)
+3.
+a. Explain why 2.e is incorrect.
+b. In a sentence or two each, explain what’s wrong with each of the wrong answers in Module 4.4,
+“Calculating percentiles and scores,” and suggest what error in thinking might have led someone to
+choose that answer. (http://www.nickbeauchamp.com/comp_stats_NB/compstats_04-04.html)
+4.
+a. Based on 2, calculate how many more individuals you would have to sample from your population to
+shink your 95% CI by 1/2 (ie, reduce the interval to half the size). Please show your work.
+b. Say you want to know the average income in the US. Previous studies have suggested that the standard
+deviation of your sample will be $20,000. How many people do you need to survey to get a 95% cofidence
+interval of ± \$1,000? How many people do you need to survey to get a 95% CI of ± \$100?
+5.
+Write a script to test the accuracy of the confidence interval calculation as in Module 4.3. But
+with a few differences: (1) Test the 99% CI, not the 95% CI. (2) Each sample should be only
+20 individuals, which means you need to use the t distribution to calculate your 99% CI. (3)
+Run 1000 complete samples rather than 100. (4) Your population distribution must be different from that used in the lesson, although anything else is fine, including any of the other continuous
+distributions we’ve discussed so far.
+
+</div>
+#Homework 4
+## 1
+### a
+You get back your exam from problem 3.d of Homework 3, and you got a 45. What is your z score?
+<blockquote>Because he is lazy, your teacher has assigned grades for an exam at random, and to help hide his deception he has given the fake grades a normal distribution with a mean of 70 and a standard deviation of 10</blockquote>
+$z = \frac{x – \mu}{\sigma}$
+```{r '1a'}
+zs <- function(x,mu,sd) {
+  z <- (x-mu)/sd
+  return(z)
+}
+(z <- zs(45,70,10))
+```
+### b
+What percentile are you?
+```{r '1b'}
+qnorm(.45,mean=.7,sd=.1)
+```
+### c
+What is the total chance of getting something at least that far from the mean, in either direction? (Ie, the chance of getting 45 or below or equally far or farther above the mean.)
+```{r '1c'}
+pnorm(z)*2
+```
+## 2
+### a
+Write a script that generates a population of at least 10,000 numbers and samples at random 9 of them.
+```{r '2a'}
+datatable(iqsample <- as.data.frame(matrix(sample(1:200,10000,replace=T),100,10)))
+rs <- function(d,x){
+  for(i in c(1:x)){
+  row <- sample(nrow(d),1)
+  col <- sample(ncol(d),1)
+  run <- d[row,col]
+  sampleVector <- append(sampleVector,run,after=length(sampleVector!=0))
+  i<- i+1
+  }
+  return(sampleVector)
+}
+(sample <- rs(iqsample,9))
+```
+### b
+Calculate by hand the sample mean. Please show your work using proper mathematical notation using latex.
+$\bar{x}=\frac{1}{N}\sum_{i=1}^{N}{x_i}=129.889$
+```{r '2b'}
+mean(sample)
+```
+### c
+Calculate by hand the sample standard deviation.
+$s=\sqrt{\sum_{i=1}^{n}\frac{(x_i-\bar{x})^2}{n-1}}=28.972$
+```{r '2c'}
+# sqrt((sample[1]-mean(sample))^2/(length(sample)-1))+
+#   sqrt((sample[2]-mean(sample))^2/(length(sample)-1))+
+#   sqrt((sample[2]-mean(sample))^2/(length(sample)-1))+
+#   sqrt((sample[3]-mean(sample))^2/(length(sample)-1))+
+#   sqrt((sample[4]-mean(sample))^2/(length(sample)-1))+
+#   sqrt((sample[5]-mean(sample))^2/(length(sample)-1))+
+#   sqrt((sample[6]-mean(sample))^2/(length(sample)-1))+
+#   sqrt((sample[7]-mean(sample))^2/(length(sample)-1))+
+#   sqrt((sample[8]-mean(sample))^2/(length(sample)-1))+
+#   sqrt((sample[9]-mean(sample))^2/(length(sample)-1))
+sd(sample)
+```
+
+### d
+Calculate by hand the standard error.
+$SE=\frac{s}{\sqrt{N}}$
+$SE=\frac{28.971}{\sqrt{9}}=9.657$
+```{r '2d'}
+(se <- sd(sample)/sqrt(length(sample)))
+```
+
+### e
+Calculate by hand the 95% CI using the normal (z) distribution. (You can use R or tables to get the score.)
+$\text{Confidence Interval}:CI=\bar{x}-\frac{s}{\sqrt{N}},\bar{x}+\frac{s}{\sqrt{N}}=110.961,148.817$
+```{r '2e'}
+ci <- function(c,data){
+  x <- (1-c)/2+c
+  CI <- c(qnorm(1-x,mean(data),sd(data)/sqrt(length(data))),qnorm(x,mean(data),sd(data)/sqrt(length(data))))
+  return(CI)
+}
+```
+
+### f
+Calculate by hand the 95% CI using the t distribution. (You can use R or tables to get the score.)
+$\text{Confidence Interval}:CI=\bar{x}-\frac{s}{\sqrt{N}},\bar{x}+\frac{s}{\sqrt{N}}=7.507,12.124$
+```{r '2f'}
+cit <- function(c,data){
+  x <- (1-c)/2+c
+  CI <- c(qt(1-x,mean(data),sd(data)/sqrt(length(data))),qt(x,mean(data),sd(data)/sqrt(length(data))))
+  return(CI)
+}
+cit(.95,sample)
+```
+
