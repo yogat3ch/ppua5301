@@ -130,7 +130,8 @@ sum(onek == 20)/1000
 ### b.
 Using rbinom, roll a 100-sided die 100 times and report the total number of 7s you get.
 ```{r 3b}
-hdie <- rbinom(1:100,100,1/100)
+(hdie <- rbinom(n=1,size=100,1/100))
+
 sum(hdie == 7)
 ```
 ### c.
