@@ -21,6 +21,7 @@ rmarkdown::html_dependency_jqueryui()
 library("tidyverse")
 library("htmltools")
 library("DT")
+library("mosaic")
 set.seed(1)
 ```
 
@@ -88,11 +89,12 @@ Write a script that generates a population of at least 10,000 numbers and sample
 ```{r '2a'}
 datatable(iqsample <- as.data.frame(matrix(sample(1:200,10000,replace=T),100,10)))
 rs <- function(d,x){
+  sampleVector <- c(d[sample(nrow(d),1),sample(ncol(d),1)])
+  x <- x-1
   for(i in c(1:x)){
   row <- sample(nrow(d),1)
   col <- sample(ncol(d),1)
-  run <- d[row,col]
-  sampleVector <- append(sampleVector,run,after=length(sampleVector!=0))
+  sampleVector <- append(sampleVector,d[row,col],after=length(sampleVector))
   i<- i+1
   }
   return(sampleVector)
@@ -101,13 +103,13 @@ rs <- function(d,x){
 ```
 ### b
 Calculate by hand the sample mean. Please show your work using proper mathematical notation using latex.
-$\bar{x}=\frac{1}{N}\sum_{i=1}^{N}{x_i}=129.889$
+$\bar{x}=\frac{1}{N}\sum_{i=1}^{N}{x_i}$
 ```{r '2b'}
 mean(sample)
 ```
 ### c
 Calculate by hand the sample standard deviation.
-$s=\sqrt{\sum_{i=1}^{n}\frac{(x_i-\bar{x})^2}{n-1}}=28.972$
+$s=\sqrt{\sum_{i=1}^{n}\frac{(x_i-\bar{x})^2}{n-1}}$
 ```{r '2c'}
 # sqrt((sample[1]-mean(sample))^2/(length(sample)-1))+
 #   sqrt((sample[2]-mean(sample))^2/(length(sample)-1))+
@@ -124,32 +126,135 @@ sd(sample)
 
 ### d
 Calculate by hand the standard error.
-$SE=\frac{s}{\sqrt{N}}$
-$SE=\frac{28.971}{\sqrt{9}}=9.657$
+$SE=z*\frac{s}{\sqrt{N}}$
 ```{r '2d'}
-(se <- sd(sample)/sqrt(length(sample)))
+(se <- qnorm(.975)*(sd(sample)/sqrt(length(sample))))
 ```
 
 ### e
 Calculate by hand the 95% CI using the normal (z) distribution. (You can use R or tables to get the score.)
-$\text{Confidence Interval}:CI=\bar{x}-\frac{s}{\sqrt{N}},\bar{x}+\frac{s}{\sqrt{N}}=110.961,148.817$
+$\text{Confidence Interval}:CI=\bar{x}\pm z*\frac{s}{\sqrt{N}}$
 ```{r '2e'}
-ci <- function(c,data){
-  x <- (1-c)/2+c
-  CI <- c(qnorm(1-x,mean(data),sd(data)/sqrt(length(data))),qnorm(x,mean(data),sd(data)/sqrt(length(data))))
+ci <- function(cl,data){
+  x <- (1-cl)/2+cl
+  CI <- c(mean(data)-qnorm(x)*sd(data)/sqrt(length(data)),mean(data)+qnorm(x)*sd(data)/sqrt(length(data)))
   return(CI)
 }
+ci(.95,sample)
 ```
 
 ### f
 Calculate by hand the 95% CI using the t distribution. (You can use R or tables to get the score.)
-$\text{Confidence Interval}:CI=\bar{x}-\frac{s}{\sqrt{N}},\bar{x}+\frac{s}{\sqrt{N}}=7.507,12.124$
+$\text{Confidence Interval}:CI=\bar{x}\pm t*\frac{s}{\sqrt{N}}$
 ```{r '2f'}
-cit <- function(c,data){
-  x <- (1-c)/2+c
-  CI <- c(qt(1-x,mean(data),sd(data)/sqrt(length(data))),qt(x,mean(data),sd(data)/sqrt(length(data))))
+cit <- function(cl,data){
+  x <- (1-cl)/2+cl
+  CI <- c(mean(data)-qt(x,length(data)-1)*sd(data)/sqrt(length(data)),mean(data)+qt(x,length(data)-1)*sd(data)/sqrt(length(data)))
   return(CI)
 }
-cit(.95,sample)
+(citVector <- cit(.95,sample))
+```
+## 3
+### a
+<div class="a">A) 2e is incorrect because the sample size of 9 does not meet the criterion for the Central Limit Theorem where for a sample to be considered normal it must have n>=30. An experiment with n<30 has a mean that will be sensitive to outliers, a distribution that often exhibits skew, and a large standard error so the t-distribution is recommended for analyzing these data sets to adjust for these factors.</div>
+### b
+3±2∗1.5333
+<div class="a">A) When determining the critical t-value the alpha level is incorrectly assumed to be 1 minus the confidence level, or .10, and the degrees of freedom ($n-1$) is incorrectly equated with the n. The standard error $SE=\frac{s}{\sqrt{N}}$ is confused with the sample standard deviation (2)</div>
+3±1∗1.5333
+<div class="a">A) When determining the critical t-value the alpha level is incorrectly assumed to be 1 minus the confidence level, or .10, and the degrees of freedom ($n-1$) is incorrectly equated with the n. The standard error $SE=\frac{s}{\sqrt{N}}$ is correct</div>
+3±2∗1.6383
+<div class="a">A) When determining the critical t-value the alpha level is incorrectly assumed to be 1 minus the confidence level, or .10, the degrees of freedom ($n-1$) is correct. The standard error $SE=\frac{s}{\sqrt{N}}$ is incorrectly equated with the sample standard deviation</div>
+3±1∗2.3533
+<div class="a">A)Correct answer</div>
+3±1∗2.132
+<div class="a">A)The alpha level is correct $\frac{1-\text(CL)}{2}$, the degrees of freedom is incorrect. The standard error $SE=\frac{s}{\sqrt{N}}$ is correct</div>
+##4
+### a
+Based on 2, calculate how many more individuals you would have to sample from your population to shrink your 95% CI by 1/2 (ie, reduce the interval to half the size). Please show your work.
+<div class="a">A)With this particular iteration of sample, the confidence interval is 62.529,153.249, a difference of 90.721. The function below runs and iterative loop to establish with the given sample, how many more observations are needed to half the confidence interval. <br> If we are to ignore the changing nature of each observation, and the resulting change in $\bar{x}$ and $s$ and approach the question algebraically, we could calculate the standard error at 1/2 it's currently value:
+$SE=z*\frac{s}{\sqrt{N}}=19.277$
+$SE=1.96*\frac{59.011}{\sqrt{n}}=19.277$
+and solve for n:
+$59.011=\frac{19.277}{1.96}\sqrt{n}$
+$6=\sqrt{n}$
+$n=36$
+Algebraically, approximately 36 observations are needed to half the interval, however, we can see from the script below that experimentally it works out to between 22 & 25.</div>
+```{r '4a'}
+citVector
+#Find a value for n that shrinks the 95%CI by 1/2
+findCI.5 <- function(iVector,clevel,n){
+  (dCit <- diff(iVector)) # the CI interval as is
+(dCit.5 <- dCit/2 ) #1/2 the CI interval
+    while(dCit>dCit.5){ #the condition
+    n  <- n+1 #increment n with each loop
+      ciVector <- cit(clevel,rs(iqsample,n)) #Find CI with an additional obs
+      dCit <- diff(ciVector) #Find CI Interval for comparison in the condition
+      #for Testing print(c(dCit,dCit.5))
+    } 
+  return(n) #return the n when cond. met
+  }
+findCI.5(citVector,.95,9) #run the function
+round(mean(replicate(30,findCI.5(citVector,.95,9),simplify=T))) #find the average since it varies
+```
+<div class="a">A)I'm was not sure if this question was looking for an algebraic solving for n based on the equation for SE, or this script, but I assumed this script because the dependent variables of mean & sd for the confidence interval of the sample will change depending on what the value of an additional n is. Thus I coded this to try various iterations of n and stop when the confidence interval becomes smaller than half the initial confidence interval. The N is different each time (due to the dependent variables changing with each sample) with a mean between 22 ~ 25.</div>
+
+### b 
+Say you want to know the average income in the US. Previous studies have suggested that the standard deviation of your sample will be $20,000. How many people do you need to survey to get a 95% confidence interval of ± \$1,000? How many people do you need to survey to get a 95% CI of ± \$100?
+<div class="a">A)
+$1.95996\frac{s}{\sqrt{n}}=CI$
+$n=(\frac{20000}{\frac{CI}{1.95996}})^2$</div>
+```{r '4b'}
+(n <- round((20000/(1000/qnorm(.975)))^2))
+(n <- round((20000/(100/qnorm(.975)))^2))
 ```
 
+## 5
+Write a script to test the accuracy of the confidence interval calculation as in Module 4.3. But with a few differences: (1) Test the 99% CI, not the 95% CI. (2) Each sample should be only 20 individuals, which means you need to use the t distribution to calculate your 99% CI. (3) Run 1000 complete samples rather than 100. (4) Your population distribution must be different from that used in the lesson, although anything else is fine, including any of the other continuous
+distributions we’ve discussed so far.
+
+```{r '5'}
+# 1. Set how many times we do the whole thing
+nruns <- 1000 #change (3)
+# 2. Set how many samples to take in each run (1000 rather than the previous 10,000)
+nsamples <- 20 #change (2)
+# 3. Create an empty matrix to hold our summary data: the mean and the upper and lower CI bounds.
+sample_summary <- matrix(NA,nruns,3)
+# 4. Run the loop
+for(j in 1:nruns){
+  sampler <- rep(NA,nsamples)
+  # 5. Our sampling loop
+  for(i in 1:nsamples){ #A t distribution Example
+     sampler[i] <- rt(1,19)
+  }
+    # An example using chronotypes (doesn't actually test the CLT but is an interesting topic) Twenty-five percent show a chronotype earlier than 2:24, 50% fall #between 2:24 and 4:15, and another 25% show a chronotype later than 4:15.
+ #   source:http://journals.plos.org/plosone/article?id=10.1371/journal.pone.0178782#sec008
+  # ct  <- runif(1,1,100)
+  #   if(ct <= 25){# A morning lark (MSF <2:24)
+  #   sampler[i] <- 0
+  #   } 
+  #   else{
+  #     if(ct > 25 && ct<=75 ){#A bear type {2:24<MSF<4:15}
+  #     sampler[i] <- .5
+  #     }
+  #       else{#A night owl {4:15<MSF}
+  #       sampler[i] <- 1
+  #       }
+  #   } 
+  # }
+    
+  # 7. Finally, calculate the mean and 99% CI's for each sample 
+  #    and save it in the correct row of our sample_summary matrix
+  sample_summary[j,1] <- mean(sampler)  # mean
+  standard_error <- sd(sampler)/sqrt(nsamples) # standard error
+  sample_summary[j,2] <- mean(sampler) - qt(.995,length(sampler)-1)*standard_error # lower 99% CI bound changes (1,2)
+  sample_summary[j,3] <- mean(sampler) + qt(.995,length(sampler)-1)*standard_error # upper 99% CI bound changes (1,2)
+}
+counter = 0
+for(j in 1:nruns){
+  # If .5 is above the lower CI bound and below the upper CI bound:
+  if(0 > sample_summary[j,2] && 0 < sample_summary[j,3]){
+    counter <- counter + 1
+  }
+}
+counter/nruns
+```
