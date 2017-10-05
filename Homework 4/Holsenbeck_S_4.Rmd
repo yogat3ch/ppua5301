@@ -1,7 +1,7 @@
 ---
-title: "Holsenbeck_S_1"
+title: "Holsenbeck_S_4"
 author: "Stephen Synchronicity"
-date: "September 8, 2017"
+date: "2017-10-05"
 output: 
   html_document: 
     css: C:\Users\Stephen\Documents\R\win-library\3.4\rmarkdown\rmarkdown\templates\neu_hwk\resources\styles.css
@@ -76,7 +76,7 @@ zs <- function(x,mu,sd) {
 ### b
 What percentile are you?
 ```{r '1b'}
-qnorm(.45,mean=.7,sd=.1)
+paste(round(qnorm(.45,mean=.7,sd=.1)*100,2),"%",sep="")
 ```
 ### c
 What is the total chance of getting something at least that far from the mean, in either direction? (Ie, the chance of getting 45 or below or equally far or farther above the mean.)
@@ -88,21 +88,21 @@ pnorm(z)*2
 Write a script that generates a population of at least 10,000 numbers and samples at random 9 of them.
 ```{r '2a'}
 datatable(iqsample <- as.data.frame(matrix(sample(1:200,10000,replace=T),100,10)))
-rs <- function(d,x){
-  sampleVector <- c(d[sample(nrow(d),1),sample(ncol(d),1)])
-  x <- x-1
+rs <- function(d,x){#d=data, x= # of samples
+  sampleVector <- c(d[sample(nrow(d),1),sample(ncol(d),1)])#create initial #vector
+  x <- x-1 #Account for existing values in vector when appending addtl
   for(i in c(1:x)){
-  row <- sample(nrow(d),1)
-  col <- sample(ncol(d),1)
-  sampleVector <- append(sampleVector,d[row,col],after=length(sampleVector))
-  i<- i+1
+  row <- sample(nrow(d),1) #choose a random row #
+  col <- sample(ncol(d),1) #choose a random col #
+  sampleVector <- append(sampleVector,d[row,col],after=length(sampleVector)) #add that row,col value to the vector
+  i<- i+1 #increment
   }
   return(sampleVector)
 }
 (sample <- rs(iqsample,9))
 ```
 ### b
-Calculate by hand the sample mean. Please show your work using proper mathematical notation using latex.
+Calculate by hand the sample mean. Please show your work using proper mathematical notation using latex.<br>
 $\bar{x}=\frac{1}{N}\sum_{i=1}^{N}{x_i}$
 ```{r '2b'}
 mean(sample)
@@ -111,16 +111,6 @@ mean(sample)
 Calculate by hand the sample standard deviation.
 $s=\sqrt{\sum_{i=1}^{n}\frac{(x_i-\bar{x})^2}{n-1}}$
 ```{r '2c'}
-# sqrt((sample[1]-mean(sample))^2/(length(sample)-1))+
-#   sqrt((sample[2]-mean(sample))^2/(length(sample)-1))+
-#   sqrt((sample[2]-mean(sample))^2/(length(sample)-1))+
-#   sqrt((sample[3]-mean(sample))^2/(length(sample)-1))+
-#   sqrt((sample[4]-mean(sample))^2/(length(sample)-1))+
-#   sqrt((sample[5]-mean(sample))^2/(length(sample)-1))+
-#   sqrt((sample[6]-mean(sample))^2/(length(sample)-1))+
-#   sqrt((sample[7]-mean(sample))^2/(length(sample)-1))+
-#   sqrt((sample[8]-mean(sample))^2/(length(sample)-1))+
-#   sqrt((sample[9]-mean(sample))^2/(length(sample)-1))
 sd(sample)
 ```
 
@@ -156,7 +146,7 @@ cit <- function(cl,data){
 ```
 ## 3
 ### a
-<div class="a">A) 2e is incorrect because the sample size of 9 does not meet the criterion for the Central Limit Theorem where for a sample to be considered normal it must have n>=30. An experiment with n<30 has a mean that will be sensitive to outliers, a distribution that often exhibits skew, and a large standard error so the t-distribution is recommended for analyzing these data sets to adjust for these factors.</div>
+<div class="a">A) 2e is incorrect because the sample size of 9 does not meet the criterion for the Central Limit Theorem where for a sample to be considered normal it must have n>=30. An experiment with n<30 has a mean that will be too sensitive to outliers, a distribution that often exhibits skew, and a large standard error so the t-distribution is recommended for analyzing these data sets to adjust for these factors.</div>
 ### b
 3±2∗1.5333
 <div class="a">A) When determining the critical t-value the alpha level is incorrectly assumed to be 1 minus the confidence level, or .10, and the degrees of freedom ($n-1$) is incorrectly equated with the n. The standard error $SE=\frac{s}{\sqrt{N}}$ is confused with the sample standard deviation (2)</div>
@@ -171,16 +161,19 @@ cit <- function(cl,data){
 ##4
 ### a
 Based on 2, calculate how many more individuals you would have to sample from your population to shrink your 95% CI by 1/2 (ie, reduce the interval to half the size). Please show your work.
-<div class="a">A)With this particular iteration of sample, the confidence interval is 62.529,153.249, a difference of 90.721. The function below runs and iterative loop to establish with the given sample, how many more observations are needed to half the confidence interval. <br> If we are to ignore the changing nature of each observation, and the resulting change in $\bar{x}$ and $s$ and approach the question algebraically, we could calculate the standard error at 1/2 it's currently value:
-$SE=z*\frac{s}{\sqrt{N}}=19.277$
-$SE=1.96*\frac{59.011}{\sqrt{n}}=19.277$
-and solve for n:
-$59.011=\frac{19.277}{1.96}\sqrt{n}$
-$6=\sqrt{n}$
-$n=36$
-Algebraically, approximately 36 observations are needed to half the interval, however, we can see from the script below that experimentally it works out to between 22 & 25.</div>
-```{r '4a'}
-citVector
+<div class="a">A)If we are to ignore the change in $\bar{x}$ and $s$ with each additional observation and approach the question algebraically, we could calculate the standard error at 1/2 it's current value to reduce the interval to half:
+```{r '4a-algebra'}
+(tse <- qt(.975,8)*(sd(sample)/sqrt(length(sample))))
+```
+
+$SE=t*\frac{s}{\sqrt{N}}=\frac{45.36028}{2}$<br>
+$SE=2.306*\frac{59.012}{\sqrt{n}}=22.68014$<br>
+and solve for n:<br>
+$59.012=\frac{22.68014}{2.306}\sqrt{n}$<br>
+$6=\sqrt{n}$<br>
+$n=36$<br>
+Algebraically, approximately 36 observations (27 more) are needed to half the interval. The script below runs an experiment with the data by incrementing n with each sample until the confidence interval is half the original. It works out to between 22 & 25 observations.
+```{r '4a-experimental'}
 #Find a value for n that shrinks the 95%CI by 1/2
 findCI.5 <- function(iVector,clevel,n){
   (dCit <- diff(iVector)) # the CI interval as is
@@ -196,17 +189,18 @@ findCI.5 <- function(iVector,clevel,n){
 findCI.5(citVector,.95,9) #run the function
 round(mean(replicate(30,findCI.5(citVector,.95,9),simplify=T))) #find the average since it varies
 ```
-<div class="a">A)I'm was not sure if this question was looking for an algebraic solving for n based on the equation for SE, or this script, but I assumed this script because the dependent variables of mean & sd for the confidence interval of the sample will change depending on what the value of an additional n is. Thus I coded this to try various iterations of n and stop when the confidence interval becomes smaller than half the initial confidence interval. The N is different each time (due to the dependent variables changing with each sample) with a mean between 22 ~ 25.</div>
+I was not sure if this question was looking for an algebraic solving for n based on the equation for SE, or this script, but I assumed this script because the dependent variables of mean & sd for the confidence interval of the sample will change depending on what the value of an additional n is. Thus I coded this to try various iterations of n and stop when the confidence interval becomes smaller than half the initial confidence interval. The N is different each time (due to the dependent variables changing with each sample) with a mean between 22 ~ 25.</div>
 
 ### b 
 Say you want to know the average income in the US. Previous studies have suggested that the standard deviation of your sample will be $20,000. How many people do you need to survey to get a 95% confidence interval of ± \$1,000? How many people do you need to survey to get a 95% CI of ± \$100?
 <div class="a">A)
-$1.95996\frac{s}{\sqrt{n}}=CI$
+$1.95996\frac{s}{\sqrt{n}}=CI$<br>
 $n=(\frac{20000}{\frac{CI}{1.95996}})^2$</div>
 ```{r '4b'}
 (n <- round((20000/(1000/qnorm(.975)))^2))
 (n <- round((20000/(100/qnorm(.975)))^2))
 ```
+
 
 ## 5
 Write a script to test the accuracy of the confidence interval calculation as in Module 4.3. But with a few differences: (1) Test the 99% CI, not the 95% CI. (2) Each sample should be only 20 individuals, which means you need to use the t distribution to calculate your 99% CI. (3) Run 1000 complete samples rather than 100. (4) Your population distribution must be different from that used in the lesson, although anything else is fine, including any of the other continuous
