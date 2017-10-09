@@ -1,0 +1,143 @@
+---
+title: "Holsenbeck_S_5"
+author: "Stephen Synchronicity"
+date: '`r format(Sys.time(), "%Y-%m-%d")`'
+always_allow_html: yes
+output: 
+  html_document: 
+    css: C:\Users\Stephen\Documents\R\win-library\3.4\rmarkdown\rmarkdown\templates\neu_hwk\resources\styles.css
+    highlight: zenburn
+    keep_md: yes
+    theme: readable
+    toc_float: true
+    toc: yes
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message=FALSE,warning=F,cache=TRUE, fig.align='center', fig.height=3.5, fig.width=5, tidy=TRUE, tidy.opts=list(width.cutoff=80))
+rmarkdown::html_dependency_jquery()
+rmarkdown::html_dependency_bootstrap("readable")
+rmarkdown::html_dependency_jqueryui()
+set.seed(1)
+```
+```{r Libraries, echo=FALSE, results='hide'}
+library("tidyverse")
+library("htmltools")
+library("DT")
+```
+
+
+<button data-toggle="collapse" data-target="#demo" class="btn">Homework Outline</button>
+<div id="demo" class="collapse">
+1.
+You hypothesize that the average person is smarter than Sarah Palin. You know her IQ is 100.
+You give an IQ test to 100 randomly selected people, and get a mean of 104 and standard deviation
+of 22. Please show your work for each question.
+a. What is your null hypothesis?
+b. What is your research hypothesis?
+c. What is your test statistic?
+d. Do you prefer a one-tailed or two-tailed test here, and why?
+e. What is your alpha and threshold (t statistic) value or values for your rejection region? (Whatever alpha you
+prefer is fine, just be sure to state it and explain why you chose it.)
+f. Can you reject the null under a one-tailed test?
+g. Can you reject the null under a two-tailed test?
+h. What is your 95% confidence interval?
+i. What is the p-value for your test results?
+2.
+You hypothesize that men and women have different skill levels in playing Tetris. To test this,
+you have 50 men and 50 women play the game in a controlled setting. The mean score of the men
+is 1124 with a standard deviation of 200 and the mean score for the women is 1245, also with a
+standard deviation of 200.
+a. Are these scores statistically significantly different? Show your work.
+b. Do you reject your hypothesis or the null? What do you conclude from this experiment?
+3.
+You think drinking the night before an exam might help performance on the exam the next
+morning. To test this, you select 100 of your closest friends, and randomly get 50 of them drunk
+the night before the exam, which you denote the treatment group. The next day, the treatment
+group gets a mean of 78 with a standard deviation of 10 and the control group gets a 75 with a
+standard deviation of 5.
+a. Does the evidence show that drinking helped exam performance?
+4.
+1
+Using data of your choosing (or using simulated data), use R to conduct the following tests, and
+explain the results you get:
+a. A standard one-sample hypothesis test.
+b. A difference-in-means test with independent samples.
+c. A difference-in-means test with dependent samples (ie, a paired t-test).
+d. Manually verify the results in (a) using the mean and sd as calculated by R (ie, you don’t have to
+manually calculate the mean or sd by hand!).
+</div>
+
+#Homework 5
+## 1
+You hypothesize that the average person is smarter than Sarah Palin. You know her IQ is 100. You give an IQ test to 100 randomly selected people, and get a mean of 104 and standard deviation of 22. Please show your work for each question.
+### a.
+What is your null hypothesis?
+$H_0=\mu=100$
+### b. 
+What is your research hypothesis?
+$H_a=\mu>100$
+### c. 
+What is your test statistic?
+$z = \frac{x – \bar{x}}{s}$
+$z = \frac{104 – 100}{22}$
+$z = \frac{4}{22}$
+$z = .1818$
+```{r '1c'}
+zs <- function(x,mu,sd) {
+  z <- (x-mu)/sd
+  return(z)
+}
+(z <- zs(104,100,22))
+```
+
+### d. 
+Do you prefer a one-tailed or two-tailed test here, and why?
+<div class="a">A)A one-tailed test because of the question and the alternative hypothesis. In the question, the sample mean and st.dev are already given, and the mean is slightly higher than 100. A two-tailed test might have made more sense because the mean could have been < or > 100, but in this case we already know the sample mean. Additionally, the alternative hypothesis is that the average person is smarter, so we're looking for the $\bar{x}$ to be greater than $\mu$ by some statistically significant measure.</div>
+### e. 
+What is your alpha and threshold (t statistic) value or values for your rejection region? (Whatever alpha you prefer is fine, just be sure to state it and explain why you chose it.)
+<div class="a">A)$\alpha=.05$, I chose the .05 alpha level because it will have a $\frac{1}{20}$ chance of being accurate. Given the high standard deviation, it's intuitively highly unlikely that the alternative hypothesis will be supported at the .01 level, and at the .1 alpha level the conclusion could be inaccurate 1 in 10 times. The middle ground, or a .05 alpha level seems appropriate. The $t_{crit}=1.66$. This wording in the question is confusing because t-statistic is usually defined by $t_{stat}=\frac{\bar{x}-\mu}{\frac{s}{\sqrt{n}}}$ and it provides the value to compare to the $t_{crit}$ to test the hypothesis. I am assuming based on the context of it's appearance: <em>"threshold (t statistic) value or values for your rejection region"</em> that what's being sought is the critical t value(s). </div>
+```{r '1e'}
+tCrit <- function(cl,n,tail){
+  if(tail=="2"){
+  cV <- (1-cl)/2+cl
+  cValues <- c(-1*qt(cV,n-1),qt(cV,n-1))
+  return(cValues)
+  }else{
+    if(tail=="L"|tail=="l"){
+    cV <- (1-cl)
+    cValues <- qt(cV,n-1)
+  return(cValues)
+    }else{
+      if(tail=="R"|tail=="r"){
+        cV <- cl
+        cValues <- qt(cV,n-1)
+        return(cValues)
+      }else{return(NA)}
+    }
+  }
+}
+tCrit(.95,100,"R")
+```
+
+### f. 
+Can you reject the null under a one-tailed test?
+$t_{stat}=\frac{\bar{x}-\mu}{\frac{s}{\sqrt{n}}}$
+```{r '1f'}
+tStat <- function(x,m,s,n){
+  tS<- (x-m)/(s/sqrt(n))
+  return(tS)
+}
+tStat(104,100,22,100)
+```
+The $t_{stat}>t_{crit}$ thus for the right tailed test, you can reject the null in favor of the alternative hypothesis at the 95% confidence level.
+### g. 
+Can you reject the null under a two-tailed test?
+```{r '1g'}
+
+```
+
+### h. 
+What is your 95% confidence interval?
+$t_{stat}=\frac{\bar{x}-\mu}{\frac{s}{\sqrt{n}}}$
+### i. 
+What is the p-value for your test results?
