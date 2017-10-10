@@ -137,11 +137,81 @@ ci(.95,sample)
 Calculate by hand the 95% CI using the t distribution. (You can use R or tables to get the score.)
 $\text{Confidence Interval}:CI=\bar{x}\pm t*\frac{s}{\sqrt{N}}$
 ```{r '2f'}
+tCrit <- function(cl,data,tail){
+  if(length(data)==4){
+    if(tail=="2"|tail==2){
+  
+  cV <- (1-cl)/2+cl
+  tS <- (data[1]-data[2])/(data[3]/sqrt(data[4]))
+  lC <- -1*qt(cV,data[4]-1)
+  hC <- qt(cV,data[4]-1)
+  cValues <- tibble::tribble(
+    ~Variable,~Values,
+    'Low tCrit', lC,
+    'High tCrit',hC,
+    'T Statistic',tS
+    )
+  
+  return(cValues)
+  }else{
+    if(tail=="L"|tail=="l"){
+    cV <- (1-cl)
+    tS <- (data[1]-data[2])/(data[3]/sqrt(data[4]))
+    lC <- qt(cV,data[3]-1)
+  cValues <- tibble::tribble(
+    ~Variable,~Values,
+    "Low tCrit", lC,
+    "T Statistic", tS
+    )
+   
+  return(cValues)
+    }else{
+      if(tail=="R"|tail=="r"){
+        cV <- cl
+         cValues <- tibble::tribble(
+    ~Variable,~Value,
+    "High tCrit",qt(cV,data[3]-1),
+    "T Statistic",tS
+    )  
+      
+      return(cValues)
+      }
+    }
+  }
+  }else if(length(data)>4 | length(data)<4){
+    if(tail=="2"|tail==2){
+    x <- (1-cl)/2+cl
+  CI <- c(mean(data)-qt(x,length(data)-1)*sd(data)/sqrt(length(data)),mean(data)+qt(x,length(data)-1)*sd(data)/sqrt(length(data)))
+  return(CI)
+  cV <- (1-cl)/2+cl
+ 
+  }else{
+    if(tail=="L"|tail=="l"){
+    x <- (1-cl)
+   
+  CI <- c(mean(data)-qt(x,length(data)-1)*sd(data)/sqrt(length(data)),mean(data)+qt(x,length(data)-1)*sd(data)/sqrt(length(data)))
+  return(CI)
+  return(cValues)
+    }else{
+      if(tail=="R"|tail=="r"){
+        x <- cl
+        x <- (1-cl)/2+cl
+  CI <- c(mean(data)-qt(x,length(data)-1)*sd(data)/sqrt(length(data)),mean(data)+qt(x,length(data)-1)*sd(data)/sqrt(length(data)))
+  return(CI)
+        }
+      }
+    }
+  }else{return(NA)}
+}
+tCrit(.95,c(104,100,22,100),"r")
+data <- c(104,100,22,100)
+
 cit <- function(cl,data){
   x <- (1-cl)/2+cl
   CI <- c(mean(data)-qt(x,length(data)-1)*sd(data)/sqrt(length(data)),mean(data)+qt(x,length(data)-1)*sd(data)/sqrt(length(data)))
   return(CI)
 }
+vignette('tibble')
 (citVector <- cit(.95,sample))
 ```
 ## 3
