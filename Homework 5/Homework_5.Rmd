@@ -24,6 +24,8 @@ library("tidyverse")
 library("htmltools")
 library("DT")
 tCrit <- function(cl,data,tail){
+  pV <- function(x,data){ pv <- pt(-abs(x),df=data[4]-1)
+    return(pv)}
   cI <- function(cV,data){CI <- c(data[2]-(qt(cV,data[4]-1)*data[3]/sqrt(data[4])),data[2]+(qt(cV,data[4]-1)*data[3]/sqrt(data[4])))
     return(CI)}
   tS <- function(data){tS <- (data[1]-data[2])/(data[3]/sqrt(data[4]))
@@ -33,15 +35,17 @@ tCrit <- function(cl,data,tail){
   cV <- (1-cl)/2+cl
   CI <- cI(cV,data)
   ts <- tS(data)
-  lC <- -1*qt(cV,data[4]-1)
+  lc <- -1*qt(cV,data[4]-1)
   hC <- qt(cV,data[4]-1)
+  pv <- 2*pV(ts,data)
   cValues <- tibble::tribble(
     ~Variable,~Values,
-    'Low tCrit', lC,
+    'Low tCrit', lc,
     'High tCrit', hC,
     'Conf_Int.Low', CI[1],
     'Conf_Int.Hi', CI[2],
-    'T Statistic',ts
+    'T Statistic',ts,
+    'pValue', pv
     )
   return(cValues)
   }else{
@@ -49,13 +53,15 @@ tCrit <- function(cl,data,tail){
     cV <- (1-cl)
    CI <- cI(cV,data)
   ts <- tS(data)
-    lC <- qt(cV,data[4]-1)
+    lc <- qt(cV,data[4]-1)
+    pv <- pV(ts,data)
   cValues <- tibble::tribble(
     ~Variable,~Values,
-    "Low tCrit", lC,
+    "Low tCrit", lc,
     'Conf_Int.Low', CI[1],
     'Conf_Int.Hi', CI[2],
-    "T Statistic", ts
+    "T Statistic", ts,
+    'pValue', pv
     )
   return(cValues)
     }else{
@@ -63,12 +69,15 @@ tCrit <- function(cl,data,tail){
         cV <- cl
         CI <- cI(cV,data)
         ts <- tS(data)
+        hc <- qt(cV,data[4]-1)
+        pv <- pV(ts,data)
          cValues <- tibble::tribble(
     ~Variable,~Value,
-    "High tCrit",qt(cV,data[4]-1),
+    "High tCrit",hc,
     'Conf_Int.Low', CI[1],
     'Conf_Int.Hi', CI[2],
-    "T Statistic",ts
+    "T Statistic",ts,
+    'pValue', pv
     )  
       return(cValues)
       }
@@ -205,10 +214,15 @@ tCrit(.95,c(104,100,22,100),"2")
 What is your 95% confidence interval?
 $\text{Confidence Interval}:CI=\bar{x}\pm t*\frac{s}{\sqrt{N}}$  
 $CI=100\pm 1.984*\frac{22}{\sqrt{100}}$  
-$CI=100\pm 4.6348$  
+$CI=100\pm 4.3648$  
 ```{r '1h'}
 tCrit(.95,c(104,100,22,100),"2")
 ```
 
 ### i. 
 What is the p-value for your test results?
+$p_{value}=∫^{x}_{−∞}f(-|t_{stat}|)dt$
+```{r}
+tCrit(.95,c(104,100,22,100),"2")
+```
+
