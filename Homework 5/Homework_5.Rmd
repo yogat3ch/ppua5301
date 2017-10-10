@@ -19,10 +19,90 @@ rmarkdown::html_dependency_bootstrap("readable")
 rmarkdown::html_dependency_jqueryui()
 set.seed(1)
 ```
-```{r Libraries, echo=FALSE, results='hide'}
+```{r 'Libraries and Custom Fns', echo=FALSE, results='hide'}
 library("tidyverse")
 library("htmltools")
 library("DT")
+tCrit <- function(cl,data,tail){
+  cI <- function(cV,data){CI <- c(data[2]-(qt(cV,data[4]-1)*data[3]/sqrt(data[4])),data[2]+(qt(cV,data[4]-1)*data[3]/sqrt(data[4])))
+    return(CI)}
+  tS <- function(data){tS <- (data[1]-data[2])/(data[3]/sqrt(data[4]))
+  return(tS)}
+  if(length(data)==4){
+    if(tail=="2"|tail==2){
+  cV <- (1-cl)/2+cl
+  CI <- cI(cV,data)
+  ts <- tS(data)
+  lC <- -1*qt(cV,data[4]-1)
+  hC <- qt(cV,data[4]-1)
+  cValues <- tibble::tribble(
+    ~Variable,~Values,
+    'Low tCrit', lC,
+    'High tCrit', hC,
+    'Conf_Int.Low', CI[1],
+    'Conf_Int.Hi', CI[2],
+    'T Statistic',ts
+    )
+  return(cValues)
+  }else{
+    if(tail=="L"|tail=="l"){
+    cV <- (1-cl)
+   CI <- cI(cV,data)
+  ts <- tS(data)
+    lC <- qt(cV,data[4]-1)
+  cValues <- tibble::tribble(
+    ~Variable,~Values,
+    "Low tCrit", lC,
+    'Conf_Int.Low', CI[1],
+    'Conf_Int.Hi', CI[2],
+    "T Statistic", ts
+    )
+  return(cValues)
+    }else{
+      if(tail=="R"|tail=="r"){
+        cV <- cl
+        CI <- cI(cV,data)
+        ts <- tS(data)
+         cValues <- tibble::tribble(
+    ~Variable,~Value,
+    "High tCrit",qt(cV,data[4]-1),
+    'Conf_Int.Low', CI[1],
+    'Conf_Int.Hi', CI[2],
+    "T Statistic",ts
+    )  
+      return(cValues)
+      }
+    }
+  }
+  }else if(length(data)>4 | length(data)<4){
+    if(tail=="2"|tail==2){
+    x <- (1-cl)/2+cl
+  CI <- c(mean(data)-qt(x,length(data)-1)*sd(data)/sqrt(length(data)),mean(data)+qt(x,length(data)-1)*sd(data)/sqrt(length(data)))
+  cValues <- tibble::tribble(
+    ~Variable,~Value,
+    "High tCrit",qt(cV,data[4]-1),
+    'Conf_Int', CI,
+    "T Statistic",tS
+    )  
+      return(cValues)
+  cV <- (1-cl)/2+cl
+  }else{
+    if(tail=="L"|tail=="l"){
+    x <- (1-cl)
+  CI <- c(mean(data)-qt(x,length(data)-1)*sd(data)/sqrt(length(data)),mean(data)+qt(x,length(data)-1)*sd(data)/sqrt(length(data)))
+  return(CI)
+  return(cValues)
+    }else{
+      if(tail=="R"|tail=="r"){
+        x <- cl
+        x <- (1-cl)/2+cl
+  CI <- c(mean(data)-qt(x,length(data)-1)*sd(data)/sqrt(length(data)),mean(data)+qt(x,length(data)-1)*sd(data)/sqrt(length(data)))
+  return(CI)
+        }
+      }
+    }
+  }else{return(NA)}
+}
 ```
 
 
@@ -78,16 +158,22 @@ What is your research hypothesis?
 $H_a=\mu>100$
 ### c. 
 What is your test statistic?
-$z = \frac{x – \bar{x}}{s}$
-$z = \frac{104 – 100}{22}$
-$z = \frac{4}{22}$
-$z = .1818$
+Since there are 100 obs in the sample, the data is expected to follow a normal distribution, and the z-stat should be sufficient.
+$z = \frac{x – \bar{'x}}{s}$  
+$z = \frac{104 – 100}{22}$  
+$z = \frac{4}{22}$  
+$z = .1818$  
+or if you're looking for the t-statistic:
+$t_{stat}=\frac{\bar{x}-\mu}{\frac{s}{\sqrt{n}}}$  
+$t_{stat}=\frac{104-100}{\frac{22}{\sqrt{100}}}$  
+$t_{stat}=1.818$  
 ```{r '1c'}
 zs <- function(x,mu,sd) {
   z <- (x-mu)/sd
   return(z)
 }
 (z <- zs(104,100,22))
+tCrit(.95,c(104,100,22,100),"r")
 ```
 
 ### d. 
@@ -95,49 +181,34 @@ Do you prefer a one-tailed or two-tailed test here, and why?
 <div class="a">A)A one-tailed test because of the question and the alternative hypothesis. In the question, the sample mean and st.dev are already given, and the mean is slightly higher than 100. A two-tailed test might have made more sense because the mean could have been < or > 100, but in this case we already know the sample mean. Additionally, the alternative hypothesis is that the average person is smarter, so we're looking for the $\bar{x}$ to be greater than $\mu$ by some statistically significant measure.</div>
 ### e. 
 What is your alpha and threshold (t statistic) value or values for your rejection region? (Whatever alpha you prefer is fine, just be sure to state it and explain why you chose it.)
-<div class="a">A)$\alpha=.05$, I chose the .05 alpha level because it will have a $\frac{1}{20}$ chance of being accurate. Given the high standard deviation, it's intuitively highly unlikely that the alternative hypothesis will be supported at the .01 level, and at the .1 alpha level the conclusion could be inaccurate 1 in 10 times. The middle ground, or a .05 alpha level seems appropriate. The $t_{crit}=1.66$. This wording in the question is confusing because t-statistic is usually defined by $t_{stat}=\frac{\bar{x}-\mu}{\frac{s}{\sqrt{n}}}$ and it provides the value to compare to the $t_{crit}$ to test the hypothesis. I am assuming based on the context of it's appearance: <em>"threshold (t statistic) value or values for your rejection region"</em> that what's being sought is the critical t value(s). </div>
+<div class="a">A)$\alpha=.05$, I chose the .05 alpha level because it will have a $\frac{1}{20}$ chance of being accurate. Given the high standard deviation, it's intuitively highly unlikely that the alternative hypothesis will be supported at the .01 level, and at the .1 alpha level the conclusion could be inaccurate 1 in 10 times. The middle ground, or a .05 alpha level seems appropriate. The $t_{crit}=1.72$. This wording in the question is confusing because t-statistic is usually defined by $t_{stat}=\frac{\bar{x}-\mu}{\frac{s}{\sqrt{n}}}$ and it provides the value to compare to the $t_{crit}$ to test the hypothesis. I am assuming based on the context of it's appearance: <em>"threshold (t statistic) value or values for your rejection region"</em> that what's being sought is the critical t value(s). </div>
 ```{r '1e'}
-tCrit <- function(cl,n,tail){
-  if(tail=="2"){
-  cV <- (1-cl)/2+cl
-  cValues <- c(-1*qt(cV,n-1),qt(cV,n-1))
-  return(cValues)
-  }else{
-    if(tail=="L"|tail=="l"){
-    cV <- (1-cl)
-    cValues <- qt(cV,n-1)
-  return(cValues)
-    }else{
-      if(tail=="R"|tail=="r"){
-        cV <- cl
-        cValues <- qt(cV,n-1)
-        return(cValues)
-      }else{return(NA)}
-    }
-  }
-}
-tCrit(.95,100,"R")
+tCrit(.95,c(104,100,22,100),"r")
 ```
 
 ### f. 
 Can you reject the null under a one-tailed test?
-$t_{stat}=\frac{\bar{x}-\mu}{\frac{s}{\sqrt{n}}}$
+$\text{If } t_{stat}=\frac{\bar{x}-\mu}{\frac{s}{\sqrt{n}}}> t_{crit}=1.66$  
+Then the null hypothesis can be rejected, which is true in this case.
 ```{r '1f'}
-tStat <- function(x,m,s,n){
-  tS<- (x-m)/(s/sqrt(n))
-  return(tS)
-}
-tStat(104,100,22,100)
+tCrit(.95,c(104,100,22,100),"r")
 ```
 The $t_{stat}>t_{crit}$ thus for the right tailed test, you can reject the null in favor of the alternative hypothesis at the 95% confidence level.
 ### g. 
 Can you reject the null under a two-tailed test?
+<div class="a">The upper $t_{crit}$ is higher in a two tailed test, and the test statistic no longer falls within the rejection region. With a two-tailed test we fail to reject the null hypothesis.</div>
 ```{r '1g'}
-
+tCrit(.95,c(104,100,22,100),"2")
 ```
 
 ### h. 
 What is your 95% confidence interval?
-$t_{stat}=\frac{\bar{x}-\mu}{\frac{s}{\sqrt{n}}}$
+$\text{Confidence Interval}:CI=\bar{x}\pm t*\frac{s}{\sqrt{N}}$  
+$CI=100\pm 1.984*\frac{22}{\sqrt{100}}$  
+$CI=100\pm 4.6348$  
+```{r '1h'}
+tCrit(.95,c(104,100,22,100),"2")
+```
+
 ### i. 
 What is the p-value for your test results?
