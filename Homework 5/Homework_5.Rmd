@@ -350,12 +350,63 @@ t.2(.95,78,75,10,5,50,50,var=F)
 Using data of your choosing (or using simulated data), use R to conduct the following tests, and explain the results you get:
 ### a. 
 A standard one-sample hypothesis test.
+```{r '4a'}
+data <- rt(100,99)
+t.test(data)
+```
+
+<div class="a">A)100 random values within the t-distribution are stored to the "data" variable. Data is passed to the t.test function. The function, defaults to assume that $H_0$ is that $\mu=0$ and the $H_a$ is $\mu \neq0$ and that the confidence level is 95%. It performs the necessary calculations and returns the $t_{stat},df.p_{value},H_a,\text{ a confidence interval, and } \bar{x}$. It's clear that with a $p_{value}$ of .8683, that we fail to reject the null and that the mean is close to 0. We can see that $\bar_{x}=0.015$ which if pretty close to 0.</div>
 
 ### b. 
 A difference-in-means test with independent samples.
+```{r '4b', warning=F}
+#For the R code herein to work, it will require:
+#untar the GSS file: PPUA_5301__Homework_5.tar.gz
+#Set the WD to the folder to which it is extracted.
+#Open the .R file
+#Run the entire file
+#This will create the data referenced in this section
+#GSS Question: Would you say your own health, in general, is excellent, good, fair, or poor?
+View(GSS)
+(Scale <- tibble::tribble(
+   ~Value,  ~Answer,
+   1L,    "Excellent",
+   2L,            "Good",
+   3L,            "Fair",
+   4L,            "Poor",
+   8L,     "Don\'t know",
+   9L,       "No answer",
+   0L,  "Not applicable"
+  ))
+(Total.Resp <- GSS %>% 
+    group_by(YEAR) %>% 
+    summarise(n=n()))
 
+(health_by_yr <- GSS %>% group_by(YEAR) %>% 
+  filter(HEALTH>0 & HEALTH<5) %>% 
+  summarise(mHealth = mean(HEALTH),
+            sHealth = sd(HEALTH),
+            nHealth = n(),
+            p.Resp = ))
+health_by_yr <- cbind(health_by_yr,total.n=Total.Resp$n)
+health_by_yr %>% 
+  mutate(p.Resp = nHealth/total.n)
+health_by_yr12 <- GSS %>% group_by(YEAR) %>% 
+  filter(HEALTH>0 & HEALTH<5,YEAR==2012)
+health_by_yr16 <- GSS %>% group_by(YEAR) %>% 
+  filter(HEALTH>0 & HEALTH<5,YEAR==2016)
+t.test(health_by_yr12$HEALTH,health_by_yr16$HEALTH)
+```
+<div class="a">A)$H_0=\text{The average respondents self-reported health is not different between years 2012 and 2016},\mu=0$  
+$H_a=\text{The average respondents self-reported health is different between years 2012 and 2016}, \mu\neq{0}$  
+The 2 sample t.test $p_{value}$ indicates that we reject the null and that the average response of responding participants (2012~66% & 2016~66%) is different at the 95% confidence level. We conclude that at the 95% confidence level, the average respondent indicates that their health is different, and better in 2016 than in 2012.</div>
 ### c. 
 A difference-in-means test with dependent samples (ie, a paired t-test).
+```{r}
+library(lubridate)
+
+
+```
 
 ### d. 
 Manually verify the results in (a) using the mean and sd as calculated by R (ie, you don’t have to manually calculate the mean or sd by hand!).
