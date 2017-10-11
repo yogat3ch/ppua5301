@@ -316,10 +316,35 @@ Do you reject your hypothesis or the null? What do you conclude from this experi
 
 
 ## 3.
-You think drinking the night before an exam might help performance on the exam the next morning. To test this, you select 100 of your closest friends, and randomly get 50 of them drunk the night before the exam, which you denote the treatment group. The next day, the treatment group gets a mean of 78 with a standard deviation of 10 and the control group gets a 75 with a standard deviation of 5.
+You think drinking the night before an exam might help performance on the exam the next morning. To test this, you select 100 of your closest friends, and randomly get 50 of them to drink the night before the exam, which you denote the treatment group. The next day, the treatment group gets a mean of 78 with a standard deviation of 10 and the control group gets a 75 with a standard deviation of 5.
 
 ### a. 
 Does the evidence show that drinking helped exam performance?
+<div class="a">A)In this example, the standard deviations are different enough where it would be misleading to pool them. We can first compute the $t_{stat}$:
+$t_{stat}=\frac{{\bar{x}}_1-{\bar{x}}_2}{\sqrt{\frac{s_1^2}{n_1}+\frac{s_2^2}{n_2}}}$  
+$t_{stat}=\frac{78-75}{\sqrt{\frac{100}{50}+\frac{25}{50}}}$  
+$t_{stat}=\frac{3}{1.581139}$  
+$t_{stat}=1.897367$  
+and then the degrees of freedom:
+$df=\frac{(n_1-1)*(n_2-1)}{(n_2-1)C^2+(1-C)^2(n_1-1)}\text{ where } C=\frac{s_1^2/n_1}{\frac{s_1^2}{n_1}+\frac{s_2^2}{n_2}}$  
+$C=\frac{100/50}{\frac{100}{50}+\frac{25}{50}}$  
+$C=\frac{2}{2.5}$  
+$C=0.8$
+$df=\frac{(49)*(49)}{(49).8^2+(1-.8)^2(49)}$  
+$df=\frac{2401}{33.32}$  
+$df=72.059$  
+With this degree of freedom the critical value is 1.993436, the $t_{stat}=1.897367$ and does not fall within the rejection region, so at the 95% confidence level we fail to reject the null hypothesis and conclude that drinking before an exam does not improve exam performance.</div>
+```{r '3a'}
+#tstat
+(ts <- 3/sqrt(100/50+25/50))
+#df
+(c <- 2/2.5)
+(df <- 49*49/((49)*.8^2+(1-.8)^2*(49)))
+#Critical Value
+qt(.975,df)
+t.2(.95,78,75,10,5,50,50,var=F)
+```
+
 
 ## 4.
 Using data of your choosing (or using simulated data), use R to conduct the following tests, and explain the results you get:
