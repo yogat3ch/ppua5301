@@ -19,10 +19,20 @@ rmarkdown::html_dependency_bootstrap("readable")
 rmarkdown::html_dependency_jqueryui()
 set.seed(1)
 ```
-```{r 'Libraries and Custom Fns', echo=FALSE, results='hide'}
+```{r 'Libraries', echo=FALSE, results='hide'}
 library("tidyverse")
 library("htmltools")
 library("DT")
+```
+```{r 'Custom Fns'}
+#Function for t-test Critical Values, Confidence interval, t-statistic & p-value
+#given a vector of descriptive variables, or data
+#Inputs:
+#cl = confidence level in decimal form
+#data = either sample data in vector form, or descriptive variables in vector form. Descriptive variables are c(bar_{x},mu,s,n)
+#Outputs: 
+#for data - a confidence interval
+#for descriptive statistics: a tibble with Critical t values, a Confidence interval, the t-Statistic for bar_{x}, the pValue for bar_{x} 
 tCrit <- function(cl,data,tail){
   pV <- function(x,data){ pv <- pt(x,df=data[4]-1)
     return(pv)}
@@ -112,6 +122,17 @@ tCrit <- function(cl,data,tail){
     }
   }else{return(NA)}
 }
+#2 Tailed t-test
+#Inputs: 
+#cl = confidence level
+#m1,m2 = means of sample 1 & 2
+#s1,s2 = standard deviations of sample 1 & 2
+#n1,n2 = number of obs for sample 1 & 2
+#m0 = Allows adjustment to the difference you want to test for, default 0
+#var = Are the variances close enough to pool the samples?F=no, T=Yes, default F
+#Output:
+#tibble with statistic names in col1 '$variables' and values in col2 '$values'
+#See tibble labels for each output
 t.2 <- function(cl,m1,m2,s1,s2,n1,n2,m0=0,var=F){
   pV <- function(x,df){ pv <- 2*pt(-abs(x),df)}
   cV <- (1-cl)/2+cl
@@ -138,13 +159,6 @@ t.2 <- function(cl,m1,m2,s1,s2,n1,n2,m0=0,var=F){
       )
     return(t2) 
 }
-m0 <- 0
-m1 <- 1124
-m2 <- 1245
-n1 <- 50
-  n2 <- 50
-  s1 <- 200
-  s2 <- 200
 ```
 
 
