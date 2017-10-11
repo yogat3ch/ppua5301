@@ -24,7 +24,7 @@ library("tidyverse")
 library("htmltools")
 library("DT")
 tCrit <- function(cl,data,tail){
-  pV <- function(x,data){ pv <- pt(-abs(x),df=data[4]-1)
+  pV <- function(x,data){ pv <- pt(x,df=data[4]-1)
     return(pv)}
   cI <- function(cV,data){CI <- c(data[2]-(qt(cV,data[4]-1)*data[3]/sqrt(data[4])),data[2]+(qt(cV,data[4]-1)*data[3]/sqrt(data[4])))
     return(CI)}
@@ -37,7 +37,7 @@ tCrit <- function(cl,data,tail){
   ts <- tS(data)
   lc <- -1*qt(cV,data[4]-1)
   hC <- qt(cV,data[4]-1)
-  pv <- 2*pV(ts,data)
+  pv <- 2*pV(-1*abs(ts),data)
   cValues <- tibble::tribble(
     ~Variable,~Values,
     'Low tCrit', lc,
@@ -70,7 +70,7 @@ tCrit <- function(cl,data,tail){
         CI <- cI(cV,data)
         ts <- tS(data)
         hc <- qt(cV,data[4]-1)
-        pv <- pV(ts,data)
+        pv <- 1-pV(ts,data)
          cValues <- tibble::tribble(
     ~Variable,~Value,
     "High tCrit",hc,
@@ -221,8 +221,16 @@ tCrit(.95,c(104,100,22,100),"2")
 
 ### i. 
 What is the p-value for your test results?
-$p_{value}=∫^{x}_{−∞}f(-|t_{stat}|)dt$
+<div class="a">A)It seems like everyone is saying something different about how a $p_{value}$ relates to one v two tailed tests. Based on the information in this <a href="https://stats.idre.ucla.edu/other/mult-pkg/faq/general/faq-what-are-the-differences-between-one-tailed-and-two-tailed-tests/" target="_blank">tutorial</a>, the $p_{value}$ is different depending on the test. IE for a 2 tailed test it is: 
+$p_{value}=2*∫^{x}_{−∞}f(-|t_{stat}|)dt$
+for a Left tailed test it is:
+$p_{value}=∫^{x}_{−∞}f(t_{stat})dt$
+and for a Right tailed test it is:
+$p_{value}=1-∫^{x}_{−∞}f(t_{stat})dt$  
+Based on these formulas, the $p_{value}$ is <code>.03</code> for the right tailed test, rejecting the null hypothesis, and is <code>.07</code> for the 2 tailed test, failing to reject the null hypothesis.
+</div>
 ```{r}
 tCrit(.95,c(104,100,22,100),"2")
+
 ```
 
