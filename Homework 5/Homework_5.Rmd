@@ -194,11 +194,13 @@ t.2 <- function(cl,m1,m2,s1,s2,n1,n2,m0=0,var=F){
 ```
 <em style="color:red">For the R code herein to work, it will require the following steps:<br>
 1. unzip the uploaded PPUA_5301__Homework_5.zip with R or unzipping program of your choice.<br>
-2. Set the WD (setwd()) to the folder to which the zip was extracted.<br>
-3. Run the chunks below
+2. Run the 'Call Data' chunk and the GSS chunk below it.<br>
 </em>
 ```{r 'Call Data', cache=F}
 #setwd('C:\\Users\\Stephen\\Documents\\Northeastern\\PPUA 5301 - Introduction to Computational Statistics\\Homework\\Homework 5\\PPUA_5301__Homework_5')
+this.dir <- dirname('Holsenbeck_S_5.Rmd')
+setwd(this.dir)
+getwd() #Check to see that it's the directory the file was opened from
 knitr::read_chunk('GSS.r')
 ```
 ```{r GSS,echo=F}
