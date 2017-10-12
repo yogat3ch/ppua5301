@@ -33,60 +33,66 @@ library("DT")
 #Outputs: 
 #for data - a confidence interval
 #for descriptive statistics: a tibble with Critical t values, a Confidence interval, the t-Statistic for bar_{x}, the pValue for bar_{x} 
-tCrit <- function(cl,data,tail){
-  pV <- function(x,data){ pv <- pt(x,df=data[4]-1)
+tCrit <- function(cl,data,tail,mu=0){
+  f.pV.v <- function(x,data){ pv <- pt(x,df=data[4]-1)
     return(pv)}
-  cI <- function(cV,data){CI <- c(data[2]-(qt(cV,data[4]-1)*data[3]/sqrt(data[4])),data[2]+(qt(cV,data[4]-1)*data[3]/sqrt(data[4])))
+  f.pV.d <- function(x,data){ pv <- pt(x,df=length(data)-1)
+    return(pv)}
+ 
+  f.tS.v <- function(data){ts.v <- (data[1]-data[2])/(data[3]/sqrt(data[4]))
+  return(ts.v)}
+  f.TS.d <- function(data){ts.d <- (mean(data)-mu)/(sd(data)/sqrt(length(data)))
+  return(ts.d)}
+   fcI.v <- function(cV,data){ci.v <- c(data[2]-(qt(cV,data[4]-1)*data[3]/sqrt(data[4])),data[2]+(qt(cV,data[4]-1)*data[3]/sqrt(data[4])))
     return(CI)}
-  tS <- function(data){tS <- (data[1]-data[2])/(data[3]/sqrt(data[4]))
-  return(tS)}
+  f.cI.d <- function(cV,data){ci.d <- c(mean(data)-qt(cV,length(data)-1)*sd(data)/sqrt(length(data)),mean(data)+qt(cV,length(data)-1)*sd(data)/sqrt(length(data)))}
   if(length(data)==4){
     if(tail=="2"|tail==2){
   cV <- (1-cl)/2+cl
-  CI <- cI(cV,data)
-  ts <- tS(data)
+  ci.v <- fcI.v(cV,data)
+  ts.v <- f.tS.v(data)
   lc <- -1*qt(cV,data[4]-1)
   hC <- qt(cV,data[4]-1)
-  pv <- 2*pV(-1*abs(ts),data)
+  pv <- 2*f.pV.v(-1*abs(ts),data)
   cValues <- tibble::tribble(
     ~Variable,~Values,
     'Low tCrit', lc,
     'High tCrit', hC,
-    'Conf_Int.Low', CI[1],
-    'Conf_Int.Hi', CI[2],
-    'T Statistic',ts,
+    'Conf_Int.Low', ci.v[1],
+    'Conf_Int.Hi', ci.v[2],
+    'T Statistic',ts.v,
     'pValue', pv
     )
   return(cValues)
   }else{
     if(tail=="L"|tail=="l"){
     cV <- (1-cl)
-   CI <- cI(cV,data)
-  ts <- tS(data)
+   ci.v <- fcI.v(cV,data)
+  ts.v <- f.tS.v(data)
     lc <- qt(cV,data[4]-1)
-    pv <- pV(ts,data)
+    pv <- f.pV.v(ts,data)
   cValues <- tibble::tribble(
     ~Variable,~Values,
     "Low tCrit", lc,
-    'Conf_Int.Low', CI[1],
-    'Conf_Int.Hi', CI[2],
-    "T Statistic", ts,
+    'Conf_Int.Low', ci.v[1],
+    'Conf_Int.Hi', ci.v[2],
+    "T Statistic", ts.v,
     'pValue', pv
     )
   return(cValues)
     }else{
       if(tail=="R"|tail=="r"){
         cV <- cl
-        CI <- cI(cV,data)
-        ts <- tS(data)
+        ci.v <- fcI.v(cV,data)
+        ts.v <- f.tS.v(data)
         hc <- qt(cV,data[4]-1)
-        pv <- 1-pV(ts,data)
+        pv <- 1-f.pV.v(ts,data)
          cValues <- tibble::tribble(
     ~Variable,~Value,
     "High tCrit",hc,
-    'Conf_Int.Low', CI[1],
-    'Conf_Int.Hi', CI[2],
-    "T Statistic",ts,
+    'Conf_Int.Low', ci.v[1],
+    'Conf_Int.Hi', ci.v[2],
+    "T Statistic",ts.v,
     'pValue', pv
     )  
       return(cValues)
@@ -95,28 +101,54 @@ tCrit <- function(cl,data,tail){
   }
   }else if(length(data)>4 | length(data)<4){
     if(tail=="2"|tail==2){
-    x <- (1-cl)/2+cl
-  CI <- c(mean(data)-qt(x,length(data)-1)*sd(data)/sqrt(length(data)),mean(data)+qt(x,length(data)-1)*sd(data)/sqrt(length(data)))
+    cV <- (1-cl)/2+cl
+   ci.d <- f.cI.d(cV,data)
+   ts.d <- f.TS.d(data)
+   pv.d <- 2*f.pV.d(-1*abs(ts.d),data)
+   lc <- -1*qt(cV,length(data)-1)
+  hC <- qt(cV,length(data)-1)
   cValues <- tibble::tribble(
-    ~Variable,~Value,
-    "High tCrit",qt(cV,data[4]-1),
-    'Conf_Int', CI,
-    "T Statistic",tS
+    ~Variable,~Values,
+    'Low tCrit', lc,
+    'High tCrit', hC,
+    'Conf_Int.Low', ci.d[1],
+    'Conf_Int.Hi', ci.d[2],
+    'T Statistic',ts.d,
+    'pValue', pv.d
     )  
       return(cValues)
-  cV <- (1-cl)/2+cl
   }else{
     if(tail=="L"|tail=="l"){
-    x <- (1-cl)
-  CI <- c(mean(data)-qt(x,length(data)-1)*sd(data)/sqrt(length(data)),mean(data)+qt(x,length(data)-1)*sd(data)/sqrt(length(data)))
-  return(CI)
-  return(cValues)
+    cV <- (1-cl)
+    lc <- qt(cV,length(data)-1)
+  ci.d <- f.cI.d(cV,data)
+  ts.d <- f.TS.d(data)
+  pv.d <- f.pV.d(ts.d,data)
+ cValues <- tibble::tribble(
+    ~Variable,~Values,
+    'Low tCrit', lc,
+    'Conf_Int.Low', ci.d[1],
+    'Conf_Int.Hi', ci.d[2],
+    'T Statistic',ts.d,
+    'pValue', pv.d
+    ) 
+      return(cValues)
     }else{
       if(tail=="R"|tail=="r"){
-        x <- cl
-        x <- (1-cl)/2+cl
-  CI <- c(mean(data)-qt(x,length(data)-1)*sd(data)/sqrt(length(data)),mean(data)+qt(x,length(data)-1)*sd(data)/sqrt(length(data)))
-  return(CI)
+        cV <- cl
+        hc <- qt(cV,length(data-1))
+         ci.d <- f.cI.d(cV,data)
+         ts.d <- f.TS.d(data)
+         pv.d <- 1-f.pV.d(ts.d,data)
+cValues <- tibble::tribble(
+    ~Variable,~Values,
+    'High tCrit', hC,
+    'Conf_Int.Low', ci.d[1],
+    'Conf_Int.Hi', ci.d[2],
+    'T Statistic',ts.d,
+    'pValue', pv.d
+    ) 
+      return(cValues)
         }
       }
     }
@@ -400,13 +432,78 @@ t.test(health_by_yr12$HEALTH,health_by_yr16$HEALTH)
 <div class="a">A)$H_0=\text{The average respondents self-reported health is not different between years 2012 and 2016},\mu=0$  
 $H_a=\text{The average respondents self-reported health is different between years 2012 and 2016}, \mu\neq{0}$  
 The 2 sample t.test $p_{value}$ indicates that we reject the null and that the average response of responding participants (2012~66% & 2016~66%) is different at the 95% confidence level. We conclude that at the 95% confidence level, the average respondent indicates that their health is different, and better in 2016 than in 2012.</div>
+
 ### c. 
 A difference-in-means test with dependent samples (ie, a paired t-test).
-```{r}
-library(lubridate)
+<div class="a">A)The group will be respondents to the following question whom answered as having a "General Sense"" or "Clear Understanding": 
+<blockquote>SCISTUDY: Now, for a slightly different type of question. When you read news stories, you see certain sets of words and terms. We are interested in how many people recognize certain kinds of terms. First, some articles refer to the results of a scientific study. When you read or hear the term scientific study, do you have a clear understanding of what it means, a general sense of what it means, or little understanding of what it means?</blockquote>
+And we will compare their answers to the following questions:
+<blockquote>ODD1: Now, think about this situation. A doctor tells a couple that their genetic makeup means that they’ve got one in four chances of having a child with an inherited illness. 
+A. Does this mean that if their first child has the illness, the next three will not have the illness?</blockquote></div>
+<blockquote>EARTHSUN: Now, I would like to ask you a few short questions like those you might see on a television game show. for each statement that I read, please tell me if it is true or false. If you don’t know or aren’t sure, just tell me so, and we will skip to the next question. Remember true, false, or don’t know. 
+J. Now, does the Earth go around the Sun, or does the Sun go around the Earth?</blockquote>
+The t-test is framed as follows: <br>
+$H_0=\bar{x}_1-\bar{x}_2=0$ People who rate themselves as having a "General Sense" or "Clear Understanding" of scientific conclusions, will answer the question about probability and about the orbit of the earth around the sun with the same frequency of wrong and right answers. 
+$H_a=\bar{x}_1-\bar{x}_2\neq0$ People who rate themselves as having a "General Sense" or "Clear Understanding" of scientific conclusions, will answer the question about probability and about the orbit of the earth around the sun with different frequencies of wrong and right answers.
+```{r '4c'}
+#Variable: SCISTUDY 
+SCISTUDY <- tibble::tribble(
+   ~Code,            ~Label,
+   1L,     "Clear.understanding",
+   2L,         "General sense",
+   3L,  "Little understanding",
+   8L,             "Dont know",
+   9L,             "No answer",
+   0L,        "Not applicable"
+  )
+#Variable: ODDS1
+ODDS1 <- tibble::tribble(
+  ~Code,            ~Label,
+     1L,             "Yes",
+     2L,              "No",
+     8L,       "Dont know",
+     9L,       "No answer",
+     0L,  "Not applicable"
+  )
+#Variable: earthsun
+Earthsun <- tibble::tribble(
+  ~Code,              ~Label,
+     1L,  "Earth around sun",
+     2L,  "Sun around earth",
+     8L,         "Dont know",
+     9L,         "No answer",
+     0L,    "Not applicable"
+  )
+(sci.s <- GSS %>%
+  filter(SCISTUDY>0) %>% 
+  group_by(ID_)%>%
+    select(ID_,SCISTUDY,ODDS1,EARTHSUN))
 
-
+switch <- function(x){
+  if(x==1){x <- 2}else{x <- 1}
+}# For switching answer 1 and 2 on EARTHSUN such that 1 is the wrong answer, as in ODD1, so that the tests can be compared via the paired t-test
+sci.hi <- sci.s %>% 
+  filter((SCISTUDY == 1|SCISTUDY == 2)&(EARTHSUN == 1|EARTHSUN == 2) & (ODDS1 == 1|ODDS1 == 2)) %>% 
+  mutate(ES=switch(EARTHSUN))
+t.test(sci.hi$ODDS1,sci.hi$ES,paired=T)
+t.test(sci.hi$ODDS1,sci.hi$ES) #See the actual means
 ```
-
+<div class="a">A) At the 95% Confidence level we can reject the null hypothesis
+in favor of the alternative, and show that the evidence supports the hypothesis that eople who rate themselves as having a "General Sense" or "Clear Understanding" of scientific conclusions, answer the question about probability and about the orbit of the earth around the sun with different frequencies of wrong and right answers. <em>(The means in the unpaired t-test show that people actually get the question about the orbit of the earth around the sun wrong with a higher frequency.)</em></div>
 ### d. 
 Manually verify the results in (a) using the mean and sd as calculated by R (ie, you don’t have to manually calculate the mean or sd by hand!).
+<div class="a">A) First we can calculate the $t_{stat}$  
+$t_{stat}=\frac{\bar{x}-\mu}{\frac{s}{\sqrt{n}}}$  
+$t_{stat}=\frac{0.0016-0}{\frac{0.8663}{\sqrt{100}}}$   
+$t_{stat}=\frac{0.0016}{.0866}}$  
+$t_{stat}=0.01847$  
+Given the $t_{crit}$ is ~1.984, we can see that the mean of the sample is no where near close to significantly different than the expected mean. Considering the sample data is a random distribution of 100 numbers on the t-distributon, we would hope this is the case.
+</div>
+```{r '4d'}
+mean(data)
+sd(data)
+.0016/.0866
+qt(.975,99)
+tCrit(.95,data,"2")
+```
+
