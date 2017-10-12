@@ -77,6 +77,8 @@ zs <- function(x,mu,sd) {
 What percentile are you?
 ```{r '1b'}
 paste(round(qnorm(.45,mean=.7,sd=.1)*100,2),"%",sep="")
+#correction
+percentile <- pnorm(45,70,10)
 ```
 ### c
 What is the total chance of getting something at least that far from the mean, in either direction? (Ie, the chance of getting 45 or below or equally far or farther above the mean.)
@@ -124,6 +126,11 @@ $SE=z*\frac{s}{\sqrt{N}}$
 ### e
 Calculate by hand the 95% CI using the normal (z) distribution. (You can use R or tables to get the score.)
 $\text{Confidence Interval}:CI=\bar{x}\pm z*\frac{s}{\sqrt{N}}$
+Correction
+$$ CI_{0.95} = [\bar{x} - 1.959964*se, \bar{x} \\
++ 1.959964*se] $$
+
+
 ```{r '2e'}
 ci <- function(cl,data){
   x <- (1-cl)/2+cl
