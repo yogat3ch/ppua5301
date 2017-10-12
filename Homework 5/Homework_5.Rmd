@@ -21,6 +21,7 @@ set.seed(1)
 ```
 ```{r 'Libraries', echo=FALSE, results='hide'}
 library("tidyverse")
+library("dplyr")
 library("htmltools")
 library("DT")
 ```
@@ -198,12 +199,12 @@ t.2 <- function(cl,m1,m2,s1,s2,n1,n2,m0=0,var=F){
 </em>
 ```{r 'Call Data', cache=F}
 #setwd('C:\\Users\\Stephen\\Documents\\Northeastern\\PPUA 5301 - Introduction to Computational Statistics\\Homework\\Homework 5\\PPUA_5301__Homework_5')
-this.dir <- dirname('Holsenbeck_S_5.Rmd')
+this.dir <- dirname('Homework_5.Rmd')
 setwd(this.dir)
 getwd() #Check to see that it's the directory the file was opened from
 knitr::read_chunk('GSS.r')
 ```
-```{r GSS,echo=F}
+```{r GSS,echo=F, cache=F}
 ```
 
 <button data-toggle="collapse" data-target="#demo" class="btn">Homework Outline</button>
@@ -291,7 +292,7 @@ tCrit(.95,c(104,100,22,100),"r")
 
 ### f. 
 Can you reject the null under a one-tailed test?
-<div class="a">A)If $t_{stat}>t_{crit}$  then the null hypothesis can be rejected. The calculation below indicates the null can be rejected in a one tailed test at the 95% confidence level.
+<div class="a">A)If $t_{stat}>t_{crit}$ for a right tailed test then the null hypothesis can be rejected. The calculation below indicates the null can be rejected in a right tailed test at the 95% confidence level.
 $t_{stat}=1.818>t_{crit}=1.66$  
 </div>
 ```{r '1f'}
@@ -304,6 +305,7 @@ Can you reject the null under a two-tailed test?
 <div class="a">The upper $t_{crit}$ is higher in a two tailed test, thus the test statistic no longer falls within the rejection region. With a two-tailed test we fail to reject the null hypothesis.
 $t_{stat}=1.818<t_{crit}=1.984$</div>
 ```{r '1g'}
+qt(.975,98)
 tCrit(.95,c(104,100,22,100),"2")
 ```
 
@@ -312,6 +314,7 @@ What is your 95% confidence interval?
 $\text{Confidence Interval}:CI=\bar{x}\pm t*\frac{s}{\sqrt{N}}$  
 $CI=100\pm 1.984*\frac{22}{\sqrt{100}}$  
 $CI=100\pm 4.3648$  
+$CI=\text{Low }t_{Crit}=-1.98421695,\text{High }t_{Crit}=1.98421695$  
 ```{r '1h'}
 tCrit(.95,c(104,100,22,100),"2")
 ```
@@ -324,7 +327,7 @@ for a Left tailed test it is:
 $p_{value}=\int\limits^{x}_{{-}\infty}f(t_{stat})dt$  
 and for a Right tailed test it is:
 $p_{value}=1-\int\limits^{x}_{{-}\infty}f(t_{stat})dt$  
-Based on these formulas, the $p_{value}$ is <code>.03</code> for the right tailed test, rejecting the null hypothesis, and is <code>.07</code> for the 2 tailed test, failing to reject the null hypothesis.
+Based on these formulas, the $p_{value}$ is <code>~.03</code> for the right tailed test, rejecting the null hypothesis, and is <code>~.07</code> for the 2 tailed test, failing to reject the null hypothesis.
 </div>
 ```{r '1i'}
 tCrit(.95,c(104,100,22,100),"2")
@@ -349,14 +352,16 @@ $t_{stat}=-3.025$
 Then find the degrees of freedom to establish the $t_{crit}$
 $df_{s1=s2}=n_1+n_2-2$  
 $df_{s1=s2}=50+50-2$
+If we then use a two tailed test (the t.2 function does), the confidence interval will be between $low_{Crit}	-1.984467e+00,hi_{Crit}	1.984467e+00$ and we know the t-statistic is -3.025, well beyond the threshold for the rejection range, indicating a statistically significant difference.
 </div>
 ```{r '2a'}
+qt(.975,98)
 t.2(.95,1124,1245,200,200,50,50,var=T)
 ```
 
 ### b. 
 Do you reject your hypothesis or the null? What do you conclude from this experiment?
-<div class="a">A)At the 95% confidence level the null hypothesis can be rejected in favor of the research hypothesis. It can be concluded that at the 95% confidence level there is a statistically signicant difference between the Tetris skills of males v females.</div>
+<div class="a">A)At the 95% confidence level on a two tailed test the null hypothesis can be rejected in favor of the research hypothesis. It can be concluded that at the 95% confidence level there is a statistically signicant difference between the Tetris skills of males v females (with females outperforming males.</div>
 
 
 ## 3.
@@ -364,7 +369,7 @@ You think drinking the night before an exam might help performance on the exam t
 
 ### a. 
 Does the evidence show that drinking helped exam performance?
-<div class="a">A)In this example, the standard deviations are different enough where it would be misleading to pool them. We can first compute the $t_{stat}$:
+<div class="a">A)In this example, I think the standard deviations are different enough where it would be misleading to pool them. We can first compute the $t_{stat}$:  
 $t_{stat}=\frac{{\bar{x}}_1-{\bar{x}}_2}{\sqrt{\frac{s_1^2}{n_1}+\frac{s_2^2}{n_2}}}$  
 $t_{stat}=\frac{78-75}{\sqrt{\frac{100}{50}+\frac{25}{50}}}$  
 $t_{stat}=\frac{3}{1.581139}$  
@@ -403,9 +408,9 @@ t.test(data)
 
 ### b. 
 A difference-in-means test with independent samples.
-```{r '4b', warning=F}
-View(GSS)
-#Variable HEALTH Question: Would you say your own health, in general, is excellent, good, fair, or poor
+<em style="color:red">To make the findings more interesting for this question, this is where the custom data sets come into use.</em>
+```{r '4b'}
+# Variable HEALTH Question: Would you say your own health, in general, is excellent, good, fair, or poor
 #Answers in tibble below
 tibble::tribble(
    ~Value,  ~Answer,
@@ -417,31 +422,36 @@ tibble::tribble(
    9L,       "No answer",
    0L,  "Not applicable"
   )
+#Find Total #s of respondents
 (Total.Resp <- GSS %>% 
     group_by(YEAR) %>% 
-    summarise(n=n()))
-
+    summarise(n=n())) 
+#Group those who answered the question by year, add in columns for mean, sd, n summary stats
 (health_by_yr <- GSS %>% group_by(YEAR) %>% 
   filter(HEALTH>0 & HEALTH<5) %>% 
   summarise(mHealth = mean(HEALTH),
             sHealth = sd(HEALTH),
-            nHealth = n(),
-            p.Resp = ))
+            nHealth = n()))  
+#Combine the two  and add percent responding column
 health_by_yr <- cbind(health_by_yr,total.n=Total.Resp$n)
-health_by_yr %>% 
+health_by_yr <- health_by_yr %>% 
   mutate(p.Resp = nHealth/total.n)
+#Group by 2012
 health_by_yr12 <- GSS %>% group_by(YEAR) %>% 
   filter(HEALTH>0 & HEALTH<5,YEAR==2012)
+# Group by 2016
 health_by_yr16 <- GSS %>% group_by(YEAR) %>% 
   filter(HEALTH>0 & HEALTH<5,YEAR==2016)
+# T.test the data
 t.test(health_by_yr12$HEALTH,health_by_yr16$HEALTH)
 ```
-<div class="a">A)$H_0=\mu=0$ The average respondents self-reported health is not different between years 2012 and 2016}  
-$H_a=\mu\neq{0}$ The average respondents self-reported health is different between years 2012 and 2016} 
-The 2 sample t.test $p_{value}$ indicates that we reject the null and that the average response of responding participants (2012~66% & 2016~66%) is different at the 95% confidence level. We conclude that at the 95% confidence level, the average respondent indicates that their health is different, and better in 2016 than in 2012.</div>
+<div class="a">A)$H_0=\mu=0$ The average respondents self-reported health is not different between years 2012 and 2016.
+$H_a=\mu\neq{0}$ The average respondents self-reported health is different between years 2012 and 2016. 
+The 2 sample t.test $p_{value}$ indicates that we reject the null and that the average response of responding participants (2012~66% & 2016~66% of total) is different at the 95% confidence level. We conclude that at the 95% confidence level, the average respondent indicates that their health is different, and better in 2016 than in 2012.</div>
 
 ### c. 
 A difference-in-means test with dependent samples (ie, a paired t-test).
+
 <div class="a">A)The group will be respondents to the following question whom answered as having a "General Sense"" or "Clear Understanding": 
 <blockquote>SCISTUDY: Now, for a slightly different type of question. When you read news stories, you see certain sets of words and terms. We are interested in how many people recognize certain kinds of terms. First, some articles refer to the results of a scientific study. When you read or hear the term scientific study, do you have a clear understanding of what it means, a general sense of what it means, or little understanding of what it means?</blockquote>
 And we will compare their answers to the following questions:
@@ -481,13 +491,16 @@ Earthsun <- tibble::tribble(
      9L,         "No answer",
      0L,    "Not applicable"
   )
+# Create a df with the data in question
 (sci.s <- GSS %>%
   filter(SCISTUDY>0) %>% 
-  group_by(ID_)%>%
+  group_by(ID_) %>%
     select(ID_,SCISTUDY,ODDS1,EARTHSUN))
+# f(n) For switching answer 1 and 2 on EARTHSUN such that 1 is the wrong answer, as in ODDS1, so that the data can be compared via the paired t-test
 switch <- function(x){
   if(x==1){x <- 2}else{x <- 1}
-}# For switching answer 1 and 2 on EARTHSUN such that 1 is the wrong answer, as in ODDS1, so that the data can be compared via the paired t-test
+}
+#Create a df with those who indicate they have a general sense or clear understanding of scientific findings, switch value 1&2 for EARTHSUN in new col
 sci.hi <- sci.s %>% 
   filter((SCISTUDY == 1|SCISTUDY == 2)&(EARTHSUN == 1|EARTHSUN == 2) & (ODDS1 == 1|ODDS1 == 2)) %>% 
   mutate(ES=switch(EARTHSUN))
@@ -496,6 +509,7 @@ t.test(sci.hi$ODDS1,sci.hi$ES) #See the actual means
 ```
 <div class="a">A) At the 95% Confidence level we can reject the null hypothesis
 in favor of the alternative, and show that the evidence supports the hypothesis that eople who rate themselves as having a "General Sense" or "Clear Understanding" of scientific conclusions, answer the question about probability and about the orbit of the earth around the sun with different frequencies of wrong and right answers. <em>(The means in the unpaired t-test show that the mean for earthsun is closer to 1, indicating that people actually get the question about the orbit of the earth around the sun wrong with a higher frequency.)</em></div>
+
 ### d. 
 Manually verify the results in (a) using the mean and sd as calculated by R (ie, you don't have to manually calculate the mean or sd by hand!).
 <div class="a">A) First we can calculate the $t_{stat}$  
@@ -503,7 +517,7 @@ $t_{stat}=\frac{\bar{x}-\mu}{\frac{s}{\sqrt{n}}}$
 $t_{stat}=\frac{0.0016-0}{\frac{0.8663}{\sqrt{100}}}$   
 $t_{stat}=\frac{0.0016}{.0866}$  
 $t_{stat}=0.01847$  
-Given the $t_{crit}$ is ~1.984, we can see that the $t_{stat}<t_{crit}$ of the and thus the sample mean is nowhere near close to significantly different than the expected mean. Considering the sample data is a random distribution of 100 numbers on the t-distributon, we would hope this is the case.
+Given the $t_{crit}$ is ~1.984, we can see that the $t_{stat}<t_{crit}$ thus the sample mean is nowhere near close to significantly different than the expected mean, which fails to reject the null hypothesis. Considering the sample data is a random distribution of 100 numbers on the t-distributon, we would hope that the mean would be near 0.
 </div>
 ```{r '4d'}
 mean(data)
