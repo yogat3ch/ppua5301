@@ -1,0 +1,13 @@
+infile dictionary {
+    _column(1)    numeric                               YEAR   %20f  "Gss year for this respondent                       "
+   _column(21)    numeric                             BALLOT   %20f  "Ballot used for interview"
+   _column(41)    numeric                             ZODIAC   %20f  "Respondents astrological sign"
+   _column(61)    numeric                              ODDS1   %20f  "Test of knowledge about probablity1"
+   _column(81)    numeric                           SCISTUDY   %20f  "R has clear understanding of scientific study"
+  _column(101)    numeric                           PHYSHLTH   %20f  "Days of poor physical health past 30 days"
+  _column(121)    numeric                            HEALTH1   %20f  "Rs health in general"
+  _column(141)    numeric                             HEALTH   %20f  "Condition of health"
+  _column(161)    numeric                             NATSCI   %20f  "Supporting scientific research        "
+  _column(181)    numeric                                ID_   %20f  "Respondent id number"
+  _column(201)    numeric                           EARTHSUN   %20f  "Sci knowledge: the earth goes around the sun"
+}
