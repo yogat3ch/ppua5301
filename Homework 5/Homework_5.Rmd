@@ -198,6 +198,7 @@ t.2 <- function(cl,m1,m2,s1,s2,n1,n2,m0=0,var=F){
 3. Run the chunks below
 </em>
 ```{r 'Call Data', cache=F}
+#setwd('C:\\Users\\Stephen\\Documents\\Northeastern\\PPUA 5301 - Introduction to Computational Statistics\\Homework\\Homework 5\\PPUA_5301__Homework_5')
 knitr::read_chunk('GSS.r')
 ```
 ```{r GSS,echo=F}
@@ -482,7 +483,6 @@ Earthsun <- tibble::tribble(
   filter(SCISTUDY>0) %>% 
   group_by(ID_)%>%
     select(ID_,SCISTUDY,ODDS1,EARTHSUN))
-
 switch <- function(x){
   if(x==1){x <- 2}else{x <- 1}
 }# For switching answer 1 and 2 on EARTHSUN such that 1 is the wrong answer, as in ODDS1, so that the data can be compared via the paired t-test
@@ -493,7 +493,7 @@ t.test(sci.hi$ODDS1,sci.hi$ES,paired=T)
 t.test(sci.hi$ODDS1,sci.hi$ES) #See the actual means
 ```
 <div class="a">A) At the 95% Confidence level we can reject the null hypothesis
-in favor of the alternative, and show that the evidence supports the hypothesis that eople who rate themselves as having a "General Sense" or "Clear Understanding" of scientific conclusions, answer the question about probability and about the orbit of the earth around the sun with different frequencies of wrong and right answers. <em>(The means in the unpaired t-test show that people actually get the question about the orbit of the earth around the sun wrong with a higher frequency.)</em></div>
+in favor of the alternative, and show that the evidence supports the hypothesis that eople who rate themselves as having a "General Sense" or "Clear Understanding" of scientific conclusions, answer the question about probability and about the orbit of the earth around the sun with different frequencies of wrong and right answers. <em>(The means in the unpaired t-test show that the mean for earthsun is closer to 1, indicating that people actually get the question about the orbit of the earth around the sun wrong with a higher frequency.)</em></div>
 ### d. 
 Manually verify the results in (a) using the mean and sd as calculated by R (ie, you don't have to manually calculate the mean or sd by hand!).
 <div class="a">A) First we can calculate the $t_{stat}$  
