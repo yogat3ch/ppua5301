@@ -24,7 +24,7 @@ library("tidyverse")
 library("htmltools")
 library("DT")
 ```
-```{r 'Custom Fns'}
+```{r 'Custom Fns',echo=T}
 #Function for t-test Critical Values, Confidence interval, t-statistic & p-value
 #given a vector of descriptive variables, or data
 #Inputs:
@@ -44,7 +44,7 @@ tCrit <- function(cl,data,tail,mu=0){
   f.TS.d <- function(data){ts.d <- (mean(data)-mu)/(sd(data)/sqrt(length(data)))
   return(ts.d)}
    fcI.v <- function(cV,data){ci.v <- c(data[2]-(qt(cV,data[4]-1)*data[3]/sqrt(data[4])),data[2]+(qt(cV,data[4]-1)*data[3]/sqrt(data[4])))
-    return(CI)}
+    return(ci.v)}
   f.cI.d <- function(cV,data){ci.d <- c(mean(data)-qt(cV,length(data)-1)*sd(data)/sqrt(length(data)),mean(data)+qt(cV,length(data)-1)*sd(data)/sqrt(length(data)))}
   if(length(data)==4){
     if(tail=="2"|tail==2){
@@ -53,7 +53,7 @@ tCrit <- function(cl,data,tail,mu=0){
   ts.v <- f.tS.v(data)
   lc <- -1*qt(cV,data[4]-1)
   hC <- qt(cV,data[4]-1)
-  pv <- 2*f.pV.v(-1*abs(ts),data)
+  pv <- 2*f.pV.v(-1*abs(ts.v),data)
   cValues <- tibble::tribble(
     ~Variable,~Values,
     'Low tCrit', lc,
@@ -70,7 +70,7 @@ tCrit <- function(cl,data,tail,mu=0){
    ci.v <- fcI.v(cV,data)
   ts.v <- f.tS.v(data)
     lc <- qt(cV,data[4]-1)
-    pv <- f.pV.v(ts,data)
+    pv <- f.pV.v(ts.v,data)
   cValues <- tibble::tribble(
     ~Variable,~Values,
     "Low tCrit", lc,
@@ -86,7 +86,7 @@ tCrit <- function(cl,data,tail,mu=0){
         ci.v <- fcI.v(cV,data)
         ts.v <- f.tS.v(data)
         hc <- qt(cV,data[4]-1)
-        pv <- 1-f.pV.v(ts,data)
+        pv <- 1-f.pV.v(ts.v,data)
          cValues <- tibble::tribble(
     ~Variable,~Value,
     "High tCrit",hc,
@@ -192,7 +192,16 @@ t.2 <- function(cl,m1,m2,s1,s2,n1,n2,m0=0,var=F){
     return(t2) 
 }
 ```
-
+<em style="color:red">For the R code herein to work, it will require the following steps:<br>
+1. unzip the uploaded PPUA_5301__Homework_5.zip with R or unzipping program of your choice.<br>
+2. Set the WD (setwd()) to the folder to which the zip was extracted.<br>
+3. Run the chunks below
+</em>
+```{r 'Call Data', cache=F}
+knitr::read_chunk('GSS.r')
+```
+```{r GSS,echo=F}
+```
 
 <button data-toggle="collapse" data-target="#demo" class="btn">Homework Outline</button>
 <div id="demo" class="collapse">
@@ -231,8 +240,7 @@ explain the results you get:
 a. A standard one-sample hypothesis test.
 b. A difference-in-means test with independent samples.
 c. A difference-in-means test with dependent samples (ie, a paired t-test).
-d. Manually verify the results in (a) using the mean and sd as calculated by R (ie, you don’t have to
-manually calculate the mean or sd by hand!).
+d. Manually verify the results in (a) using the mean and sd as calculated by R (ie, you don't have to manually calculate the mean or sd by hand!).
 </div>
 
 #Homework 5
@@ -250,8 +258,8 @@ $H_a=\mu>100$
 ### c. 
 What is your test statistic?
 Since there are 100 obs in the sample, the data is expected to follow a normal distribution, and the z-stat should be sufficient.
-$z = \frac{x – \bar{'x}}{s}$  
-$z = \frac{104 – 100}{22}$  
+$z = \frac{x-\bar{x}}{s}$  
+$z = \frac{104-100}{22}$  
 $z = \frac{4}{22}$  
 $z = .1818$  
 or if you're looking for the t-statistic:
@@ -272,15 +280,16 @@ Do you prefer a one-tailed or two-tailed test here, and why?
 <div class="a">A)A one-tailed test because of the question and the alternative hypothesis. In the question, the sample mean and st.dev are already given, and the mean is slightly higher than 100. A two-tailed test might have made more sense because the mean could have been < or > 100, but in this case we already know the sample mean. Additionally, the alternative hypothesis is that the average person is smarter, so we're looking for the $\bar{x}$ to be greater than $\mu$ by some statistically significant measure.</div>
 ### e. 
 What is your alpha and threshold (t statistic) value or values for your rejection region? (Whatever alpha you prefer is fine, just be sure to state it and explain why you chose it.)
-<div class="a">A)$\alpha=.05$, I chose the .05 alpha level because it will have a $\frac{1}{20}$ chance of being accurate. Given the high standard deviation, it's intuitively highly unlikely that the alternative hypothesis will be supported at the .01 level, and at the .1 alpha level the conclusion could be inaccurate 1 in 10 times. The middle ground, or a .05 alpha level seems appropriate. The $t_{crit}=1.72$. This wording in the question is confusing because t-statistic is usually defined by $t_{stat}=\frac{\bar{x}-\mu}{\frac{s}{\sqrt{n}}}$ and it provides the value to compare to the $t_{crit}$ to test the hypothesis. I am assuming based on the context of it's appearance: <em>"threshold (t statistic) value or values for your rejection region"</em> that what's being sought is the critical t value(s). </div>
+<div class="a">A)$\alpha=.05$, I chose the .05 alpha level because it's standard, and implies that the sample mean will have a $\frac{1}{20}$ chance of being outside the expected range. Given the high standard deviation, it's intuitively highly unlikely that the alternative hypothesis will be supported at the .01 level. The .1 alpha level allows for the conclusion to be inaccurate 1 in 10 times. The middle ground, or a .05 alpha level seems appropriate. The $t_{crit}=1.72$. The wording in the question is confusing because t-statistic is usually defined by $t_{stat}=\frac{\bar{x}-\mu}{\frac{s}{\sqrt{n}}}$ and it provides the value to compare to the $t_{crit}$ to test the hypothesis. I am assuming based on the context of it's appearance: <em>"threshold (t statistic) value or values for your rejection region"</em> that what's being sought is the critical t value(s), which are provided below. </div>
 ```{r '1e'}
+#For detail on tCrit or t.2 functons, see the Custom Fns chunk in the rmd
 tCrit(.95,c(104,100,22,100),"r")
 ```
 
 ### f. 
 Can you reject the null under a one-tailed test?
-<div class="a">A)If $t_{stat}>t_{crit}$  then the null hypothesis can be rejected. The calculation below indicates the null can be rejected in a one tailed test.
-$t_{stat}=1.818>t_{crit}=1.66$
+<div class="a">A)If $t_{stat}>t_{crit}$  then the null hypothesis can be rejected. The calculation below indicates the null can be rejected in a one tailed test at the 95% confidence level.
+$t_{stat}=1.818>t_{crit}=1.66$  
 </div>
 ```{r '1f'}
 tCrit(.95,c(104,100,22,100),"r")
@@ -307,11 +316,11 @@ tCrit(.95,c(104,100,22,100),"2")
 ### i. 
 What is the p-value for your test results?
 <div class="a">A)It seems like everyone is saying something different about how a $p_{value}$ relates to one v two tailed tests. Based on the information in this <a href="https://stats.idre.ucla.edu/other/mult-pkg/faq/general/faq-what-are-the-differences-between-one-tailed-and-two-tailed-tests/" target="_blank">tutorial</a>, the $p_{value}$ is different depending on the test. IE for a 2 tailed test it is: 
-$p_{value}=2*∫^{x}_{−∞}f(-|t_{stat}|)dt$  
+$p_{value}=2*\int\limits^{x}_{{-}\infty}f(-|t_{stat}|)dt$  
 for a Left tailed test it is:
-$p_{value}=∫^{x}_{−∞}f(t_{stat})dt$  
+$p_{value}=\int\limits^{x}_{{-}\infty}f(t_{stat})dt$  
 and for a Right tailed test it is:
-$p_{value}=1-∫^{x}_{−∞}f(t_{stat})dt$  
+$p_{value}=1-\int\limits^{x}_{{-}\infty}f(t_{stat})dt$  
 Based on these formulas, the $p_{value}$ is <code>.03</code> for the right tailed test, rejecting the null hypothesis, and is <code>.07</code> for the 2 tailed test, failing to reject the null hypothesis.
 </div>
 ```{r '1i'}
@@ -332,7 +341,7 @@ $s_p=200$
 Probably should have guessed 200 would be the $s_p$ with identical $n$ and $s$ in the two samples. The next step is to solve for the $t_{stat}$  
 $t_{stat}=\frac{\bar{x}_1-\bar{x}_2}{s_{p}*\sqrt{\frac{1}{n_1}+\frac{1}{n_2}}}$  
 $t_{stat}=\frac{1124-1245}{200*\sqrt{\frac{1}{50}+\frac{1}{50}}}$  
-$t_{stat}=\frac{-121}{200*.2}}$  
+$t_{stat}=\frac{-121}{200*.2}$  
 $t_{stat}=-3.025$  
 Then find the degrees of freedom to establish the $t_{crit}$
 $df_{s1=s2}=n_1+n_2-2$  
@@ -387,20 +396,15 @@ data <- rt(100,99)
 t.test(data)
 ```
 
-<div class="a">A)100 random values within the t-distribution are stored to the "data" variable. Data is passed to the t.test function. The function, defaults to assume that $H_0$ is that $\mu=0$ and the $H_a$ is $\mu \neq0$ and that the confidence level is 95%. It performs the necessary calculations and returns the $t_{stat},df.p_{value},H_a,\text{ a confidence interval, and } \bar{x}$. It's clear that with a $p_{value}$ of .8683, that we fail to reject the null and that the mean is close to 0. We can see that $\bar_{x}=0.015$ which if pretty close to 0.</div>
+<div class="a">A)100 random values within the t-distribution are stored to the "data" variable. Data is passed to the t.test function. The function, defaults to assume that $H_0$ is that $\mu=0$ and the $H_a$ is $\mu \neq0$ and that the confidence level is 95%. It performs the necessary calculations and returns the $t_{stat},df.p_{value},H_a,\text{ a confidence interval, and } \bar{x}$. It's clear that with a $p_{value}$ of .8683, that we fail to reject the null and that the mean is close to 0. We can see that $\bar{x}=0.015$ which is close to 0.</div>
 
 ### b. 
 A difference-in-means test with independent samples.
 ```{r '4b', warning=F}
-#For the R code herein to work, it will require:
-#untar the GSS file: PPUA_5301__Homework_5.tar.gz
-#Set the WD to the folder to which it is extracted.
-#Open the .R file
-#Run the entire file
-#This will create the data referenced in this section
-#GSS Question: Would you say your own health, in general, is excellent, good, fair, or poor?
 View(GSS)
-(Scale <- tibble::tribble(
+#Variable HEALTH Question: Would you say your own health, in general, is excellent, good, fair, or poor
+#Answers in tibble below
+tibble::tribble(
    ~Value,  ~Answer,
    1L,    "Excellent",
    2L,            "Good",
@@ -409,7 +413,7 @@ View(GSS)
    8L,     "Don\'t know",
    9L,       "No answer",
    0L,  "Not applicable"
-  ))
+  )
 (Total.Resp <- GSS %>% 
     group_by(YEAR) %>% 
     summarise(n=n()))
@@ -429,8 +433,8 @@ health_by_yr16 <- GSS %>% group_by(YEAR) %>%
   filter(HEALTH>0 & HEALTH<5,YEAR==2016)
 t.test(health_by_yr12$HEALTH,health_by_yr16$HEALTH)
 ```
-<div class="a">A)$H_0=\text{The average respondents self-reported health is not different between years 2012 and 2016},\mu=0$  
-$H_a=\text{The average respondents self-reported health is different between years 2012 and 2016}, \mu\neq{0}$  
+<div class="a">A)$H_0=\mu=0$ The average respondents self-reported health is not different between years 2012 and 2016}  
+$H_a=\mu\neq{0}$ The average respondents self-reported health is different between years 2012 and 2016} 
 The 2 sample t.test $p_{value}$ indicates that we reject the null and that the average response of responding participants (2012~66% & 2016~66%) is different at the 95% confidence level. We conclude that at the 95% confidence level, the average respondent indicates that their health is different, and better in 2016 than in 2012.</div>
 
 ### c. 
@@ -438,13 +442,13 @@ A difference-in-means test with dependent samples (ie, a paired t-test).
 <div class="a">A)The group will be respondents to the following question whom answered as having a "General Sense"" or "Clear Understanding": 
 <blockquote>SCISTUDY: Now, for a slightly different type of question. When you read news stories, you see certain sets of words and terms. We are interested in how many people recognize certain kinds of terms. First, some articles refer to the results of a scientific study. When you read or hear the term scientific study, do you have a clear understanding of what it means, a general sense of what it means, or little understanding of what it means?</blockquote>
 And we will compare their answers to the following questions:
-<blockquote>ODD1: Now, think about this situation. A doctor tells a couple that their genetic makeup means that they’ve got one in four chances of having a child with an inherited illness. 
-A. Does this mean that if their first child has the illness, the next three will not have the illness?</blockquote></div>
-<blockquote>EARTHSUN: Now, I would like to ask you a few short questions like those you might see on a television game show. for each statement that I read, please tell me if it is true or false. If you don’t know or aren’t sure, just tell me so, and we will skip to the next question. Remember true, false, or don’t know. 
+<blockquote>ODD1: Now, think about this situation. A doctor tells a couple that their genetic makeup means that they have got one in four chances of having a child with an inherited illness. 
+A. Does this mean that if their first child has the illness, the next three will not have the illness?</blockquote>
+<blockquote>EARTHSUN: Now, I would like to ask you a few short questions like those you might see on a television game show. for each statement that I read, please tell me if it is true or false. If you don't know or aren't sure, just tell me so, and we will skip to the next question. Remember true, false, or don't know. 
 J. Now, does the Earth go around the Sun, or does the Sun go around the Earth?</blockquote>
 The t-test is framed as follows: <br>
 $H_0=\bar{x}_1-\bar{x}_2=0$ People who rate themselves as having a "General Sense" or "Clear Understanding" of scientific conclusions, will answer the question about probability and about the orbit of the earth around the sun with the same frequency of wrong and right answers. 
-$H_a=\bar{x}_1-\bar{x}_2\neq0$ People who rate themselves as having a "General Sense" or "Clear Understanding" of scientific conclusions, will answer the question about probability and about the orbit of the earth around the sun with different frequencies of wrong and right answers.
+$H_a=\bar{x}_1-\bar{x}_2\neq0$ People who rate themselves as having a "General Sense" or "Clear Understanding" of scientific conclusions, will answer the question about probability and about the orbit of the earth around the sun with different frequencies of wrong and right answers.</div>
 ```{r '4c'}
 #Variable: SCISTUDY 
 SCISTUDY <- tibble::tribble(
@@ -465,7 +469,7 @@ ODDS1 <- tibble::tribble(
      9L,       "No answer",
      0L,  "Not applicable"
   )
-#Variable: earthsun
+#Variable: EARTHSUN
 Earthsun <- tibble::tribble(
   ~Code,              ~Label,
      1L,  "Earth around sun",
@@ -481,7 +485,7 @@ Earthsun <- tibble::tribble(
 
 switch <- function(x){
   if(x==1){x <- 2}else{x <- 1}
-}# For switching answer 1 and 2 on EARTHSUN such that 1 is the wrong answer, as in ODD1, so that the tests can be compared via the paired t-test
+}# For switching answer 1 and 2 on EARTHSUN such that 1 is the wrong answer, as in ODDS1, so that the data can be compared via the paired t-test
 sci.hi <- sci.s %>% 
   filter((SCISTUDY == 1|SCISTUDY == 2)&(EARTHSUN == 1|EARTHSUN == 2) & (ODDS1 == 1|ODDS1 == 2)) %>% 
   mutate(ES=switch(EARTHSUN))
@@ -491,19 +495,19 @@ t.test(sci.hi$ODDS1,sci.hi$ES) #See the actual means
 <div class="a">A) At the 95% Confidence level we can reject the null hypothesis
 in favor of the alternative, and show that the evidence supports the hypothesis that eople who rate themselves as having a "General Sense" or "Clear Understanding" of scientific conclusions, answer the question about probability and about the orbit of the earth around the sun with different frequencies of wrong and right answers. <em>(The means in the unpaired t-test show that people actually get the question about the orbit of the earth around the sun wrong with a higher frequency.)</em></div>
 ### d. 
-Manually verify the results in (a) using the mean and sd as calculated by R (ie, you don’t have to manually calculate the mean or sd by hand!).
+Manually verify the results in (a) using the mean and sd as calculated by R (ie, you don't have to manually calculate the mean or sd by hand!).
 <div class="a">A) First we can calculate the $t_{stat}$  
 $t_{stat}=\frac{\bar{x}-\mu}{\frac{s}{\sqrt{n}}}$  
 $t_{stat}=\frac{0.0016-0}{\frac{0.8663}{\sqrt{100}}}$   
-$t_{stat}=\frac{0.0016}{.0866}}$  
+$t_{stat}=\frac{0.0016}{.0866}$  
 $t_{stat}=0.01847$  
-Given the $t_{crit}$ is ~1.984, we can see that the mean of the sample is no where near close to significantly different than the expected mean. Considering the sample data is a random distribution of 100 numbers on the t-distributon, we would hope this is the case.
+Given the $t_{crit}$ is ~1.984, we can see that the $t_{stat}<t_{crit}$ of the and thus the sample mean is nowhere near close to significantly different than the expected mean. Considering the sample data is a random distribution of 100 numbers on the t-distributon, we would hope this is the case.
 </div>
 ```{r '4d'}
 mean(data)
 sd(data)
 .0016/.0866
 qt(.975,99)
-tCrit(.95,data,"2")
+tCrit(.95,data,"2") #Check the answers
 ```
 
