@@ -1,0 +1,121 @@
+---
+title: "Holsenbeck_S_6"
+author: "Stephen Synchronicity"
+date: '`r format(Sys.time(), "%Y-%m-%d")`'
+always_allow_html: yes
+output: 
+  html_document: 
+    css: C:\Users\Stephen\Documents\R\win-library\3.4\rmarkdown\rmarkdown\templates\neu_hwk\resources\styles.css
+    highlight: zenburn
+    keep_md: yes
+    theme: readable
+    toc_float: true
+    toc: yes
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message=FALSE,warning=FALSE,cache=TRUE, fig.align='center', fig.height=3.5, fig.width=5, tidy=TRUE, tidy.opts=list(width.cutoff=80))
+rmarkdown::html_dependency_jquery()
+rmarkdown::html_dependency_bootstrap("readable")
+rmarkdown::html_dependency_jqueryui()
+set.seed(1)
+```
+```{r Libraries, echo=FALSE, results='hide'}
+library("tidyverse")
+library("dplyr")
+library("htmltools")
+library("DT")
+library("googlesheets")
+```
+
+
+<button data-toggle="collapse" data-target="#demo" class="btn">Homework Outline</button>
+<div id="demo" class="collapse">
+
+</div>
+```{r 'Load Data'}
+#Create the Tibble
+ep <- tibble::tribble(
+  ~Party,~`18-29`,~`30-44`,~`45-59`,~`60+`,
+  "Democrat",86L,72L,73L,71L,
+  "Independent",52L,51L,55L,54L,
+  "Republican",61L,74L,70L,73L
+)
+#Add sums for cols and rows
+ep$Totals<-rowSums(ep[,c(2:5)])
+c.sums<- c("Totals",as.vector(colSums(ep[,c(2:6)],dims=1)))
+as.numeric(c.sums[2:6])
+ep <- rbind(ep,c.sums)
+#Apparently rbind converts all the values to characters, this next f(n) converts them back to numeric
+ep <- transform(ep, `18-29` = as.numeric(`18-29`),`30-44`=as.numeric(`30-44`),`45-59`=as.numeric(`45-59`),`60+`=as.numeric(`60+`))
+#Fix the column headers
+names(ep) <- c("Party","18-29","30-44","45-59","60+","Totals")
+```
+```{r 'Use Google Sheets to Calculate Expected', eval=F}
+#Use Google Sheets to Calculate Expected
+gs_auth()
+gep <- gs_url("https://docs.google.com/spreadsheets/d/11AVqy2JoGA8YT8tSPTk3VJxEuxsuGBOFqqoNaAXx6SM/edit#gid=0")
+gep <- gep %>% gs_edit_cells(input = ep, col_names=T)
+gep <- gs_read(gep)
+```
+```{r 'Table for Assignment Evaluation'}
+#make the table here for evaluating the assigment without errors/dependencies
+gep2 <- tibble::tribble(
+          ~Party, ~`18-29`,   ~`e.18-29`, ~`30-44`,   ~`e.30-44`, ~`45-59`, ~`e.45-59`, ~`60+`, ~`e.60+`, ~Totals,
+      "Democrat",     86L, 75.88131313,     72L, 75.11868687,     73L,      75.5,   71L,    75.5,    302L,
+   "Independent",     52L, 53.26767677,     51L, 52.73232323,     55L,        53,   54L,      53,    212L,
+    "Republican",     61L,  69.8510101,     74L,  69.1489899,     70L,      69.5,   73L,    69.5,    278L,
+        "Totals",    199L,          NA,    197L,          NA,    198L,        NA,  198L,      NA,    792L
+  )
+```
+
+
+
+## 1.
+
+### a. Based on the exit poll results, is age independent of Party ID or not? Conduct a chi-squared test by hand, showing each step in readably-formatted latex.
+<div class="a">A)
+$H_0$: Age is independent of Party ID.  
+$H_1$: Party ID and age are dependent variables.  
+$f_{e} = \frac{\textrm{(row total)(column total)}}{\textrm{overall total}}$  
+$\frac{\textrm{(302)(199)}}{\textrm{792}}=75.88131$  
+$\frac{\textrm{(212(199)}}{\textrm{792}}=53.26768$  
+$\frac{\textrm{(278)(199)}}{\textrm{792}}=69.85101$  
+$\frac{\textrm{(302)(197)}}{\textrm{792}}=75.11869$  
+$\frac{\textrm{(212(197)}}{\textrm{792}}=52.73232$  
+$\frac{\textrm{(278)(197)}}{\textrm{792}}=69.14899$  $\frac{\textrm{(302)(198)}}{\textrm{792}}=75.5$  
+$\frac{\textrm{(212(198)}}{\textrm{792}}=53.0$  
+$\frac{\textrm{(278)(198)}}{\textrm{792}}=69.5$   $\frac{\textrm{(302)(198)}}{\textrm{792}}=75.5$  
+$\frac{\textrm{(212(198)}}{\textrm{792}}=53.0$  
+$\frac{\textrm{(278)(198)}}{\textrm{792}}=69.5$  
+$\chi^{2}= \sum \frac{(f_{o}-f_{e})^{2}}{f_{e}}$  
+$\chi^{2}= \sum \frac{(86-75.88131)^{2}}{75.88131}={1.34931539}$  
+$\chi^{2}= \sum \frac{(52-53.26768)^{2}}{53.26768}={0.03016847}$  
+$\chi^{2}= \sum \frac{(61-69.85101)^{2}}{69.85101}={1.12153539}$  
+$\chi^{2}= \sum \frac{(72-75.11869)^{2}}{75.11869}={0.1294779}$  
+$\chi^{2}= \sum \frac{(51-52.73232)^{2}}{52.73232}={0.0569090}$  
+$\chi^{2}= \sum \frac{(74-69.14899)^{2}}{69.14899}={0.3403130}$  
+$\chi^{2}= \sum \frac{(73-75.5)^{2}}{75.5}={0.082781457}$  
+$\chi^{2}= \sum \frac{(55-53.0)^{2}}{53.0}={0.075471698}$  
+$\chi^{2}= \sum \frac{(70-69.5)^{2}}{69.5}={0.003597122}$  
+$\chi^{2}= \sum \frac{(71-75.5)^{2}}{75.5}={0.26821192}$  
+$\chi^{2}= \sum \frac{(54-53.0)^{2}}{53.0}={0.01886792}$  
+$\chi^{2}= \sum \frac{(73-69.5)^{2}}{69.5}={0.17625899}$  
+$\chi^{2}= 3.652908$  
+$df = (3-1)(4-1)$  
+$df = 6$  
+$\chi_{crit}=12.59159$  
+$p_{value}=0.7235272$  
+Conclusion: Fail to reject the null hypothesis, age is independent of party affiliation.
+</div>
+
+### b. Verify your results using R to conduct the test.
+
+```{r '1b'}
+qchisq(.95,6)
+1-pchisq(3.652908,6)
+chisq.test(ep[c(1:3),c(2:5)])
+```
+
+## 2.
+### a. Now test for independence using ANOVA (an F test). Your three groups are Democrats, Independents, and Republicans. The average age for a Democrat is 43.3, for an Independent it’s 44.6, and for a Republican it’s 45.1. The standard deviations of each are D: 9.1, I: 9.2, R: 9.2. The overall mean age is 44.2. Do the F test by hand, again showing each step.
+### b. Check your results in R using simulated data. Generate a simulated dataset by creating three vectors: Democrats, Republicans, and Independents. Each vector should be a list of ages, each with a length equal to the number of Democrats, Independents, and Republicans in the table above, and the appropriate mean and sd based on 2.a (use rnorm to generate the vectors). Combine all three into a single dataframe with two variables: age, and a factor that specifies D, I, or R. Then conduct an F test using R’s aov function on that data and compare the results to 2a. Do your results match 2a? If not, why not?
