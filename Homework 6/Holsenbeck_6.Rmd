@@ -50,9 +50,8 @@ ep <- transform(ep, `18-29` = as.numeric(`18-29`),`30-44`=as.numeric(`30-44`),`4
 #Fix the column headers
 names(ep) <- c("Party","18-29","30-44","45-59","60+","Totals")
 ```
-```{r 'Use Google Sheets to Calculate Chi Squared by hand', eval=F}
+```{r 'Use Google Sheets to Calculate Chi Squared by hand', eval=T}
 #Use Google Sheets to Calculate the Chi Squared 'by hand'
-install.packages("googlesheets")
 library(googlesheets)
 #Authorize a northeastern acct to have access to the sheet below
 gs_auth()
@@ -193,11 +192,11 @@ R <- data.frame(rnorm(n[3],mean=mu[3],sd[3]))
 # I am unable to find a way to create a data frame with vectors of unequal length
 #As a workaround, I'll use Google Sheets and then read the data back
 #Create a new Worksheet names 2b
-gs_ws_new(gepURL,ws_title="2b")
+#gs_ws_new(gepURL,ws_title="2b")
 # Put the dataframes in columns a b c respectively
-gs_edit_cells(gepURL,ws=2,input=D,anchor="A1")
-gs_edit_cells(gepURL,ws=2,input=I,anchor="B1")
-gs_edit_cells(gepURL,ws=2,input=R,anchor="C1")
+#gs_edit_cells(gepURL,ws=2,input=D,anchor="A1")
+#gs_edit_cells(gepURL,ws=2,input=I,anchor="B1")
+#gs_edit_cells(gepURL,ws=2,input=R,anchor="C1")
 #Read the data back into R
 ageParty <- gs_read(gepURL,ws=2)
 cn <- c("D","I","R")
