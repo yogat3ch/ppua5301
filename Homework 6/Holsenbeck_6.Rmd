@@ -2,18 +2,18 @@
 title: "Holsenbeck_S_6"
 author: "Stephen Synchronicity"
 date: '`r format(Sys.time(), "%Y-%m-%d")`'
-always_allow_html: yes
-output: 
-  html_document: 
+output:
+  html_document:
     css: C:\Users\Stephen\Documents\R\win-library\3.4\rmarkdown\rmarkdown\templates\neu_hwk\resources\styles.css
     highlight: zenburn
     keep_md: yes
     theme: readable
-    toc_float: true
     toc: yes
+    toc_float: yes
+always_allow_html: yes
 ---
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, message=FALSE,warning=FALSE,cache=TRUE, fig.align='center', fig.height=3.5, fig.width=5, tidy=TRUE, tidy.opts=list(width.cutoff=80))
+knitr::opts_chunk$set(echo = TRUE, message=FALSE,warning=FALSE,cache=TRUE, fig.align='center', fig.height=3.5, fig.width=5, tidy=TRUE, tidy.opts=list(width.cutoff=80),keep.blank.line=F)
 rmarkdown::html_dependency_jquery()
 rmarkdown::html_dependency_bootstrap("readable")
 rmarkdown::html_dependency_jqueryui()
@@ -27,11 +27,11 @@ library("DT")
 library("googlesheets")
 ```
 
-
 <button data-toggle="collapse" data-target="#demo" class="btn">Homework Outline</button>
 <div id="demo" class="collapse">
-
+[Regex Expression to create bold titles for chunks in HTML](https://regex101.com/r/LRZVLJ/2)
 </div>
+**Load Data**
 ```{r 'Load Data'}
 #Create the Tibble
 ep <- tibble::tribble(
@@ -50,16 +50,20 @@ ep <- transform(ep, `18-29` = as.numeric(`18-29`),`30-44`=as.numeric(`30-44`),`4
 #Fix the column headers
 names(ep) <- c("Party","18-29","30-44","45-59","60+","Totals")
 ```
+**Use Google Sheets to Calculate Chi Squared by hand**
 ```{r 'Use Google Sheets to Calculate Chi Squared by hand', eval=T}
-#Use Google Sheets to Calculate the Chi Squared 'by hand'
+#Use Google Sheets to Calculate the Chi Squared 'by hand'  
 library(googlesheets)
-#Authorize a northeastern acct to have access to the sheet below
-gs_auth()
-#register a google sheet object with the 
+# Authorize a northeastern acct with the gs_auth() funvtion to have access to the sheet below  
+
+# gs_auth()  ## register a google sheet object with the URL  
+ 
 gepURL <- gs_url("https://docs.google.com/spreadsheets/d/11AVqy2JoGA8YT8tSPTk3VJxEuxsuGBOFqqoNaAXx6SM/edit#gid=0")
-#Next f(n) was used to write data to the sheet
-#gep <- gep %>% gs_edit_cells(input = ep, col_names=T)
-#read data from the sheet, store as gep data frame object
+# Next f(n) was used to write data to the sheet
+
+# gep <- gep %>% gs_edit_cells(input = ep, col_names=T)
+
+# read data from the sheet, store as gep data frame object
 gep <- gs_read(gepURL,ws=1)
 ```
 
@@ -108,6 +112,7 @@ Conclusion: Fail to reject the null hypothesis, age is independent of party affi
 ### b. 
 Verify your results using R to conduct the test.
 
+**1b**
 ```{r '1b'}
 qchisq(.95,6)
 1-pchisq(3.652908,6)
@@ -126,28 +131,33 @@ $H_1:\neg(\mu_D=\mu_I=\mu_R)$ The average age is different across the affiliatio
 $$\begin{aligned} f_{stat}=\frac{\textrm{average variance between groups}}{\textrm{average variance within groups}} \\ \text{between groups}=\frac{n_{1}(\bar{y}_{1} - \bar{y})^{2}+ ... + n_{G}(\bar{y}_{G} - \bar{y})^{2}  }{df=G-1} \\ \text{within groups}=\frac{(n_{1}-1)s_{1}^{2}+ ... + (n_{G}-1)s_{G}^{2}  }{df=N-G}\\ \text{ where }N=\text{sum(n) in all},G=\text{# of Groups} \\ \text{compare }f_{stat} \text{ to } \text{qf}(cl,df_1,df_2) \\
 \text{or compare }p_{value}=\text{1-pf}(f_{stat},df_1,df_2) \text{ to }\alpha\end{aligned}$$
 $\text{between groups}=\frac{302(43.3 - 44.2)^{2}+212(44.6 - 44.2)^{2}+278(45.1 - 44.2)^{2}  }{df=3-1}$  
-$\text{within groups}=\frac{(302-1)1.28^{2}+ (212-1)1.43^{2} + (278-1)1.1^{2}  }{df=792-3}$  
-```{r 'Test values for fn from class example',eval=F}
-#Here are values from the example at http://nickbeauchamp.com/comp_stats_NB/compstats_06-01.html
-#to test and verify the functionality of the custom f(n) below with
+$\text{within groups}=\frac{(302-1)1.28^{2}+ (212-1)1.43^{2} + (278-1)1.1^{2}  }{df=792-3}$
+
+```{r 'Test values for fn from class example',eval=F,echo=F}
+#Test values from in class example to verify custom f(n) below with
 N <- c(91L,111L,74L)
 M <- c(3.23L,3.9L,4.7L)
 S <- c(1.28L,1.43L,1.1L)
 ```
-
+**2a - Computations with R**
 ```{r '2a - Computations'}
-#Do the computations
 #Summary data input vectors
 mu <- c(43.3L,44.6L,45.1L)
 sd <- c(9.1L,9.2L,9.2L)
 n <- gep$Totals[1:3]
 
 #Function for anova test with input values
+
 #Inputs:
+
 # y - Vector of means
+
 # mu - Mean of means, finds it from input values if not declared
+
 # sd - Vector of standard deviations
+
 # n - Vector of group totals
+
 #Returns - f-statistic
 
 anva <- function(y,mu=mean(y),s,n){
@@ -177,13 +187,17 @@ anva(mu,44.2,sd,n)
 qf(.95,2,789)
 ```
 
-<div class="a">A)The results of the F-Test with the summary data provided indicate that we fail to reject the null, and conclude that the average age is the same across the party affiliations.</div>
+<div class="a">A)The results of the F-Test with the summary data provided indicate that we fail to reject the null at the 95% confidence level, and conclude that the average age is the same across the party affiliations.</div>
 
 ### b. 
 Check your results in R using simulated data. Generate a simulated dataset by creating three vectors: Democrats, Republicans, and Independents. Each vector should be a list of ages, each with a length equal to the number of Democrats, Independents, and Republicans in the table above, and the appropriate mean and sd based on 2.a (use rnorm to generate the vectors). Combine all three into a single dataframe with two variables: age, and a factor that specifies D, I, or R. Then conduct an F test using R’s aov function on that data and compare the results to 2a. Do your results match 2a? If not, why not?
 
-<div class="a">A)The results from the simulated data experiment do not match the results from 2a. When we take a look at the actual data from the simulation (See 2nd chunk below) we can see consistency in the data between the input vectors and the dataframe used in the experiment, however, when we compare the actual mean and sd of the datasets, to the mean & sd inputs for the rnorm function, we can see that these values are slightly different. The difference between the actual experimental data mean & sd, and the summary mean & sd used in the calculations likely accounts for the differing outcome between the anova test and the manual F test. This would suggest that a savvy statistician should avoid using summary data for inputs and always run the test with the actual data to avoid significant accumulated error that results in different test outcomes.</div>
+<div class="a">A)<br>
+<strong>Results</strong> The results from the simulated data experiment do not match the results from 2a. When we take a look at the actual data from the simulation (See 2nd chunk below). The $f_{stat}$ is 4.4 with the experimental data, indicating we reject the null at the 95% confidence level in favor of the research hypothesis which is that age is different between party affiliations, and they may be dependent variables. <br>
+<strong>Discussion</strong> We can see consistency in the data between the input vectors and the data from the dataframe used in the experiment. However, when we compare the actual mean and sd of the experimental data, to the given mean & sd inputs for the rnorm function, we can see that these values are slightly different. The difference between the actual experimental data mean & sd, and the given mean & sd used in the calculations likely accounts for the differing outcome between the anova test in R and the manual F test. 
+<strong>Conclusion</strong> This would suggest that a savvy statistician should avoid using summary data for inputs and always run the test with the actual data to avoid significant accumulated error that results in different test outcomes.</div>
 
+**2b**
 ```{r '2b'}
 #Create the data frames with rnorm
 D <- data.frame(rnorm(n[1],mean=mu[1],sd[1]))
@@ -191,14 +205,20 @@ I <- data.frame(rnorm(n[2],mean=mu[2],sd[2]))
 R <- data.frame(rnorm(n[3],mean=mu[3],sd[3]))
 # I am unable to find a way to create a data frame with vectors of unequal length
 #As a workaround, I'll use Google Sheets and then read the data back
-#Create a new Worksheet names 2b
+
+#Create a new Worksheet named 2b
 #gs_ws_new(gepURL,ws_title="2b")
+
 # Put the dataframes in columns a b c respectively
+
 #gs_edit_cells(gepURL,ws=2,input=D,anchor="A1")
+
 #gs_edit_cells(gepURL,ws=2,input=I,anchor="B1")
+
 #gs_edit_cells(gepURL,ws=2,input=R,anchor="C1")
-#Read the data back into R
-ageParty <- gs_read(gepURL,ws=2)
+
+
+ageParty <- gs_read(gepURL,ws=2)  ## Read the data back into R
 cn <- c("D","I","R")
 colnames(ageParty) <- cn
 ageParty <- ageParty %>% gather(key="Party",value="Age") %>% 
@@ -207,15 +227,16 @@ aPaov <- aov(Age~Party,data=ageParty)
 summary(aPaov)
 ```
 
+**2b - Possible causes for discrepancy**
 ```{r '2b - Possible causes for discrepancy'}
 #Determine possible causes for the discrepancy between the two tests
 De <- ageParty %>% filter(Party=="D")
 Ie <- ageParty %>% filter(Party=="I")
 Re <- ageParty %>% filter(Party=="R")
 c(mean(De$Age),mean(Ie$Age),mean(Re$Age))
-c(mean(D[,1]),mean(I[,1]),mean(R[,1]))
-mu
-c(sd(D[,1]),sd(I[,1]),sd(R[,1]))
-sd
+c(mean(D[,1]),mean(I[,1]),mean(R[,1])) #experimental means
+mu #means provided
+c(sd(D[,1]),sd(I[,1]),sd(R[,1])) #experimental sd
+sd #sd provided
 ```
 
