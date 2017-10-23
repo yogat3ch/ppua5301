@@ -36,8 +36,7 @@ unless otherwise specified.
 1. Plot these four points using R.
 2. Calculate the covariance between age and IQ.
 3. Calculate their correlation. What does the number you get indicate?
-4. Calculate the regression coefficients $\beta_0$ and $\beta_1$ and write out the equation of the best-fit line relating
-age and IQ.
+4. Calculate the regression coefficients $\beta_0$ and $\beta_1$ and write out the equation of the best-fit line relating age and IQ.
 5. Calculate the predicted $\hat{y_i}$ for each $x_i$.
 6. Calculate R$\beta_2$ from the TSS/SSE equation. How does it relate to the correlation? What does the
 number you get indicate?
@@ -64,7 +63,7 @@ ageIQ.s <- rbind(ageIQ.s,Sums=colSums(ageIQ.s))
 summary(ageIQ)
 ```
 
-##1
+## 1
 <div class="q">Plot these four points using R.</div>
 ```{r '1'}
 ggplot(data = ageIQ,mapping=aes(x=Age,y=IQ))+
@@ -74,7 +73,7 @@ geom_smooth(method=lm)+
   theme(plot.title = element_text(hjust = 0.5))
 ```
 
-##2
+## 2
 <div class="q">Calculate the covariance between age and IQ.</div>
 <div class="a">A)
 $\textrm{Cov}(x,y) = \frac{1}{(n-1) } \sum_{i} (x_{i} - \bar{x})(y_{i} - \bar{y})$  
@@ -86,4 +85,35 @@ ageIQ.cov <- ageIQ %>%
   mutate(S=(Age-mean(ageIQ$Age))*(IQ-mean(ageIQ$IQ))) %>% colSums()
 ageIQ.cov[3]/3
 ```
+## 3
+<div class="q">Calculate their correlation. What does the number you get indicate?</div>
+<div class="a">A)
+$r = \frac{\textrm{Cov}(x,y)}{s_{x} s_{y}}$  
+$r = \frac{153.\bar3}{ 14.9\bar8)(10.80123)}$  
+$r = .947$  
+The closeness of the r value to 1 indicates a strong positive correlation between age & IQ.
+</div>
+```{r '3'}
+(r <- 153.33333/(sd(ageIQ$Age)*sd(ageIQ$IQ)))
+```
+## 4
+<div class="q">Calculate the regression coefficients $\beta_0$ and $\beta_1$ and write out the equation of the best-fit line relating age and IQ.</div>
+<div class="a">A)
+$r = \frac{\textrm{Cov}(x,y)}{ s_{x} s_{y}}   = \beta_{1} \frac{s_{x}}{s_{y}}$  
+$\frac{r}{\frac{s_x}{s_y}}=\beta_1$  
+$\beta_1=\frac{0.9470957}{\frac{14.9\bar8}{10.80123}}$
+$\beta_1=0.6824926$
+$\beta_{0} =  \bar{y} - \beta_{1} \bar{x}$  
+$\beta_{0} =  105 - 0.6824926*24$  
+$\beta_{0} =  88.62018$ 
+Line of best fit:
+$\hat{y}_i = \beta_0 + \beta_1 x_i$  
+$\hat{y}_i = 88.62018 + 0.6824926x_i$  
+</div>
+```{r}
+(b1 <- r/(sd(ageIQ$Age)/sd(ageIQ$IQ)))
+(b0 <- mean(ageIQ$IQ)-b1*mean(ageIQ$Age))
+```
+
+## 5
 
