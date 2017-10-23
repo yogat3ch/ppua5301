@@ -1,0 +1,89 @@
+---
+title: "Holsenbeck_S_7"
+author: "Stephen Synchronicity"
+date: '`r format(Sys.time(), "%Y-%m-%d")`'
+always_allow_html: yes
+output: 
+  html_document: 
+    css: C:\Users\Stephen\Documents\R\win-library\3.4\rmarkdown\rmarkdown\templates\neu_hwk\resources\styles.css
+    highlight: zenburn
+    keep_md: yes
+    theme: readable
+    toc_float: true
+    toc: yes
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message=FALSE,warning=FALSE,cache=TRUE, fig.align='center', fig.height=3.5, fig.width=5, tidy=TRUE, tidy.opts=list(width.cutoff=80))
+rmarkdown::html_dependency_jquery()
+rmarkdown::html_dependency_bootstrap("readable")
+rmarkdown::html_dependency_jqueryui()
+set.seed(1)
+```
+```{r Libraries, echo=FALSE, results='hide'}
+library("tidyverse")
+library("dplyr")
+library("magrittr")
+library("htmltools")
+library("DT")
+library("ggplot2")
+```
+
+
+<button data-toggle="collapse" data-target="#demo" class="btn">Homework Outline</button>
+<div id="demo" class="collapse">
+Is there an effect of Age on IQ? Please perform all calculations by hand using the equations in the lessons
+unless otherwise specified.
+1. Plot these four points using R.
+2. Calculate the covariance between age and IQ.
+3. Calculate their correlation. What does the number you get indicate?
+4. Calculate the regression coefficients $\beta_0$ and $\beta_1$ and write out the equation of the best-fit line relating
+age and IQ.
+5. Calculate the predicted $\hat{y_i}$ for each $x_i$.
+6. Calculate R$\beta_2$ from the TSS/SSE equation. How does it relate to the correlation? What does the
+number you get indicate?
+7. Calculate the standard error of $\beta_1$, and use that to test (using the t test) whether $\beta_1$ is significant.
+8. Calculate the p-value for $\beta_1$ and interpret it.
+9. Calculate the$\beta_9$5% CI for $\beta_1$ and interpret it.
+$\beta_0$. Confirm your results by regressing IQ on Age using R.
+$\beta_1$. Plot your points again using R, including the linear fit line with its standard error.
+12. What are you final conclusions about the relationship between age and IQ?
+1
+</div>
+#Homework 7
+
+```{r 'Create Table'}
+ageIQ <- tibble::tribble(
+    ~Age,~IQ,
+   23L,100L,
+   18L,105L,
+    10L,95L,
+   45L,120L
+  )
+ageIQ.s  <- cbind(ageIQ,Sums=rowSums(ageIQ))
+ageIQ.s <- rbind(ageIQ.s,Sums=colSums(ageIQ.s))
+summary(ageIQ)
+```
+
+##1
+<div class="q">Plot these four points using R.</div>
+```{r '1'}
+ggplot(data = ageIQ,mapping=aes(x=Age,y=IQ))+
+geom_point()+
+geom_smooth(method=lm)+
+  ggtitle("Age V IQ")+
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+##2
+<div class="q">Calculate the covariance between age and IQ.</div>
+<div class="a">A)
+$\textrm{Cov}(x,y) = \frac{1}{(n-1) } \sum_{i} (x_{i} - \bar{x})(y_{i} - \bar{y})$  
+$\textrm{Cov}(x,y) = \frac{1}{(4-1) } \sum_{i} [(23 - 24)(100 - 105)+(18 - 24)(105 - 105)+...+(45 - 24)(120 - 105)]$  
+$\textrm{Cov}(x,y) = 153.\bar3$  
+</div>
+```{r '2'}
+ageIQ.cov <- ageIQ %>% 
+  mutate(S=(Age-mean(ageIQ$Age))*(IQ-mean(ageIQ$IQ))) %>% colSums()
+ageIQ.cov[3]/3
+```
+
