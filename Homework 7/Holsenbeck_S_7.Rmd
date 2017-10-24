@@ -167,7 +167,7 @@ $\textrm{Cov}(x,y) = 153.\bar3$
 ```{r '2'}
 ageIQ.cov <- ageIQ %>% 
   mutate(S=(Age-mean(ageIQ$Age))*(IQ-mean(ageIQ$IQ))) %>% colSums()
-ageIQ.cov[3]/3
+c(ageIQ.cov[3]/3,cov(ageIQ$Age,ageIQ$IQ))
 ```
 ## 3
 <div class="q">Calculate their correlation. What does the number you get indicate?</div>
@@ -179,17 +179,18 @@ The closeness of the r value to 1 indicates a strong positive correlation betwee
 </div>
 ```{r '3'}
 (r <- 153.33333/(sd(ageIQ$Age)*sd(ageIQ$IQ)))
+c(r,cor(ageIQ$Age,ageIQ$IQ))
 ```
 ## 4
 <div class="q">Calculate the regression coefficients $\beta_0$ and $\beta_1$ and write out the equation of the best-fit line relating age and IQ.</div>
 <div class="a">A)
 $r = \frac{\textrm{Cov}(x,y)}{ s_{x} s_{y}}   = \beta_{1} \frac{s_{x}}{s_{y}}$  
 $\frac{r}{\frac{s_x}{s_y}}=\beta_1$  
-$\beta_1=\frac{0.9470957}{\frac{14.9\bar8}{10.80123}}$
-$\beta_1=0.6824926$
+$\beta_1=\frac{0.9470957}{\frac{14.9\bar8}{10.80123}}$  
+$\beta_1=0.6824926$  
 $\beta_{0} =  \bar{y} - \beta_{1} \bar{x}$  
 $\beta_{0} =  105 - 0.6824926*24$  
-$\beta_{0} =  88.62018$ 
+$\beta_{0} =  88.62018$  
 Line of best fit:
 $\hat{y}_i = \beta_0 + \beta_1 x_i$  
 $\hat{y}_i = 88.62018 + 0.6824926x_i$  
@@ -207,7 +208,7 @@ $100.9050	 = (88.62018)  +  (0.6824926) 18$
 $95.4451 = (88.62018)  +  (0.6824926) 10$  
 $119.3323 = (88.62018)  +  (0.6824926) 45$  
 ```{r '5'}
-(y.i <- ageIQ %>% mutate(yi=b0+b1*Age))
+(y.i <- ageIQ %>% mutate('y^i'=b0+b1*Age))
 ```
 </div>
 
@@ -218,21 +219,22 @@ $R^{2} = \frac{TSS - SSE}{TSS}$
 $\text{Where }TSS = \sum_{i} (y_{i} - \bar{y})^{2}\text{ & } SSE = \sum_{i} (y_{i} - \hat{y}_{i})^{2}$  
 $TSS=\sum_{i} (y_{i} - \bar{y})^{2}$  
 $TSS=\sum_{i} (100 - 105)^{2}+(105 - 105)^{2}+(95 - 105)^{2}+(120 - 105)^{2}$  
-$TSS=350$
+$TSS=350$  
 $SSE = \sum_{i} (y_{i} - \hat{y}_{i})^{2}$  
 $SSE = \sum_{i} (100 - 104.3175)^{2}+(105 - 100.9050)^{2}+(95 - 95.4451)^{2}+(120 - 119.332)^{2}$  
 $SSE = 36.05341$  
 $R^{2} = \frac{TSS - SSE}{TSS}$  
 $R^{2} = \frac{350 - 36.05341}{350}$  
 $R^2=0.8969903$  
+The $R^2$ value describes the proportion of the variation in the Y data that is explained by the values for X. The $R^2$ value is also sometimes called the <em>proportional reduction in error</em> and is described as the proportional reduction of error in the variation in Y. A value of 0.897 indicates that 89.7% of the variation in Y is explained by X.
 </div>
 
 ```{r '6'}
-(TSS <- ageIQ %>% mutate(tss=((IQ-mean(IQ))^2)))
+(TSS <- ageIQ %>% mutate(tss=((IQ-mean(ageIQ$IQ))^2)))
 sum(TSS$tss)
-(SSE <- y.i %>% mutate(sse=(IQ-yi)^2))
+(SSE <- y.i %>% mutate(sse=(IQ-`y^i`)^2))
 sum(SSE$sse)
-(sum(TSS$tss)-sum(SSE$sse))/sum(TSS$tss)
+(`r^2` <- (sum(TSS$tss)-sum(SSE$sse))/sum(TSS$tss))
 ```
 
 ## 7
@@ -243,46 +245,46 @@ $se_{\hat{y}} = \sqrt{ \frac{SSE}{n-2}}$
 $se_{\hat{y}} = \sqrt{ \frac{36.05341}{4-2}}$  
 $se_{\hat{y}} = 4.245787$  
 $se_{\beta_0} = se_{\hat{y}} \sqrt{ \frac{\sum x_i^2}{n \sum (x_i - \bar{x})^2}}$  
-$se_{\beta_0} = 4.245787 \sqrt{ \frac{2978}{n 674}}$  
+$se_{\beta_0} = 4.245787 \sqrt{ \frac{2978}{4(674)}}$  
 $se_{\beta_0} = 4.462319$  
 $se_{\beta_1} = se_{\hat{y}} \frac{1}{\sqrt{\sum (x_i - \bar{x})^2}}$  
 $se_{\beta_1} = 4.245787 \frac{1}{\sqrt{674}}$
-$se_{\beta_1} = 0.006299387$  
+$se_{\beta_1} = 0.1635416$  
 T-Test:
-$H_0$: $\beta_1$ is not significantly different from the expected value of 0
-$H_a$: $\beta_1$ is significantly different from the expected value of 0
+$H_0$: $\beta_1=0$  
+$H_a$: $\beta_1\neq0$  
 $t_{stat}=\frac{\beta_1 - \mu_{0}}{se_{\beta_1}}$  
-$t_{stat}=\frac{0.6824926 - 0}{0.006299387}$  
-$t_{stat}=108.3427$  
+$t_{stat}=\frac{0.6824926 - 0}{0.1635416}$  
+$t_{stat}=4.173205$  
 $df=n-k-1$  
-$df=4-2-1=1$  
-$t_{crit}=12.7062$  
-We reject the null hypothesis at the 95% confidence level in support of the conclusion that $\beta_1$ is significantly different from the expected value of 0. Thus we support the hypothesis that age does influence IQ. </div>
+$df=4-1-1=2$  
+$t_{crit}=4.302653$  
+We fail to reject the null hypothesis at the 95% confidence level with a 2-tailed test. The effect of age on IQ is not statistically significant. </div>
 
 ```{r '7'}
 (sey <- sqrt(sum(SSE$sse)/2))
 (se<- ageIQ %>% mutate(`xi^2`=Age^2,`xi-x^2`=(Age-mean(ageIQ$Age))^2))
-(seb0 <- c(sum(se$`xi^2`),sum(se$`xi-x^2`)))
-sey*sqrt(seb0[1]/(4*seb0[2]))
-(seb1 <- sey*(1/seb0[2]))
+(seb0 <- sey*sqrt(sum(se$`xi^2`)/(4*sum(se$`xi-x^2`))))
+(seb1 <- sey*(1/sqrt(sum(se$`xi-x^2`))))
 (ts <- (b1-0)/seb1)
-qt(.975,1)
+qt(.975,2)
+summary(lm(IQ~Age,data=ageIQ))
 ```
 
 
 ## 8
 <div class="q">Calculate the p-value for $\beta_1$ and interpret it.</div>
-<div class="a">A) The $p_{value}=0.005875815$,  which is significantly less than $\alpha=0.05$ also indicating that we have a highly significant correlation between age and IQ.
+<div class="a">A) The $p_{value}=0.05290431$,  which is slightly greater than $\alpha=0.05$ indicating that the influence of age on IQ is not statistically significant.
 </div>
 
 ```{r}
-(pv <- 2*pt(-1*108.3427,1))
+(pv <- 2*pt(ts,2,lower.tail = F))
 ```
 
 ## 9
 <div class="q">Calculate the 95% CI for $\beta_1$ and interpret it.</div>
-<div class="a">A) $\text{CI} = 0.6824926 \pm 108.3427*0.006299387=[0.000000, 1.364985]$  
-We have 95% confidence that the </div>
+<div class="a">A) $\text{CI} = 0.6824926 \pm 4.173205*0.1635416=[1.110223e^{-16},1.364985]$  
+The 95% confidence interval for $\beta_1$ indicates that for each year of age we would expect that IQ would increase between $1.110223e^{-16}$ and $1.364985$. </div>
 
 ```{r '9'}
 (ci <- c(b1+ts*seb1,b1-ts*seb1))
