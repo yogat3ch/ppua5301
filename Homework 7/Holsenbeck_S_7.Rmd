@@ -248,9 +248,9 @@ $se_{\beta_0} = se_{\hat{y}} \sqrt{ \frac{\sum x_i^2}{n \sum (x_i - \bar{x})^2}}
 $se_{\beta_0} = 4.245787 \sqrt{ \frac{2978}{4(674)}}$  
 $se_{\beta_0} = 4.462319$  
 $se_{\beta_1} = se_{\hat{y}} \frac{1}{\sqrt{\sum (x_i - \bar{x})^2}}$  
-$se_{\beta_1} = 4.245787 \frac{1}{\sqrt{674}}$
+$se_{\beta_1} = 4.245787 \frac{1}{\sqrt{674}}$  
 $se_{\beta_1} = 0.1635416$  
-T-Test:
+T-Test: <br/>
 $H_0$: $\beta_1=0$  
 $H_a$: $\beta_1\neq0$  
 $t_{stat}=\frac{\beta_1 - \mu_{0}}{se_{\beta_1}}$  
@@ -268,7 +268,6 @@ We fail to reject the null hypothesis at the 95% confidence level with a 2-taile
 (seb1 <- sey*(1/sqrt(sum(se$`xi-x^2`))))
 (ts <- (b1-0)/seb1)
 qt(.975,2)
-summary(lm(IQ~Age,data=ageIQ))
 ```
 
 
@@ -292,10 +291,20 @@ The 95% confidence interval for $\beta_1$ indicates that for each year of age we
 
 ## 10
 <div class="q">Confirm your results by regressing IQ on Age using R.</div>
-<div class="a">A) </div>
+<div class="a">A) 
+```{r '10'}
+summary(lm(IQ~Age,data=ageIQ))
+```
+
+</div>
+
 ## 11
 <div class="q">Plot your points again using R, including the linear fit line with its standard error.</div>
-<div class="a">A) </div>
+<div class="a">A) This was included in the initial plot.</div>
+
 ## 12
 <div class="q">What are you final conclusions about the relationship between age and IQ?</div>
-<div class="a">A) </div>
+<div class="a">A) 
+$r = .947$ indicating there is a strong positive correlation between age and IQ.
+$R^2=0.897$ indicating that approximately 89.7% of the variation in IQ is explained by age. The t-test at the 95% confidence level indicates that the effect of age on IQ is not statistically significant despite the strength of the correlation.
+</div>
