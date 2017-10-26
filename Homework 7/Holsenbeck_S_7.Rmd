@@ -223,7 +223,7 @@ sum(SSE$sse)
 ## 7
 <div class="q">Calculate the standard error of $\beta_1$, and use that to test (using the t test) whether $\beta_1$ is significant.</div>
 <div class="a">A) 
-$$se_{\hat{y}} = \sqrt{ \frac{\sum (y_i-\hat{y}_i)^2 }{n-2}} \\ se_{\hat{y}} = \sqrt{ \frac{SSE}{n-2}} \\ se_{\hat{y}} = \sqrt{ \frac{36.05341}{4-2}} \\ se_{\hat{y}} = 4.245787 \\ se_{\beta_0} = se_{\hat{y}} \sqrt{ \frac{\sum x_i^2}{n \sum (x_i - \bar{x})^2}} \\ se_{\beta_0} = 4.245787 \sqrt{ \frac{2978}{4(674)}} \\ se_{\beta_1} = 4.245787 \frac{1}{\sqrt{674}} \\ se_{\beta_1} = 0.1635416$$  
+$$se_{\hat{y}} = \sqrt{ \frac{\sum (y_i-\hat{y}_i)^2 }{n-2}} \\ se_{\hat{y}} = \sqrt{ \frac{SSE}{n-2}} \\ se_{\hat{y}} = \sqrt{ \frac{36.05341}{4-2}} \\ se_{\hat{y}} = 4.245787 \\ se_{\beta_0} = se_{\hat{y}} \sqrt{ \frac{\sum x_i^2}{n \sum (x_i - \bar{x})^2}} \\ se_{\beta_0} = 4.245787 \sqrt{ \frac{2978}{4(674)}} \\ se_{\beta_1} = 4.245787 \frac{1}{\sqrt{674}} \\ se_{\beta_1} = 0.1635416 $$  
 T-Test: <br/>
 $H_0:\beta_1=0$  
 $H_a:\beta_1\neq0$  
