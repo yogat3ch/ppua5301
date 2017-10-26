@@ -2,17 +2,15 @@
 title: "Holsenbeck_S_7"
 author: "Stephen Synchronicity"
 date: '`r format(Sys.time(), "%Y-%m-%d")`'
-always_allow_html: yes
-header-includes:
-   - \usepackage{amsmath}
-output: 
-  html_document: 
+output:
+  html_document:
     css: C:\Users\Stephen\Documents\R\win-library\3.4\rmarkdown\rmarkdown\templates\neu_hwk\resources\styles.css
     highlight: zenburn
     keep_md: yes
     theme: readable
-    toc_float: true
     toc: yes
+    toc_float: yes
+always_allow_html: yes
 ---
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, message=FALSE,warning=FALSE,cache=TRUE, fig.align='center', fig.height=3.5, fig.width=5, tidy=TRUE, tidy.opts=list(width.cutoff=80))
@@ -20,6 +18,8 @@ rmarkdown::html_dependency_jquery()
 rmarkdown::html_dependency_bootstrap("readable")
 rmarkdown::html_dependency_jqueryui()
 set.seed(1)
+Sys.setenv(PATH=paste(Sys.getenv("PATH"),"C:/Program Files/MiKTeX
+2.9/miktex/bin/x64/",sep=";"))
 ```
 ```{r Libraries, echo=FALSE, results='hide'}
 library("tidyverse")
@@ -29,7 +29,8 @@ library("htmltools")
 library("DT")
 library("ggplot2")
 ```
-```{r ' Custom Fns',eval=F,echo=F}
+
+```{r 'Custom Fns',eval=F,echo=F}
 tCrit <- function(cl,data,tail,mu=0){
   f.pV.v <- function(x,data){ pv <- pt(x,df=data[4]-1)
     return(pv)}
@@ -123,10 +124,10 @@ unless otherwise specified.
 3. Calculate their correlation. What does the number you get indicate?
 4. Calculate the regression coefficients $\beta_0$ and $\beta_1$ and write out the equation of the best-fit line relating age and IQ.
 5. Calculate the predicted $\hat{y_i}$ for each $x_i$.
-6. Calculate R$\beta_2$ from the TSS/SSE equation. How does it relate to the correlation? What does the number you get indicate?
+6. Calculate $$R^2$$ from the TSS/SSE equation. How does it relate to the correlation? What does the number you get indicate?
 7. Calculate the standard error of $\beta_1$, and use that to test (using the t test) whether $\beta_1$ is significant.
 8. Calculate the p-value for $\beta_1$ and interpret it.
-9. Calculate the$\beta_9$5% CI for $\beta_1$ and interpret it.
+9. Calculate the 95% CI for $\beta_1$ and interpret it.
 $\beta_0$. 
 10. Confirm your results by regressing IQ on Age using R.
 11. Plot your points again using R, including the linear fit line with its standard error.
@@ -134,6 +135,7 @@ $\beta_0$.
 </div>
 #Homework 7
 
+**Create Table**
 ```{r 'Create Table'}
 ageIQ <- tibble::tribble(
     ~Age,~IQ,
@@ -149,6 +151,7 @@ summary(ageIQ)
 
 ## 1
 <div class="q">Plot these four points using R.</div>
+**1**
 ```{r '1'}
 ggplot(data = ageIQ,mapping=aes(x=Age,y=IQ))+
 geom_point()+
@@ -160,10 +163,9 @@ geom_smooth(method=lm)+
 ## 2
 <div class="q">Calculate the covariance between age and IQ.</div>
 <div class="a">A)
-$\textrm{Cov}(x,y) = \frac{1}{(n-1) } \sum_{i} (x_{i} - \bar{x})(y_{i} - \bar{y})$  
-$\textrm{Cov}(x,y) = \frac{1}{(4-1) } \sum_{i} [(23 - 24)(100 - 105)+(18 - 24)(105 - 105)+...+(45 - 24)(120 - 105)]$  
-$\textrm{Cov}(x,y) = 153.\bar3$  
+$$\textrm{Cov}(x,y) = \frac{1}{(n-1) } \sum_{i} (x_{i} - \bar{x})(y_{i} - \bar{y}) \\  \textrm{Cov}(x,y) = \frac{1}{(4-1) } \sum_{i} [(23 - 24)(100 - 105)+(18 - 24)(105 - 105)+...+(45 - 24)(120 - 105)] \\ \textrm{Cov}(x,y) = 153.\bar3$$  
 </div>
+**2**
 ```{r '2'}
 ageIQ.cov <- ageIQ %>% 
   mutate(S=(Age-mean(ageIQ$Age))*(IQ-mean(ageIQ$IQ))) %>% colSums()
@@ -172,11 +174,10 @@ c(ageIQ.cov[3]/3,cov(ageIQ$Age,ageIQ$IQ))
 ## 3
 <div class="q">Calculate their correlation. What does the number you get indicate?</div>
 <div class="a">A)
-$r = \frac{\textrm{Cov}(x,y)}{s_{x} s_{y}}$  
-$r = \frac{153.\bar3}{ 14.9\bar8)(10.80123)}$  
-$r = .947$  
-The closeness of the r value to 1 indicates a strong positive correlation between age & IQ.
+$$r = \frac{\textrm{Cov}(x,y)}{s_{x} s_{y}} \\ r = \frac{153.\bar3}{ 14.9\bar8)(10.80123)} \\ r = .947$$  
+The closeness of the r value to positive 1 indicates a strong positive correlation between age & IQ.
 </div>
+**3**
 ```{r '3'}
 (r <- 153.33333/(sd(ageIQ$Age)*sd(ageIQ$IQ)))
 c(r,cor(ageIQ$Age,ageIQ$IQ))
@@ -184,16 +185,9 @@ c(r,cor(ageIQ$Age,ageIQ$IQ))
 ## 4
 <div class="q">Calculate the regression coefficients $\beta_0$ and $\beta_1$ and write out the equation of the best-fit line relating age and IQ.</div>
 <div class="a">A)
-$r = \frac{\textrm{Cov}(x,y)}{ s_{x} s_{y}}   = \beta_{1} \frac{s_{x}}{s_{y}}$  
-$\frac{r}{\frac{s_x}{s_y}}=\beta_1$  
-$\beta_1=\frac{0.9470957}{\frac{14.9\bar8}{10.80123}}$  
-$\beta_1=0.6824926$  
-$\beta_{0} =  \bar{y} - \beta_{1} \bar{x}$  
-$\beta_{0} =  105 - 0.6824926*24$  
-$\beta_{0} =  88.62018$  
+$$r = \frac{\textrm{Cov}(x,y)}{ s_{x} s_{y}}   = \beta_{1} \frac{s_{x}}{s_{y}} \\ \frac{r}{\frac{s_x}{s_y}}=\beta_1 \\ \beta_1=\frac{0.9470957}{\frac{14.9\bar8}{10.80123}} \\ \beta_1=0.6824926 \\ \beta_{0} =  \bar{y} - \beta_{1} \bar{x} \\ \beta_{0} =  105 - 0.6824926*24 \\ \beta_{0} =  88.62018$$  
 Line of best fit:
-$\hat{y}_i = \beta_0 + \beta_1 x_i$  
-$\hat{y}_i = 88.62018 + 0.6824926x_i$  
+$$\hat{y}_i = \beta_0 + \beta_1 x_i \\ \hat{y}_i = 88.62018 + 0.6824926x_i$$  
 </div>
 ```{r}
 (b1 <- r/(sd(ageIQ$Age)/sd(ageIQ$IQ)))
@@ -203,10 +197,8 @@ $\hat{y}_i = 88.62018 + 0.6824926x_i$
 ## 5
 <div class="q">Calculate the predicted $\hat{y_i}$ for each $x_i$.</div>
 <div class="a">A) 
-$104.3175 = (88.62018)  +  (0.6824926) 23$  
-$100.9050	 = (88.62018)  +  (0.6824926) 18$  
-$95.4451 = (88.62018)  +  (0.6824926) 10$  
-$119.3323 = (88.62018)  +  (0.6824926) 45$  
+$$104.3175 = (88.62018)  +  (0.6824926) 23 \\ 100.9050	 = (88.62018)  +  (0.6824926) 18 \\ 95.4451 = (88.62018)  +  (0.6824926) 10 \\ 119.3323 = (88.62018)  +  (0.6824926) 45$$  
+**5**
 ```{r '5'}
 (y.i <- ageIQ %>% mutate('y^i'=b0+b1*Age))
 ```
@@ -215,20 +207,11 @@ $119.3323 = (88.62018)  +  (0.6824926) 45$
 ## 6
 <div class="q"> Calculate $R^2$ from the TSS/SSE equation. How does it relate to the correlation? What does the number you get indicate?</div>
 <div class="a">A) 
-$R^{2} = \frac{TSS - SSE}{TSS}$  
-$\text{Where }TSS = \sum_{i} (y_{i} - \bar{y})^{2}\text{ & } SSE = \sum_{i} (y_{i} - \hat{y}_{i})^{2}$  
-$TSS=\sum_{i} (y_{i} - \bar{y})^{2}$  
-$TSS=\sum_{i} (100 - 105)^{2}+(105 - 105)^{2}+(95 - 105)^{2}+(120 - 105)^{2}$  
-$TSS=350$  
-$SSE = \sum_{i} (y_{i} - \hat{y}_{i})^{2}$  
-$SSE = \sum_{i} (100 - 104.3175)^{2}+(105 - 100.9050)^{2}+(95 - 95.4451)^{2}+(120 - 119.332)^{2}$  
-$SSE = 36.05341$  
-$R^{2} = \frac{TSS - SSE}{TSS}$  
-$R^{2} = \frac{350 - 36.05341}{350}$  
-$R^2=0.8969903$  
-The $R^2$ value describes the proportion of the variation in the Y data that is explained by the values for X. The $R^2$ value is also sometimes called the <em>proportional reduction in error</em> and is described as the proportional reduction of error in the variation in Y. A value of 0.897 indicates that 89.7% of the variation in Y is explained by X.
+$$R^{2} = \frac{TSS - SSE}{TSS} \\ \text{Where }TSS = \sum_{i} (y_{i} - \bar{y})^{2}\textrm{ and } SSE = \sum_{i} (y_{i} - \hat{y}_{i})^{2} \\ TSS=\sum_{i} (y_{i} - \bar{y})^{2} \\ TSS=\sum_{i} (100 - 105)^{2}+(105 - 105)^{2}+(95 - 105)^{2}+(120 - 105)^{2} \\ TSS=350 \\ SSE = \sum_{i} (y_{i} - \hat{y}_{i})^{2} \\ SSE = \sum_{i} (100 - 104.3175)^{2}+(105 - 100.9050)^{2}+(95 - 95.4451)^{2}+(120 - 119.332)^{2} \\ SSE = 36.05341 \\ R^{2} = \frac{TSS - SSE}{TSS} \\ R^{2} = \frac{350 - 36.05341}{350} \\ R^2=0.8969903$$  
+The $R^2$ value describes the proportion of the variation in the Y data that is explained by the values for X, in other words, how well the line of best fits predicts the data. The $R^2$ value is also sometimes called the <em>proportional reduction in error</em> and is described as the proportional reduction of error in the variation in Y that would be explained by the line of best fit. A value of 0.897 suggests that ~89.7% of the variation in Y can be explained by X.
 </div>
 
+**6**
 ```{r '6'}
 (TSS <- ageIQ %>% mutate(tss=((IQ-mean(ageIQ$IQ))^2)))
 sum(TSS$tss)
@@ -240,27 +223,15 @@ sum(SSE$sse)
 ## 7
 <div class="q">Calculate the standard error of $\beta_1$, and use that to test (using the t test) whether $\beta_1$ is significant.</div>
 <div class="a">A) 
-$se_{\hat{y}} = \sqrt{ \frac{\sum (y_i-\hat{y}_i)^2 }{n-2}}$  
-$se_{\hat{y}} = \sqrt{ \frac{SSE}{n-2}}$  
-$se_{\hat{y}} = \sqrt{ \frac{36.05341}{4-2}}$  
-$se_{\hat{y}} = 4.245787$  
-$se_{\beta_0} = se_{\hat{y}} \sqrt{ \frac{\sum x_i^2}{n \sum (x_i - \bar{x})^2}}$  
-$se_{\beta_0} = 4.245787 \sqrt{ \frac{2978}{4(674)}}$  
-$se_{\beta_0} = 4.462319$  
-$se_{\beta_1} = se_{\hat{y}} \frac{1}{\sqrt{\sum (x_i - \bar{x})^2}}$  
-$se_{\beta_1} = 4.245787 \frac{1}{\sqrt{674}}$  
-$se_{\beta_1} = 0.1635416$  
+$$se_{\hat{y}} = \sqrt{ \frac{\sum (y_i-\hat{y}_i)^2 }{n-2}} \\ se_{\hat{y}} = \sqrt{ \frac{SSE}{n-2}} \\ se_{\hat{y}} = \sqrt{ \frac{36.05341}{4-2}} \\ se_{\hat{y}} = 4.245787 \\ se_{\beta_0} = se_{\hat{y}} \sqrt{ \frac{\sum x_i^2}{n \sum (x_i - \bar{x})^2}} \\ se_{\beta_0} = 4.245787 \sqrt{ \frac{2978}{4(674)}} \\ se_{\beta_1} = 4.245787 \frac{1}{\sqrt{674}} \\ se_{\beta_1} = 0.1635416$$  
 T-Test: <br/>
-$H_0$: $\beta_1=0$  
-$H_a$: $\beta_1\neq0$  
-$t_{stat}=\frac{\beta_1 - \mu_{0}}{se_{\beta_1}}$  
-$t_{stat}=\frac{0.6824926 - 0}{0.1635416}$  
-$t_{stat}=4.173205$  
-$df=n-k-1$  
-$df=4-1-1=2$  
-$t_{crit}=4.302653$  
-We fail to reject the null hypothesis at the 95% confidence level with a 2-tailed test. The effect of age on IQ is not statistically significant. </div>
+$H_0:\beta_1=0$  
+$H_a:\beta_1\neq0$  
+$$t_{stat}=\frac{\beta_1 - \mu_{0}}{se_{\beta_1}} \\ t_{stat}=\frac{0.6824926 - 0}{0.1635416} \\ t_{stat}=4.173205 \\ df=n-k-1 \\ df=4-1-1=2$$  
+$$t_{crit}=4.302653$$  
+We fail to reject the null hypothesis at the 95% confidence level with a 2-tailed test. The positive correlation between age and IQ is not statistically significant. The failure to reject the null in this t-test of significance indicates that despite our Pearson coeffecient $r$ and proportional reduction in error $R^2$ suggesting that the linear regression model matches the data with reasonable accuracy, the positive correlation between age and IQ is not significant, and the positive correlation in this instance may be due to chance. </div>
 
+**7**
 ```{r '7'}
 (sey <- sqrt(sum(SSE$sse)/2))
 (se<- ageIQ %>% mutate(`xi^2`=Age^2,`xi-x^2`=(Age-mean(ageIQ$Age))^2))
@@ -273,25 +244,28 @@ qt(.975,2)
 
 ## 8
 <div class="q">Calculate the p-value for $\beta_1$ and interpret it.</div>
-<div class="a">A) The $p_{value}=0.05290431$,  which is slightly greater than $\alpha=0.05$ indicating that the influence of age on IQ is not statistically significant.
+<div class="a">A) The $p_{value}=0.05290431$ suggests that if sample data was gathered on age and IQ with $n>100$ , about ~5.2% of those trials would have a mean less than or equal to the one in this trial. Since $\alpha=.05$, we conclude that at the 95% confidence level $\alpha/p=.05$ with a 2-tailed test, the result for this trial is not statistically significant. 
 </div>
-
-```{r}
+**8**
+```{r '8'}
 (pv <- 2*pt(ts,2,lower.tail = F))
 ```
 
 ## 9
 <div class="q">Calculate the 95% CI for $\beta_1$ and interpret it.</div>
-<div class="a">A) $\text{CI} = 0.6824926 \pm 4.173205*0.1635416=[1.110223e^{-16},1.364985]$  
-The 95% confidence interval for $\beta_1$ indicates that for each year of age we would expect that IQ would increase between $1.110223e^{-16}$ and $1.364985$. </div>
+<div class="a">A) $$\text{CI} = 0.6824926 \pm 4.173205*0.1635416=[1.110223e^{-16},1.364985]$$  
+The 95% confidence interval for $\beta_1$ indicates that for each year of age we would expect that IQ would increase between $1.110223e^{-16}$ and $1.364985$. One end is very close to 0, suggesting that as each year passes, IQ may not increase hardly at all, and the other end suggesting a gain of up to 1.36 IQ points per year.</div>
 
+**9**
 ```{r '9'}
 (ci <- c(b1+ts*seb1,b1-ts*seb1))
 ```
 
 ## 10
 <div class="q">Confirm your results by regressing IQ on Age using R.</div>
-<div class="a">A) 
+<div class="a">A) The results of the lm function match the previous calculations.
+<br/>
+**10**
 ```{r '10'}
 summary(lm(IQ~Age,data=ageIQ))
 ```
@@ -300,11 +274,11 @@ summary(lm(IQ~Age,data=ageIQ))
 
 ## 11
 <div class="q">Plot your points again using R, including the linear fit line with its standard error.</div>
-<div class="a">A) This was included in the initial plot.</div>
+<div class="a">A) The line of best fit and standard error was included in the initial plot.</div>
 
 ## 12
-<div class="q">What are you final conclusions about the relationship between age and IQ?</div>
+<div class="q">What are your final conclusions about the relationship between age and IQ?</div>
 <div class="a">A) 
 $r = .947$ indicating there is a strong positive correlation between age and IQ.
-$R^2=0.897$ indicating that approximately 89.7% of the variation in IQ is explained by age. The t-test at the 95% confidence level indicates that the effect of age on IQ is not statistically significant despite the strength of the correlation.
+$R^2=0.897$ indicates that approximately 89.7% of the error has been reduced and is explained by the line of best fit. The t-test at the 95% confidence level yielding a p-value of $~.053$ indicates that despite the strength of the correlation indicated by the $r$ and $R^2$ values, this correlation is not signficant, may not actually be as positive as the line of best fit in this trial suggests.  
 </div>
