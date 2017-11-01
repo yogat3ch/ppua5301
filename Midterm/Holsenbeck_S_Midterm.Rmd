@@ -167,13 +167,7 @@ calculate your threshold value, test statistic, and p value. Do you reject the n
 </tr>
 </tbody>
 </table>
-```{r '9 Data', echo=F, results='hide'}
-t9 <- tibble::tribble(
-  ~condition, ~live, ~die,
-     "treatment",4L,11L,
-        "control",8L,7L
-  )
-```
+
 
 
 This looks pretty bad for the treatment, but being as good at statistics as you are bad at gardening,
@@ -210,14 +204,7 @@ you test it using the chi-square test. What are your results? (15 pt)
 </tr>
 </tbody>
 </table>
-```{r '10 data', echo=F, results='hide'}
-`dt10` <- tibble::tribble(
-  ~condition, ~mean.days.alive, ~sd,  ~n,
-     "water",              50L, 10L, 20L,
-     "vodka",              45L,  7L, 10L,
-    "coffee",              55L,  4L, 10L
-  )
-```
+
 
 The overall mean is 50 days (as we said, you’re a bad gardener). Use an F test to determine if
 there is any significant difference among these three groups. (15 pt)
@@ -341,10 +328,39 @@ t.test(sh,fsh)
 </div>
 ## 9
 <div class="q"> You are a very bad gardener, and hypothesize that feeding houseplants vodka might help them relax and grow better. You perform an experiment to test your hypothesis, giving 15 houseplants water spiked with vodka, and 15 houseplants water alone. These are your results:
-This looks pretty bad for the treatment, but being as good at statistics as you are bad at gardening,
-you test it using the chi-square test. What are your results? (15 pt)</div>
+This looks pretty bad for the treatment, but being as good at statistics as you are bad at gardening, you test it using the chi-square test. What are your results? (15 pt)</div>
+```{r '9 Data', echo=F, results='hide'}
+dt9 <- tibble::tribble(
+  ~condition, ~live, ~die,
+     "treatment",4L,11L,
+        "control",8L,7L
+  )
+```
+<div class="a">A) 
+$H_0$ The proportion of plants that lived is independent of treatment.
+$H_1$ The proportion of plants that lived is dependent on treatment.
+
+```{r}
+# Method to add Sums
+# dt9 <- dt9 %>% rowwise() %>%
+#   mutate(Sum = sum(live,die))
+# (dt9 <- rbind(dt9,c("Sums",colSums(dt9[,-1]))))
+chisq.test(dt9[,c(2:3)])
+
+```
+
+The Chi-squared test of dependence indicates that the treatment and control groups are independent, and plant survival is not dependent on what they are fed.
+</div>
 
 ## 10
 <div class="q"> Perhaps you got things backwards, and plants need more stimulation to thrive. So you adjust your experiment into three treatment groups: water, vodka, and coffee. These are your results:
 The overall mean is 50 days (as we said, you’re a bad gardener). Use an F test to determine if
 there is any significant difference among these three groups. (15 pt)</div>
+```{r '9 data', echo=F, results='hide'}
+`dt10` <- tibble::tribble(
+  ~condition, ~mean.days.alive, ~sd,  ~n,
+     "water",              50L, 10L, 20L,
+     "vodka",              45L,  7L, 10L,
+    "coffee",              55L,  4L, 10L
+  )
+```
