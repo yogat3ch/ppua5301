@@ -171,11 +171,19 @@ b. What’s the chance of getting three or more heads in a row conditional on kn
 
 ## 4
 <div class="q"> NASA has declared that the Earth is likely to be hit by an asteroid this year based on an astronomical observation it has made. These things are hard to judge for certain, but it is known that the test NASA used is pretty good – it has a sensitivity of 99% and a false positive rate of only 1%. It is further known that the general probability of an asteroid hitting earth in any given year is 1 in 100,000. What is the probability we will actually be hit by an asteroid this year given NASA’s test? (10 pt)</div>
-
+<div class="a">A)
+$$P(A|+)=\frac{P(+|A)P(A)}{P(+|A)P(A) + P(+|\neg{A})P(\neg{A})}$$
 ```{r '4'}
-
+s <- .99
+fp <- .01
+pA <- 1/100000
+false.pos <- function(pA,s,fp) {
+s*pA / (s*pA + fp*(1-pA))
+}
+false.pos(pA,s,fp)
 ```
-
+A) Funny NASA would have data on the false positive rate and sensitivity for such a test. We must be talking about small asteroids if they have that data. The chance that an asteroid hits earth given a positive test is 0.000989
+</div>
 
 ## 5
 <div class="q"> The average number of snow days in Boston in a winter month is 1. Assuming these events follow a poisson distribution, calculate (using R) the probability of getting 5 or more snow days in a month. (5 pt)</div>
