@@ -26,6 +26,100 @@ library("magrittr")
 library("htmltools")
 library("DT")
 ```
+```{r 'Custom Fns',echo=F,results='hide'}
+tCrit <- function(cl, data, tail, mu = 0) {
+    f.pV.v <- function(x, data) {
+        pv <- pt(x, df = data[4] - 1)
+        return(pv)
+    }
+    f.pV.d <- function(x, data) {
+        pv <- pt(x, df = length(data) - 1)
+        return(pv)
+    }
+    
+    f.tS.v <- function(data) {
+        ts.v <- (data[1] - data[2])/(data[3]/sqrt(data[4]))
+        return(ts.v)
+    }
+    f.TS.d <- function(data) {
+        ts.d <- (mean(data) - mu)/(sd(data)/sqrt(length(data)))
+        return(ts.d)
+    }
+    fcI.v <- function(cV, data) {
+        ci.v <- c(data[2] - (qt(cV, data[4] - 1) * data[3]/sqrt(data[4])), data[2] + 
+            (qt(cV, data[4] - 1) * data[3]/sqrt(data[4])))
+        return(ci.v)
+    }
+    f.cI.d <- function(cV, data) {
+        ci.d <- c(mean(data) - qt(cV, length(data) - 1) * sd(data)/sqrt(length(data)), 
+            mean(data) + qt(cV, length(data) - 1) * sd(data)/sqrt(length(data)))
+    }
+    output <- function(tc, ci, ts, pv) {
+        cValues <- tibble::tribble(~Variable, ~Values, "Low tCrit", tc[1], "High tCrit", 
+            tc[2], "Conf_Int.Low", ci[1], "Conf_Int.Hi", ci[2], "T Statistic", ts, 
+            "pValue", pv)
+    }
+    if (length(data) == 4) {
+        if (tail == "2" | tail == 2) {
+            cV <- (1 - cl)/2 + cl
+            ci <- fcI.v(cV, data)
+            ts <- f.tS.v(data)
+            tc <- c(-1 * qt(cV, data[4] - 1), qt(cV, data[4] - 1))
+            pv <- 2 * f.pV.v(-1 * abs(ts), data)
+            cValues <- output(tc, ci, ts, pv)
+        } else {
+            if (tail == "L" | tail == "l") {
+                cV <- (1 - cl)
+                ci <- fcI.v(cV, data)
+                ts <- f.tS.v(data)
+                tc <- c(qt(cV, data[4] - 1), NA)
+                pv <- f.pV.v(ts, data)
+                cValues <- output(tc, ci, ts, pv)
+            } else {
+                if (tail == "R" | tail == "r") {
+                  cV <- cl
+                  ci <- fcI.v(cV, data)
+                  ts <- f.tS.v(data)
+                  tc <- c(NA, qt(cV, data[4] - 1))
+                  pv <- 1 - f.pV.v(ts, data)
+                  cValues <- output(tc, ci, ts, pv)
+                }
+            }
+        }
+    } else if (length(data) > 4 | length(data) < 4) {
+        if (tail == "2" | tail == 2) {
+            cV <- (1 - cl)/2 + cl
+            ci <- f.cI.d(cV, data)
+            ts <- f.TS.d(data)
+            pv <- 2 * f.pV.d(-1 * abs(ts), data)
+            tc <- c(-1 * qt(cV, length(data) - 1), qt(cV, length(data) - 1))
+            cValues <- output(tc, ci, ts, pv)
+        } else {
+            if (tail == "L" | tail == "l") {
+                cV <- (1 - cl)
+                tc <- c(qt(cV, length(data) - 1), NA)
+                ci <- f.cI.d(cV, data)
+                ts <- f.TS.d(data)
+                pv <- f.pV.d(ts, data)
+                cValues <- output(tc, ci, ts, pv)
+            } else {
+                if (tail == "R" | tail == "r") {
+                  cV <- cl
+                  tc <- c(NA, qt(cV, length(data - 1)))
+                  ci <- f.cI.d(cV, data)
+                  ts <- f.TS.d(data)
+                  pv <- 1 - f.pV.d(ts, data)
+                  cValues <- output(tc, ci, ts, pv)
+                  
+                }
+            }
+        }
+    } else {
+        return(NA)
+    }
+    return(cValues)
+}
+```
 
 # Midterm
 
@@ -123,7 +217,7 @@ there is any significant difference among these three groups. (15 pt)
 ## 1
 <div class="q">
  Using R, write a program to calculate all the prime numbers less than 100. A prime number is a positive integer greater than 1 that is divisible (without remainder) only by 1 and itself. Create the program by testing each number from 2 to 100 against all integers less than it using %%. Your function should return a vector of all the primes < 100. (15 pt)</div>
- 
+<div class="a">A)
 ```{r '1'}
 prime <- function(x){
   OP <- c(2L)
@@ -140,11 +234,11 @@ return(OP)
 }
 ( `p100`<- prime(100L))
 ```
- 
+</div>
  
 ## 2
 <div class="q"> Using R, create a histogram of the result from 1 using ggplot. Be sure to nicely label your axes and title the graph. (5pt)</div>
-
+<div class="a">A)
 ```{r '2'}
 library(ggplot2)
 index <- seq(1,25)
@@ -157,17 +251,19 @@ ggplot(data=`df.p100`,mapping=aes(x=index,y=p100))+
   theme(plot.title = element_text(hjust = .5),plot.subtitle = element_text(hjust = .5))
 hist(p100,breaks=10,xlab="Values",main="Histogram of first 100 prime numbers")
 ```
+</div>
 
 ## 3
 <div class="q"> You flip a coin five times.
 a. What’s the chance of getting three or more heads in a row? (5 pt)
 b. What’s the chance of getting three or more heads in a row conditional on knowing the first flip was a heads? (5 pt)</div>
-<div class="a">a) $P(A=H|B=H|C=H)=0.5^3=0.125$,$P(B=H,C=H)$ given $P(A=H)=1$ = $1*.5^2=0.25$</div>
+<div class="a">a) $P(A=H|B=H|C=H)=0.5^3=0.125$  
+b) $P(B=H,C=H)$ given $P(A=H)=1$ = $1*.5^2=0.25$
 ```{r '3'}
 .5^3
 .5^2
 ```
-
+</div>
 
 ## 4
 <div class="q"> NASA has declared that the Earth is likely to be hit by an asteroid this year based on an astronomical observation it has made. These things are hard to judge for certain, but it is known that the test NASA used is pretty good – it has a sensitivity of 99% and a false positive rate of only 1%. It is further known that the general probability of an asteroid hitting earth in any given year is 1 in 100,000. What is the probability we will actually be hit by an asteroid this year given NASA’s test? (10 pt)</div>
@@ -187,10 +283,21 @@ A) Funny NASA would have data on the false positive rate and sensitivity for suc
 
 ## 5
 <div class="q"> The average number of snow days in Boston in a winter month is 1. Assuming these events follow a poisson distribution, calculate (using R) the probability of getting 5 or more snow days in a month. (5 pt)</div>
-
+<div class="a">A)
+```{r '5'}
+ppois(5,1,F)
+```
+</div>
 ## 6
 <div class="q"> You want to know how many hours of sleep the average college student gets. You start out with a preliminary survey of 10 people, and get the following data (in hours): 7,6,5,8,6,6,4,5,8,7. You hypothesize that despite what the doctors say, the average college student does not get 7 hours of sleep a night. What does your survey say? State your null hypothesis, research hypothesis (two tailed), and calculate your threshold value, test statistic, and p value. Do you reject the null or not? (10 pt)</div>
-
+<div class="a">A)
+$$\begin{aligned}H_0:\mu=7\\H_{a}:\mu\neq7\\t_{stat}=\frac{\bar{x}-\mu}{\frac{s}{\sqrt{n}}}\\t_{stat}=\frac{6.2-7}{\frac{1.316561}{\sqrt{10}}}\\t_{stat}=-1.92153785\\p_{value}=2*\int\limits^{x}_{{-}\infty}f(-|t_{stat}|)dt\\p_{value}=0.08684229\end{aligned}$$
+```{r}
+sh <- c(7,6,5,8,6,6,4,5,8,7)
+tCrit(.95,sh,2,7)
+```
+At the 95% confidence level, we fail to reject the null hypothesis, and conclude that the average amount of sleep per night is ~7 hrs. 
+</div>
 ## 7
 <div class="q"> Despite the disappointing results in 6, you are confident in your hypothesis. Assuming your sample standard deviation and mean do not change and you want to survey as few people as possible, how many additional people would you have to survey to reject the null at the 0.05 level? (5 pt)</div>
 
