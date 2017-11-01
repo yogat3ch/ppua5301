@@ -333,7 +333,12 @@ round(mean(replicate(100,addtl(1000),simplify=T)))
 
 ## 8
 <div class="q"> You survey the same 10 people during finals period, and get the following hours: 5,4,5,7,5,4,5,4,6,5. Do college students get significantly less sleep than usual during finals? (10 pt)</div>
-
+<div class="a">A) According to the t-test at the 95% confidence interval, yes, we can reject the null in favor of the hypothesis that college students get significantly less sleep during finals.
+```{r '8'}
+fsh <- c(5,4,5,7,5,4,5,4,6,5)
+t.test(sh,fsh)
+```
+</div>
 ## 9
 <div class="q"> You are a very bad gardener, and hypothesize that feeding houseplants vodka might help them relax and grow better. You perform an experiment to test your hypothesis, giving 15 houseplants water spiked with vodka, and 15 houseplants water alone. These are your results:
 This looks pretty bad for the treatment, but being as good at statistics as you are bad at gardening,
