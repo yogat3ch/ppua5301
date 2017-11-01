@@ -27,6 +27,14 @@ library("htmltools")
 library("DT")
 ```
 ```{r 'Custom Fns',echo=F,results='hide'}
+#Function for t-test Critical Values, Confidence interval, t-statistic & p-value
+#given a vector of descriptive variables, or data
+#Inputs:
+#cl = confidence level in decimal form
+#data = either sample data in vector form, or descriptive variables in vector form. Descriptive variables are c(bar_{x},mu,s,n)
+#Outputs: 
+#for data - a confidence interval
+#for descriptive statistics: a tibble with Critical t values, a Confidence interval, the t-Statistic for bar_{x}, the pValue for bar_{x}
 tCrit <- function(cl, data, tail, mu = 0) {
     f.pV.v <- function(x, data) {
         pv <- pt(x, df = data[4] - 1)
@@ -294,12 +302,34 @@ ppois(5,1,F)
 $$\begin{aligned}H_0:\mu=7\\H_{a}:\mu\neq7\\t_{stat}=\frac{\bar{x}-\mu}{\frac{s}{\sqrt{n}}}\\t_{stat}=\frac{6.2-7}{\frac{1.316561}{\sqrt{10}}}\\t_{stat}=-1.92153785\\p_{value}=2*\int\limits^{x}_{{-}\infty}f(-|t_{stat}|)dt\\p_{value}=0.08684229\end{aligned}$$
 ```{r}
 sh <- c(7,6,5,8,6,6,4,5,8,7)
+
 tCrit(.95,sh,2,7)
 ```
 At the 95% confidence level, we fail to reject the null hypothesis, and conclude that the average amount of sleep per night is ~7 hrs. 
 </div>
 ## 7
 <div class="q"> Despite the disappointing results in 6, you are confident in your hypothesis. Assuming your sample standard deviation and mean do not change and you want to survey as few people as possible, how many additional people would you have to survey to reject the null at the 0.05 level? (5 pt)</div>
+<div class="a">A) Algebraically, ~14, or 4 additional people would need to be surveyed to reject the null. Experimentally, the addtl function adds survey participants with the rNorm function up to a certain n (the input variable). It outputs the number of participants it added when the $p_{value}$ became significant. When this trial is replicated 100 times, the range of people needed to be surveyed is expected to be 38 (though I've seen it range from 35-40 on different trials of 100 each).
+**7 - Algebraic Approach**
+$$\begin{aligned}t_{stat}=\frac{\bar{x}-\mu}{\frac{s}{\sqrt{n}}}<-2.26215716 \textrm{ | }t_{stat}>2.26215716 \\ -2.26215716=\frac{6.2-7}{\frac{1.316561}{\sqrt{n}}} \\ -2.26215716 \frac{1.316561}{\sqrt{n}}=-0.8 \\ 1.316561 = 0.3536447\sqrt{n} \\ n=13.8595 \end{aligned}$$
+
+```{r '7 - Experimental Approach',eval=F}
+(1.31656/-0.3536447)^2
+addtl <- function(n){
+  for(i in seq(1,n)){
+  sh <- append(sh,abs(rnorm(1,mean(sh),mean(sh))),after=(length(sh)))
+  input <- c(mean(sh),7,sd(sh),length(sh))
+  par <- tCrit(.95,input,2,7)
+    if(par$Values[6]<.05){return(length(sh));
+      sh <- c(7,6,5,8,6,6,4,5,8,7);
+      break
+    }
+  }
+}
+round(mean(replicate(100,addtl(1000),simplify=T)))
+
+```
+</div>
 
 ## 8
 <div class="q"> You survey the same 10 people during finals period, and get the following hours: 5,4,5,7,5,4,5,4,6,5. Do college students get significantly less sleep than usual during finals? (10 pt)</div>
