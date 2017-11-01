@@ -1,0 +1,190 @@
+---
+title: "Holsenbeck_S_Midterm"
+author: "Stephen Synchronicity"
+date: '`r format(Sys.time(), "%Y-%m-%d")`'
+always_allow_html: yes
+output: 
+  html_document: 
+    css: C:\Users\Stephen\Documents\R\win-library\3.4\rmarkdown\rmarkdown\templates\neu_hwk\resources\styles.css
+    highlight: zenburn
+    keep_md: yes
+    theme: readable
+    toc_float: true
+    toc: yes
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message=FALSE,warning=FALSE,cache=TRUE, fig.align='center', fig.height=3.5, fig.width=5, tidy=TRUE, tidy.opts=list(width.cutoff=80))
+rmarkdown::html_dependency_jquery()
+rmarkdown::html_dependency_bootstrap("readable")
+rmarkdown::html_dependency_jqueryui()
+set.seed(1)
+```
+```{r Libraries, echo=FALSE, results='hide'}
+library("tidyverse")
+library("dplyr")
+library("magrittr")
+library("htmltools")
+library("DT")
+```
+
+# Midterm
+
+<button data-toggle="collapse" data-target="#demo" class="btn">Homework Outline</button>
+<div id="demo" class="collapse">
+1. Using R, write a program to calculate all the prime numbers less than 100. A prime number is a positive integer greater than 1 that is divisible (without remainder) only by 1 and itself. Create the program by testing each number from 2 to 100 against all integers less than it using %%. Your function should return a vector of all the primes < 100. (15 pt)
+2. Using R, create a histogram of the result from 1 using ggplot. Be sure to nicely label your axes and title the graph. (5pt)
+3. You flip a coin five times.
+a. What’s the chance of getting three or more heads in a row? (5 pt)
+b. What’s the chance of getting three or more heads in a row conditional on knowing the first flip was a heads? (5 pt)
+4. NASA has declared that the Earth is likely to be hit by an asteroid this year based on an astronomical observation it has made. These things are hard to judge for certain, but it is known that the test NASA used is pretty good – it has a sensitivity of 99% and a false positive rate of only 1%. It is further known
+that the general probability of an asteroid hitting earth in any given year is 1 in 100,000. What is the probability we will actually be hit by an asteroid this year given NASA’s test? (10 pt)
+5. The average number of snow days in Boston in a winter month is 1. Assuming these events follow a poisson distribution, calculate (using R) the probability of getting 5 or more snow days in a month. (5 pt)
+6. You want to know how many hours of sleep the average college student gets. You start out with a preliminary survey of 10 people, and get the following data (in hours): 7,6,5,8,6,6,4,5,8,7. You hypothesize that despite what the doctors say, the average college student does not get 7 hours of sleep a night. What does your survey say? State your null hypothesis, research hypothesis (two tailed), and
+calculate your threshold value, test statistic, and p value. Do you reject the null or not? (10 pt)
+7. Despite the disappointing results in 6, you are confident in your hypothesis. Assuming your sample standard deviation and mean do not change and you want to survey as few people as possible, how many additional people would you have to survey to reject the null at the 0.05 level? (5 pt)
+8. You survey the same 10 people during finals period, and get the following hours: 5,4,5,7,5,4,5,4,6,5. Do college students get significantly less sleep than usual during finals? (10 pt)
+9. You are a very bad gardener, and hypothesize that feeding houseplants vodka might help them relax and grow better. You perform an experiment to test your hypothesis, giving 15 houseplants water spiked with vodka, and 15 houseplants water alone. These are your results:
+<table class="table table-condensed">
+<thead>
+<tr class="header">
+<th>condition</th>
+<th>live</th>
+<th>die</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>treatment</td>
+<td>4</td>
+<td>11</td>
+</tr>
+<tr class="even">
+<td>control</td>
+<td>8</td>
+<td>7</td>
+</tr>
+</tbody>
+</table>
+```{r '9 Data', echo=F, results='hide'}
+t9 <- tibble::tribble(
+  ~condition, ~live, ~die,
+     "treatment",4L,11L,
+        "control",8L,7L
+  )
+```
+
+
+This looks pretty bad for the treatment, but being as good at statistics as you are bad at gardening,
+you test it using the chi-square test. What are your results? (15 pt)
+
+10. Perhaps you got things backwards, and plants need more stimulation to thrive. So you adjust your experiment into three treatment groups: water, vodka, and coffee. These are your results:
+<table class="table table-condensed">
+<thead>
+<tr class="header">
+<th align="left">condition</th>
+<th>mean days alive</th>
+<th>sd</th>
+<th align="right">n</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">water</td>
+<td>50</td>
+<td>10</td>
+<td align="right">20</td>
+</tr>
+<tr class="even">
+<td align="left">vodka</td>
+<td>45</td>
+<td>7</td>
+<td align="right">10</td>
+</tr>
+<tr class="odd">
+<td align="left">coffee</td>
+<td>55</td>
+<td>4</td>
+<td align="right">10</td>
+</tr>
+</tbody>
+</table>
+```{r '10 data', echo=F, results='hide'}
+`dt10` <- tibble::tribble(
+  ~condition, ~mean.days.alive, ~sd,  ~n,
+     "water",              50L, 10L, 20L,
+     "vodka",              45L,  7L, 10L,
+    "coffee",              55L,  4L, 10L
+  )
+```
+
+The overall mean is 50 days (as we said, you’re a bad gardener). Use an F test to determine if
+there is any significant difference among these three groups. (15 pt)
+</div>
+## 1
+<div class="q">
+ Using R, write a program to calculate all the prime numbers less than 100. A prime number is a positive integer greater than 1 that is divisible (without remainder) only by 1 and itself. Create the program by testing each number from 2 to 100 against all integers less than it using %%. Your function should return a vector of all the primes < 100. (15 pt)</div>
+ 
+```{r '1'}
+prime <- function(x){
+  OP <- c(2L)
+  d <- seq(2,x)
+  for(i in seq(2,x)){
+    div <- seq(2,d[i-1])
+    vf <- d[i]%%div
+      if(0 %in% vf==F){
+      OP[i] <- d[i]
+      }
+    OP <- OP[!is.na(OP)]
+  }
+return(OP)
+}
+( `p100`<- prime(100L))
+```
+ 
+ 
+## 2
+<div class="q"> Using R, create a histogram of the result from 1 using ggplot. Be sure to nicely label your axes and title the graph. (5pt)</div>
+
+```{r '2'}
+library(ggplot2)
+index <- seq(1,25)
+`df.p100` <- as.data.frame(cbind(index,`p100`))
+ggplot(data=`df.p100`,mapping=aes(x=index,y=p100))+
+  geom_histogram(stat='identity')+
+  xlab("Index")+
+  ylab("Value")+
+  ggtitle("Histogram of First 100 Prime Numbers")+
+  theme(plot.title = element_text(hjust = .5),plot.subtitle = element_text(hjust = .5))
+hist(p100,breaks=10,xlab="Values",main="Histogram of first 100 prime numbers")
+
+```
+
+## 3
+<div class="q"> You flip a coin five times.
+a. What’s the chance of getting three or more heads in a row? (5 pt)
+b. What’s the chance of getting three or more heads in a row conditional on knowing the first flip was a heads? (5 pt)</div>
+
+## 4
+<div class="q"> NASA has declared that the Earth is likely to be hit by an asteroid this year based on an astronomical observation it has made. These things are hard to judge for certain, but it is known that the test NASA used is pretty good – it has a sensitivity of 99% and a false positive rate of only 1%. It is further known that the general probability of an asteroid hitting earth in any given year is 1 in 100,000. What is the probability we will actually be hit by an asteroid this year given NASA’s test? (10 pt)</div>
+
+## 5
+<div class="q"> The average number of snow days in Boston in a winter month is 1. Assuming these events follow a poisson distribution, calculate (using R) the probability of getting 5 or more snow days in a month. (5 pt)</div>
+
+## 6
+<div class="q"> You want to know how many hours of sleep the average college student gets. You start out with a preliminary survey of 10 people, and get the following data (in hours): 7,6,5,8,6,6,4,5,8,7. You hypothesize that despite what the doctors say, the average college student does not get 7 hours of sleep a night. What does your survey say? State your null hypothesis, research hypothesis (two tailed), and calculate your threshold value, test statistic, and p value. Do you reject the null or not? (10 pt)</div>
+
+## 7
+<div class="q"> Despite the disappointing results in 6, you are confident in your hypothesis. Assuming your sample standard deviation and mean do not change and you want to survey as few people as possible, how many additional people would you have to survey to reject the null at the 0.05 level? (5 pt)</div>
+
+## 8
+<div class="q"> You survey the same 10 people during finals period, and get the following hours: 5,4,5,7,5,4,5,4,6,5. Do college students get significantly less sleep than usual during finals? (10 pt)</div>
+
+## 9
+<div class="q"> You are a very bad gardener, and hypothesize that feeding houseplants vodka might help them relax and grow better. You perform an experiment to test your hypothesis, giving 15 houseplants water spiked with vodka, and 15 houseplants water alone. These are your results:
+This looks pretty bad for the treatment, but being as good at statistics as you are bad at gardening,
+you test it using the chi-square test. What are your results? (15 pt)</div>
+
+## 10
+<div class="q"> Perhaps you got things backwards, and plants need more stimulation to thrive. So you adjust your experiment into three treatment groups: water, vodka, and coffee. These are your results:
+The overall mean is 50 days (as we said, you’re a bad gardener). Use an F test to determine if
+there is any significant difference among these three groups. (15 pt)</div>
