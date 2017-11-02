@@ -296,24 +296,28 @@ At the 95% confidence level, we fail to reject the null hypothesis, and conclude
 </div>
 ## 7
 <div class="q"> Despite the disappointing results in 6, you are confident in your hypothesis. Assuming your sample standard deviation and mean do not change and you want to survey as few people as possible, how many additional people would you have to survey to reject the null at the 0.05 level? (5 pt)</div>
-<div class="a">A) Algebraically, ~14, or 4 additional people would need to be surveyed to reject the null. Experimentally, the addtl function adds survey participants with the rNorm function up to a certain n (the input variable). It outputs the number of participants it added when the $p_{value}$ became significant. When this trial is replicated 100 times, the range of people needed to be surveyed is expected to be 38 (though I've seen it range from 35-40 on different trials of 100 each).
+<div class="a">A) Algebraically, ~14, or 4 additional people would need to be surveyed to reject the null. Experimentally, the addtl function adds survey participants with the rNorm function using the mean and sd of the supplied data. It outputs the number of participants it added when the $p_{value}$ becomes significant. When this trial is replicated 100 times, the number of people needed to be surveyed is ~18 or 8 additional.
 **7 - Algebraic Approach**
 $$\begin{aligned}t_{stat}=\frac{\bar{x}-\mu}{\frac{s}{\sqrt{n}}}<-2.26215716 \textrm{ | }t_{stat}>2.26215716 \\ -2.26215716=\frac{6.2-7}{\frac{1.316561}{\sqrt{n}}} \\ -2.26215716 \frac{1.316561}{\sqrt{n}}=-0.8 \\ 1.316561 = 0.3536447\sqrt{n} \\ n=13.8595 \end{aligned}$$
 
 ```{r '7 - Experimental Approach',eval=F}
 (1.31656/-0.3536447)^2
-addtl <- function(n){
-  for(i in seq(1,n)){
-  sh <- append(sh,abs(rnorm(1,mean(sh),mean(sh))),after=(length(sh)))
-  input <- c(mean(sh),7,sd(sh),length(sh))
-  par <- tCrit(.95,input,2,7)
-    if(par$Values[6]<.05){return(length(sh));
-      sh <- c(7,6,5,8,6,6,4,5,8,7);
+addtl <- function(cl,iVector,mu=0){
+  input <- c(mean(iVector),mu,sd(iVector),length(iVector))
+  par <- tCrit(cl,input,2,mu)
+  while(par$Values[6]>(1-cl)){
+  iVector <- append(iVector,abs(rnorm(1,mean(iVector),sd(iVector))),after=(length(iVector)))
+  input <- c(mean(iVector),mu,sd(iVector),length(iVector))
+  par <- tCrit(cl,input,2,mu)
+    if(par$Values[6]<(1-cl)){return(length(iVector));
+      
       break
     }
   }
+  return(length(iVector))
 }
-round(mean(replicate(100,addtl(1000),simplify=T)))
+addtl(.95,sh,7)
+round(mean(replicate(100,addtl(.95,sh,7),simplify=T)))
 
 ```
 </div>
