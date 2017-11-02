@@ -3,17 +3,12 @@ title: "Holsenbeck_S_Midterm"
 author: "Stephen Synchronicity"
 date: '`r format(Sys.time(), "%Y-%m-%d")`'
 output:
-  html_document:
-    css: C:\Users\Stephen\Documents\R\win-library\3.4\rmarkdown\rmarkdown\templates\neu_hwk\resources\styles.css
-    highlight: zenburn
-    keep_md: yes
-    theme: readable
-    toc: yes
-    toc_float: yes
-  pdf_document:
-    toc: yes
+  pdf_document: 
+  toc: no
+  latex_engine: xelatex
 always_allow_html: yes
 ---
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, message=FALSE,warning=FALSE,cache=TRUE, fig.align='center', fig.height=3.5, fig.width=5, tidy=TRUE, tidy.opts=list(width.cutoff=80))
 rmarkdown::html_dependency_jquery()
@@ -133,84 +128,6 @@ tCrit <- function(cl, data, tail, mu = 0) {
 
 # Midterm
 
-<button data-toggle="collapse" data-target="#demo" class="btn">Homework Outline</button>
-<div id="demo" class="collapse">
-1. Using R, write a program to calculate all the prime numbers less than 100. A prime number is a positive integer greater than 1 that is divisible (without remainder) only by 1 and itself. Create the program by testing each number from 2 to 100 against all integers less than it using %%. Your function should return a vector of all the primes < 100. (15 pt)
-2. Using R, create a histogram of the result from 1 using ggplot. Be sure to nicely label your axes and title the graph. (5pt)
-3. You flip a coin five times.
-a. What’s the chance of getting three or more heads in a row? (5 pt)
-b. What’s the chance of getting three or more heads in a row conditional on knowing the first flip was a heads? (5 pt)
-4. NASA has declared that the Earth is likely to be hit by an asteroid this year based on an astronomical observation it has made. These things are hard to judge for certain, but it is known that the test NASA used is pretty good – it has a sensitivity of 99% and a false positive rate of only 1%. It is further known
-that the general probability of an asteroid hitting earth in any given year is 1 in 100,000. What is the probability we will actually be hit by an asteroid this year given NASA’s test? (10 pt)
-5. The average number of snow days in Boston in a winter month is 1. Assuming these events follow a poisson distribution, calculate (using R) the probability of getting 5 or more snow days in a month. (5 pt)
-6. You want to know how many hours of sleep the average college student gets. You start out with a preliminary survey of 10 people, and get the following data (in hours): 7,6,5,8,6,6,4,5,8,7. You hypothesize that despite what the doctors say, the average college student does not get 7 hours of sleep a night. What does your survey say? State your null hypothesis, research hypothesis (two tailed), and
-calculate your threshold value, test statistic, and p value. Do you reject the null or not? (10 pt)
-7. Despite the disappointing results in 6, you are confident in your hypothesis. Assuming your sample standard deviation and mean do not change and you want to survey as few people as possible, how many additional people would you have to survey to reject the null at the 0.05 level? (5 pt)
-8. You survey the same 10 people during finals period, and get the following hours: 5,4,5,7,5,4,5,4,6,5. Do college students get significantly less sleep than usual during finals? (10 pt)
-9. You are a very bad gardener, and hypothesize that feeding houseplants vodka might help them relax and grow better. You perform an experiment to test your hypothesis, giving 15 houseplants water spiked with vodka, and 15 houseplants water alone. These are your results:
-<table class="table table-condensed">
-<thead>
-<tr class="header">
-<th>condition</th>
-<th>live</th>
-<th>die</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>treatment</td>
-<td>4</td>
-<td>11</td>
-</tr>
-<tr class="even">
-<td>control</td>
-<td>8</td>
-<td>7</td>
-</tr>
-</tbody>
-</table>
-
-
-
-This looks pretty bad for the treatment, but being as good at statistics as you are bad at gardening,
-you test it using the chi-square test. What are your results? (15 pt)
-
-10. Perhaps you got things backwards, and plants need more stimulation to thrive. So you adjust your experiment into three treatment groups: water, vodka, and coffee. These are your results:
-<table class="table table-condensed">
-<thead>
-<tr class="header">
-<th align="left">condition</th>
-<th>mean days alive</th>
-<th>sd</th>
-<th align="right">n</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="left">water</td>
-<td>50</td>
-<td>10</td>
-<td align="right">20</td>
-</tr>
-<tr class="even">
-<td align="left">vodka</td>
-<td>45</td>
-<td>7</td>
-<td align="right">10</td>
-</tr>
-<tr class="odd">
-<td align="left">coffee</td>
-<td>55</td>
-<td>4</td>
-<td align="right">10</td>
-</tr>
-</tbody>
-</table>
-
-
-The overall mean is 50 days (as we said, you’re a bad gardener). Use an F test to determine if
-there is any significant difference among these three groups. (15 pt)
-</div>
 ## 1
 <div class="q">
  Using R, write a program to calculate all the prime numbers less than 100. A prime number is a positive integer greater than 1 that is divisible (without remainder) only by 1 and itself. Create the program by testing each number from 2 to 100 against all integers less than it using %%. Your function should return a vector of all the primes < 100. (15 pt)</div>
@@ -398,7 +315,7 @@ dt10 <- as.data.frame(dt10)
 <div class="a">A)
 $H_0:\mu_w=\mu_v=\mu_c$: The average lifespan is the same across conditions.  
 $H_a:\neg(\mu_D=\mu_I=\mu_R)$ The average lifespan is different across conditions.
-$$\begin{aligned}\begin{aligned} f_{stat}=\frac{\textrm{average variance between groups}}{\textrm{average variance within groups}} \\ \text{between groups}=\frac{n_{1}(\bar{y}_{1} - \bar{y})^{2}+ ... + n_{G}(\bar{y}_{G} - \bar{y})^{2}  }{df=G-1} \\ \text{within groups}=\frac{(n_{1}-1)s_{1}^{2}+ ... + (n_{G}-1)s_{G}^{2}  }{df=N-G}\\ \text{ where }N=\text{sum(n) in all},G=\text{# of Groups} \\ \text{compare }f_{stat} \text{ to } \text{qf}(cl,df_1,df_2) \\
+$$\begin{aligned}\begin{aligned} f_{stat}=\frac{\textrm{average variance between groups}}{\textrm{average variance within groups}} \\ \text{between groups}=\frac{n_{1}(\bar{y}_{1} - \bar{y})^{2}+ ... + n_{G}(\bar{y}_{G} - \bar{y})^{2}  }{df=G-1} \\ \text{within groups}=\frac{(n_{1}-1)s_{1}^{2}+ ... + (n_{G}-1)s_{G}^{2}  }{df=N-G}\\ \text{ where }N=\text{sum(n) in all},G=\textrm{no. of Groups} \\ \text{compare }f_{stat} \text{ to } \text{qf}(cl,df_1,df_2) \\
 \text{or compare }p_{value}=\text{1-pf}(f_{stat},df_1,df_2) \text{ to }\alpha\end{aligned}\end{aligned}$$
 
 **10**
