@@ -212,7 +212,7 @@ there is any significant difference among these three groups. (15 pt)
 ## 1
 <div class="q">
  Using R, write a program to calculate all the prime numbers less than 100. A prime number is a positive integer greater than 1 that is divisible (without remainder) only by 1 and itself. Create the program by testing each number from 2 to 100 against all integers less than it using %%. Your function should return a vector of all the primes < 100. (15 pt)</div>
-<div class="a">A)
+<div class="a">A)  
 ```{r '1'}
 prime <- function(x){
   OP <- c(2L)
@@ -244,7 +244,13 @@ ggplot(data=`df.p100`,mapping=aes(x=index,y=p100))+
   ylab("Value")+
   ggtitle("Histogram of First 100 Prime Numbers")+
   theme(plot.title = element_text(hjust = .5),plot.subtitle = element_text(hjust = .5))
-hist(p100,breaks=10,xlab="Values",main="Histogram of first 100 prime numbers")
+ggplot(data=df.p100,mapping=aes(x=p100))+
+       geom_histogram(binwidth=5,alpha=0.3)+
+       ggtitle("Histogram of first 100 prime numbers")+
+       xlab("Value")+
+       ylab("Frequency")+
+       scale_x_continuous(breaks = round(seq(min(p100), max(p100), by = 4),1))+
+       theme(plot.title = element_text(hjust = .5),plot.subtitle = element_text(hjust = .5))
 ```
 </div>
 
@@ -296,7 +302,7 @@ At the 95% confidence level, we fail to reject the null hypothesis, and conclude
 </div>
 ## 7
 <div class="q"> Despite the disappointing results in 6, you are confident in your hypothesis. Assuming your sample standard deviation and mean do not change and you want to survey as few people as possible, how many additional people would you have to survey to reject the null at the 0.05 level? (5 pt)</div>
-<div class="a">A) Algebraically, ~14, or 4 additional people would need to be surveyed to reject the null. Experimentally, the addtl function adds survey participants with the rNorm function up to a certain n (the input variable). It outputs the number of participants it added when the $p_{value}$ became significant. When this trial is replicated 100 times, the range of people needed to be surveyed is expected to be 38 (though I've seen it range from 35-40 on different trials of 100 each).
+<div class="a">A) Algebraically, ~14, or 4 additional people would need to be surveyed to reject the null. Experimentally, the addtl function adds survey participants with the rNorm function up to a certain n (the input variable). It outputs the number of participants it added when the $p_{value}$ became significant. When this trial is replicated 100 times, the range of people needed to be surveyed is expected to be 38 (though I've seen it range from 35-40 on different trials of 100 each).  
 **7 - Algebraic Approach**
 $$\begin{aligned}t_{stat}=\frac{\bar{x}-\mu}{\frac{s}{\sqrt{n}}}<-2.26215716 \textrm{ | }t_{stat}>2.26215716 \\ -2.26215716=\frac{6.2-7}{\frac{1.316561}{\sqrt{n}}} \\ -2.26215716 \frac{1.316561}{\sqrt{n}}=-0.8 \\ 1.316561 = 0.3536447\sqrt{n} \\ n=13.8595 \end{aligned}$$
 
