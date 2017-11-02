@@ -26,6 +26,7 @@ library("magrittr")
 library("htmltools")
 library("DT")
 ```
+**Custom Fns**
 ```{r 'Custom Fns',echo=F,results='hide'}
 #Function for t-test Critical Values, Confidence interval, t-statistic & p-value
 #given a vector of descriptive variables, or data
@@ -213,6 +214,7 @@ there is any significant difference among these three groups. (15 pt)
 <div class="q">
  Using R, write a program to calculate all the prime numbers less than 100. A prime number is a positive integer greater than 1 that is divisible (without remainder) only by 1 and itself. Create the program by testing each number from 2 to 100 against all integers less than it using %%. Your function should return a vector of all the primes < 100. (15 pt)</div>
 <div class="a">A)
+**1**
 ```{r '1'}
 prime <- function(x){
   OP <- c(2L)
@@ -234,6 +236,7 @@ return(OP)
 ## 2
 <div class="q"> Using R, create a histogram of the result from 1 using ggplot. Be sure to nicely label your axes and title the graph. (5pt)</div>
 <div class="a">A)
+**2**
 ```{r '2'}
 library(ggplot2)
 index <- seq(1,25)
@@ -254,6 +257,7 @@ a. What’s the chance of getting three or more heads in a row? (5 pt)
 b. What’s the chance of getting three or more heads in a row conditional on knowing the first flip was a heads? (5 pt)</div>
 <div class="a">a) $P(A=H|B=H|C=H)=0.5^3=0.125$  
 b) $P(B=H,C=H)$ given $P(A=H)=1$ = $1*.5^2=0.25$
+**3**
 ```{r '3'}
 .5^3
 .5^2
@@ -264,6 +268,7 @@ b) $P(B=H,C=H)$ given $P(A=H)=1$ = $1*.5^2=0.25$
 <div class="q"> NASA has declared that the Earth is likely to be hit by an asteroid this year based on an astronomical observation it has made. These things are hard to judge for certain, but it is known that the test NASA used is pretty good – it has a sensitivity of 99% and a false positive rate of only 1%. It is further known that the general probability of an asteroid hitting earth in any given year is 1 in 100,000. What is the probability we will actually be hit by an asteroid this year given NASA’s test? (10 pt)</div>
 <div class="a">A)
 $$P(A|+)=\frac{P(+|A)P(A)}{P(+|A)P(A) + P(+|\neg{A})P(\neg{A})}$$
+**4**
 ```{r '4'}
 s <- .99
 fp <- .01
@@ -279,6 +284,7 @@ A) Funny NASA would have data on the false positive rate and sensitivity for suc
 ## 5
 <div class="q"> The average number of snow days in Boston in a winter month is 1. Assuming these events follow a poisson distribution, calculate (using R) the probability of getting 5 or more snow days in a month. (5 pt)</div>
 <div class="a">A)
+**5**
 ```{r '5'}
 ppois(5,1,F)
 ```
@@ -287,7 +293,8 @@ ppois(5,1,F)
 <div class="q"> You want to know how many hours of sleep the average college student gets. You start out with a preliminary survey of 10 people, and get the following data (in hours): 7,6,5,8,6,6,4,5,8,7. You hypothesize that despite what the doctors say, the average college student does not get 7 hours of sleep a night. What does your survey say? State your null hypothesis, research hypothesis (two tailed), and calculate your threshold value, test statistic, and p value. Do you reject the null or not? (10 pt)</div>
 <div class="a">A)
 $$\begin{aligned}H_0:\mu=7\\H_{a}:\mu\neq7\\t_{stat}=\frac{\bar{x}-\mu}{\frac{s}{\sqrt{n}}}\\t_{stat}=\frac{6.2-7}{\frac{1.316561}{\sqrt{10}}}\\t_{stat}=-1.92153785\\p_{value}=2*\int\limits^{x}_{{-}\infty}f(-|t_{stat}|)dt\\p_{value}=0.08684229\end{aligned}$$
-```{r}
+**6**
+```{r '6'}
 sh <- c(7,6,5,8,6,6,4,5,8,7)
 
 tCrit(.95,sh,2,7)
@@ -300,6 +307,7 @@ At the 95% confidence level, we fail to reject the null hypothesis, and conclude
 **7 - Algebraic Approach**
 $$\begin{aligned}t_{stat}=\frac{\bar{x}-\mu}{\frac{s}{\sqrt{n}}}<-2.26215716 \textrm{ | }t_{stat}>2.26215716 \\ -2.26215716=\frac{6.2-7}{\frac{1.316561}{\sqrt{n}}} \\ -2.26215716 \frac{1.316561}{\sqrt{n}}=-0.8 \\ 1.316561 = 0.3536447\sqrt{n} \\ n=13.8595 \end{aligned}$$
 
+**7 - Experimental Approach**
 ```{r '7 - Experimental Approach',eval=F}
 (1.31656/-0.3536447)^2
 addtl <- function(cl,iVector,mu=0){
@@ -325,6 +333,7 @@ round(mean(replicate(100,addtl(.95,sh,7),simplify=T)))
 ## 8
 <div class="q"> You survey the same 10 people during finals period, and get the following hours: 5,4,5,7,5,4,5,4,6,5. Do college students get significantly less sleep than usual during finals? (10 pt)</div>
 <div class="a">A) According to the t-test at the 95% confidence interval, yes, we can reject the null in favor of the hypothesis that college students get significantly less sleep during finals.
+**8**
 ```{r '8'}
 fsh <- c(5,4,5,7,5,4,5,4,6,5)
 t.test(sh,fsh)
@@ -333,6 +342,7 @@ t.test(sh,fsh)
 ## 9
 <div class="q"> You are a very bad gardener, and hypothesize that feeding houseplants vodka might help them relax and grow better. You perform an experiment to test your hypothesis, giving 15 houseplants water spiked with vodka, and 15 houseplants water alone. These are your results:
 This looks pretty bad for the treatment, but being as good at statistics as you are bad at gardening, you test it using the chi-square test. What are your results? (15 pt)</div>
+**9 Data**
 ```{r '9 Data', echo=F, results='hide'}
 dt9 <- tibble::tribble(
   ~condition, ~live, ~die,
@@ -344,7 +354,8 @@ dt9 <- tibble::tribble(
 $H_0$ The proportion of plants that lived is independent of treatment.
 $H_1$ The proportion of plants that lived is dependent on treatment.
 
-```{r}
+**9**
+```{r '9'}
 # Method to add Sums
 # dt9 <- dt9 %>% rowwise() %>%
 #   mutate(Sum = sum(live,die))
@@ -359,6 +370,7 @@ The Chi-squared test of dependence indicates that the treatment and control grou
 ## 10
 <div class="q"> Perhaps you got things backwards, and plants need more stimulation to thrive. So you adjust your experiment into three treatment groups: water, vodka, and coffee. These are your results:
 The overall mean is 50 days (as we said, you’re a bad gardener). Use an F test to determine if there is any significant difference among these three groups. (15 pt)</div>
+**10 data**
 ```{r '10 data', echo=F, results='hide'}
 `dt10` <- tibble::tribble(
   ~condition, ~mean.days.alive, ~sd,  ~n,
@@ -374,7 +386,8 @@ $H_a:\neg(\mu_D=\mu_I=\mu_R)$ The average lifespan is different across condition
 $$\begin{aligned}\begin{aligned} f_{stat}=\frac{\textrm{average variance between groups}}{\textrm{average variance within groups}} \\ \text{between groups}=\frac{n_{1}(\bar{y}_{1} - \bar{y})^{2}+ ... + n_{G}(\bar{y}_{G} - \bar{y})^{2}  }{df=G-1} \\ \text{within groups}=\frac{(n_{1}-1)s_{1}^{2}+ ... + (n_{G}-1)s_{G}^{2}  }{df=N-G}\\ \text{ where }N=\text{sum(n) in all},G=\text{# of Groups} \\ \text{compare }f_{stat} \text{ to } \text{qf}(cl,df_1,df_2) \\
 \text{or compare }p_{value}=\text{1-pf}(f_{stat},df_1,df_2) \text{ to }\alpha\end{aligned}\end{aligned}$$
 
-```{r}
+**10**
+```{r '10'}
 f.test <- function(df){
 bgt <- vector("numeric")
 wgt <- vector("numeric")
