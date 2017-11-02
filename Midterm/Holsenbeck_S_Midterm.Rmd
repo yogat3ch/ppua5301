@@ -240,7 +240,7 @@ index <- seq(1,25)
 `df.p100` <- as.data.frame(cbind(index,`p100`))
 ggplot(data=`df.p100`,mapping=aes(x=index,y=p100))+
   geom_histogram(stat='identity')+
-  xlab("Index")+
+  xlab("Position Index")+
   ylab("Value")+
   ggtitle("Histogram of First 100 Prime Numbers")+
   theme(plot.title = element_text(hjust = .5),plot.subtitle = element_text(hjust = .5))
