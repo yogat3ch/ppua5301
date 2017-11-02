@@ -256,7 +256,7 @@ hist(p100,breaks=10,xlab="Values",main="Histogram of first 100 prime numbers")
 a. What’s the chance of getting three or more heads in a row? (5 pt)
 b. What’s the chance of getting three or more heads in a row conditional on knowing the first flip was a heads? (5 pt)</div>
 <div class="a">a) $P(A=H|B=H|C=H)=0.5^3=0.125$  
-b) $P(B=H,C=H)$ given $P(A=H)=1$ = $1*.5^2=0.25$
+b) $P(B=H,C=H)$ given $P(A=H)=1$ = $1*.5^2=0.25$  
 **3**
 ```{r '3'}
 .5^3
@@ -332,7 +332,7 @@ round(mean(replicate(100,addtl(.95,sh,7),simplify=T)))
 
 ## 8
 <div class="q"> You survey the same 10 people during finals period, and get the following hours: 5,4,5,7,5,4,5,4,6,5. Do college students get significantly less sleep than usual during finals? (10 pt)</div>
-<div class="a">A) According to the t-test at the 95% confidence interval, yes, we can reject the null in favor of the hypothesis that college students get significantly less sleep during finals.
+<div class="a">A) According to the t-test at the 95% confidence interval, yes, we can reject the null in favor of the hypothesis that college students get significantly less sleep during finals.  
 **8**
 ```{r '8'}
 fsh <- c(5,4,5,7,5,4,5,4,6,5)
@@ -343,7 +343,7 @@ t.test(sh,fsh)
 <div class="q"> You are a very bad gardener, and hypothesize that feeding houseplants vodka might help them relax and grow better. You perform an experiment to test your hypothesis, giving 15 houseplants water spiked with vodka, and 15 houseplants water alone. These are your results:
 This looks pretty bad for the treatment, but being as good at statistics as you are bad at gardening, you test it using the chi-square test. What are your results? (15 pt)</div>
 **9 Data**
-```{r '9 Data', echo=F, results='hide'}
+```{r '9 Data', echo=T, results='hide'}
 dt9 <- tibble::tribble(
   ~condition, ~live, ~die,
      "treatment",4L,11L,
@@ -371,7 +371,7 @@ The Chi-squared test of dependence indicates that the treatment and control grou
 <div class="q"> Perhaps you got things backwards, and plants need more stimulation to thrive. So you adjust your experiment into three treatment groups: water, vodka, and coffee. These are your results:
 The overall mean is 50 days (as we said, you’re a bad gardener). Use an F test to determine if there is any significant difference among these three groups. (15 pt)</div>
 **10 data**
-```{r '10 data', echo=F, results='hide'}
+```{r '10 data', echo=T, results='hide'}
 `dt10` <- tibble::tribble(
   ~condition, ~mean.days.alive, ~sd,  ~n,
      "water",              50L, 10L, 20L,
