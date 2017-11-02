@@ -354,13 +354,49 @@ The Chi-squared test of dependence indicates that the treatment and control grou
 
 ## 10
 <div class="q"> Perhaps you got things backwards, and plants need more stimulation to thrive. So you adjust your experiment into three treatment groups: water, vodka, and coffee. These are your results:
-The overall mean is 50 days (as we said, you’re a bad gardener). Use an F test to determine if
-there is any significant difference among these three groups. (15 pt)</div>
-```{r '9 data', echo=F, results='hide'}
+The overall mean is 50 days (as we said, you’re a bad gardener). Use an F test to determine if there is any significant difference among these three groups. (15 pt)</div>
+```{r '10 data', echo=F, results='hide'}
 `dt10` <- tibble::tribble(
   ~condition, ~mean.days.alive, ~sd,  ~n,
      "water",              50L, 10L, 20L,
      "vodka",              45L,  7L, 10L,
     "coffee",              55L,  4L, 10L
   )
+dt10 <- as.data.frame(dt10)
 ```
+<div class="a">A)
+$H_0:\mu_w=\mu_v=\mu_c$: The average lifespan is the same across conditions.  
+$H_a:\neg(\mu_D=\mu_I=\mu_R)$ The average lifespan is different across conditions.
+$$\begin{aligned}\begin{aligned} f_{stat}=\frac{\textrm{average variance between groups}}{\textrm{average variance within groups}} \\ \text{between groups}=\frac{n_{1}(\bar{y}_{1} - \bar{y})^{2}+ ... + n_{G}(\bar{y}_{G} - \bar{y})^{2}  }{df=G-1} \\ \text{within groups}=\frac{(n_{1}-1)s_{1}^{2}+ ... + (n_{G}-1)s_{G}^{2}  }{df=N-G}\\ \text{ where }N=\text{sum(n) in all},G=\text{# of Groups} \\ \text{compare }f_{stat} \text{ to } \text{qf}(cl,df_1,df_2) \\
+\text{or compare }p_{value}=\text{1-pf}(f_{stat},df_1,df_2) \text{ to }\alpha\end{aligned}\end{aligned}$$
+
+```{r}
+f.test <- function(df){
+bgt <- vector("numeric")
+wgt <- vector("numeric")
+  for(i in seq(1:nrow(df))){
+    ybar <- df[i,2]
+    s <-  df[i,3]
+    n <- df[i,4]
+    (nums <- sapply(df, is.numeric))
+    df1 <- ncol(df[,nums])-1
+    df2 <- sum(df[,4])-ncol(df[,nums])
+    bgt[i] <- n*(ybar-mean(df[,2]))^2
+    wgt[i] <- (n-1)*s^2
+  }
+wg <- sum(bgt)/df1
+bg <- sum(wgt)/df2
+f <- bg/wg
+fcrit <- qf(.95,df1,df2)
+pv <- 1-pf(f,df1,df2)
+OP <- tibble::tribble(
+  ~Stat,~Value,
+  "fStat",f,
+  "fCrit",fcrit,
+  "pValue",pv)
+return(OP)
+}
+f.test(dt10)
+```
+Based on these results, we fail to reject the null hypothesis at the 95% confidence level in support of the claim that the average lifespan is the same across conditions. Whatever plant is being tested appears to be very resilient.
+</div>
