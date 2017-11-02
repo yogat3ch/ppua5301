@@ -26,8 +26,7 @@ library("magrittr")
 library("htmltools")
 library("DT")
 ```
-**Custom Fns**
-```{r 'Custom Fns',echo=F,results='hide'}
+```{r Custom Fns,echo=F,results='hide'}
 #Function for t-test Critical Values, Confidence interval, t-statistic & p-value
 #given a vector of descriptive variables, or data
 #Inputs:
@@ -351,20 +350,27 @@ dt9 <- tibble::tribble(
   )
 ```
 <div class="a">A) 
-$H_0$ The proportion of plants that lived is independent of treatment.
-$H_1$ The proportion of plants that lived is dependent on treatment.
-
+$H_{n1}$ The proportion of plants that lived is independent of treatment.
+$H_{a1}$ The proportion of plants that lived is dependent on treatment.
+$H_{n2}$ The proportion of plants that died is independent of treatment.
+$H_{a2}$ The proportion of plants that died is dependent on treatment.
+$H_{n3}$ The numbers of plants living or dying is independent of treatment.
+$H_{a3}$ The numbers of plants living or dying is dependent on treatment.
+$H_{n4}$ The survival rate is independent of treatment.
+$H_{a4}$ The survival rate is dependent on treatment.
 **9**
 ```{r '9'}
 # Method to add Sums
 # dt9 <- dt9 %>% rowwise() %>%
 #   mutate(Sum = sum(live,die))
 # (dt9 <- rbind(dt9,c("Sums",colSums(dt9[,-1]))))
-chisq.test(dt9[,c(2:3)])
-
+chisq.test(dt9[,2]) #Hyp 1 Living
+chisq.test(dt9[,3]) #Hyp 2 Dying
+chisq.test(dt9[,c(2:3)]) #Hyp 3 #Taken together (dependence across groups)
+chisq.test(c(4/11,8/7)) #Hyp 4 #Survival Rate
 ```
 
-The Chi-squared test of dependence indicates that the treatment and control groups are independent, and plant survival is not dependent on what they are fed.
+The Chi-squared test, shows that the data regardless of it's segmentation,  indicates that the treatment and control groups are independent, whether a plant lives, or a plant dies is not dependent on what they are watered with.
 </div>
 
 ## 10
