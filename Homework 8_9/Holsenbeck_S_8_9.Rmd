@@ -1,0 +1,127 @@
+---
+title: "Holsenbeck_S_8_9"
+author: "Stephen Synchronicity"
+date: '`r format(Sys.time(), "%Y-%m-%d")`'
+always_allow_html: yes
+header-includes:
+   - \usepackage{dcolumn}
+output: 
+  html_document: 
+    css: C:\Users\Stephen\Documents\R\win-library\3.4\rmarkdown\rmarkdown\templates\neu_hwk\resources\styles.css
+    highlight: zenburn
+    keep_md: yes
+    theme: readable
+    toc_float: true
+    toc: yes
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message=FALSE,warning=FALSE,cache=TRUE, fig.align='center', fig.height=3.5, fig.width=5, tidy=TRUE, tidy.opts=list(width.cutoff=80))
+rmarkdown::html_dependency_jquery()
+rmarkdown::html_dependency_bootstrap("readable")
+rmarkdown::html_dependency_jqueryui()
+set.seed(1)
+```
+```{r Libraries, echo=FALSE, results='hide'}
+library("tidyverse")
+library("dplyr")
+library("htmltools")
+library("stringr")
+```
+
+
+<button data-toggle="collapse" data-target="#demo" class="btn">Homework Outline</button>
+<div id="demo" class="collapse">
+
+</div>
+```{r 'Read Data Set 1'}
+US <- read_csv("C:\\Users\\Stephen\\Documents\\Northeastern\\PPUA 5301 - Introduction to Computational Statistics\\Homework\\Homework 8_9\\Nutrition__Physical_Activity__and_Obesity_-_Behavioral_Risk_Factor_Surveillance_System.csv")
+names(US)
+US <- US[,-2]
+US14 <- US %>% filter(YearStart==2014 & Class=="Physical Activity" & is.na(Gender)==F & !LocationDesc %in% c("Guam","Puerto Rico","National")) %>%
+  select(1,3, Question, Data_Value,Gender) %>% 
+  group_by(LocationDesc) %>%
+  arrange(LocationDesc) %>% 
+  summarize(Perc=mean(Data_Value))
+unique(US$Question)
+```
+
+```{r 'Read Dataset 2'}
+Party <- tibble::tribble(
+                            ~State, ~Republican.lean.Rep., ~No.lean, ~Democrat.lean.Dem., ~Sample.Size,
+                         "Alabama",                 "52%",    "13%",               "35%",          511,
+                          "Alaska",                 "39%",    "29%",               "32%",          310,
+                         "Arizona",                 "40%",    "21%",               "39%",          653,
+                        "Arkansas",                 "46%",    "16%",               "38%",          311,
+                      "California",                 "30%",    "21%",               "49%",         3697,
+                        "Colorado",                 "41%",    "17%",               "42%",          504,
+                     "Connecticut",                 "32%",    "18%",               "50%",          377,
+                        "Delaware",                 "29%",    "17%",               "55%",          301,
+            "District of Columbia",                 "11%",    "15%",               "73%",          303,
+                         "Florida",                 "37%",    "19%",               "44%",         2020,
+                         "Georgia",                 "41%",    "18%",               "41%",          968,
+                          "Hawaii",                 "28%",    "20%",               "51%",          312,
+                           "Idaho",                 "49%",    "19%",               "32%",          320,
+                        "Illinois",                 "33%",    "19%",               "48%",         1326,
+                         "Indiana",                 "42%",    "20%",               "37%",          654,
+                            "Iowa",                 "41%",    "19%",               "40%",          330,
+                          "Kansas",                 "46%",    "23%",               "31%",          307,
+                        "Kentucky",                 "44%",    "13%",               "43%",          439,
+                       "Louisiana",                 "41%",    "16%",               "43%",          465,
+                           "Maine",                 "36%",    "17%",               "47%",          303,
+                        "Maryland",                 "31%",    "14%",               "55%",          644,
+                   "Massachusetts",                 "27%",    "17%",               "56%",          704,
+                        "Michigan",                 "34%",    "19%",               "47%",          982,
+                       "Minnesota",                 "39%",    "15%",               "46%",          563,
+                     "Mississippi",                 "44%",    "14%",               "42%",          309,
+                        "Missouri",                 "41%",    "18%",               "42%",          642,
+                         "Montana",                 "49%",    "21%",               "30%",          312,
+                        "Nebraska",                 "47%",    "17%",               "36%",          312,
+                          "Nevada",                 "37%",    "18%",               "46%",          314,
+                   "New Hampshire",                 "35%",    "20%",               "44%",          303,
+                      "New Jersey",                 "30%",    "19%",               "51%",          886,
+                      "New Mexico",                 "37%",    "15%",               "48%",          312,
+                        "New York",                 "28%",    "19%",               "53%",         1966,
+                  "North Carolina",                 "41%",    "17%",               "43%",         1022,
+                    "North Dakota",                 "50%",    "18%",               "33%",          338,
+                            "Ohio",                 "42%",    "18%",               "40%",         1132,
+                        "Oklahoma",                 "45%",    "15%",               "40%",          391,
+                          "Oregon",                 "32%",    "21%",               "47%",          419,
+                    "Pennsylvania",                 "39%",    "15%",               "46%",         1366,
+                    "Rhode Island",                 "30%",    "22%",               "48%",          305,
+                  "South Carolina",                 "43%",    "18%",               "39%",          495,
+                    "South Dakota",                 "53%",    "10%",               "37%",          305,
+                       "Tennessee",                 "48%",    "15%",               "36%",          661,
+                           "Texas",                 "39%",    "21%",               "40%",         2535,
+                            "Utah",                 "54%",    "16%",               "30%",          315,
+                         "Vermont",                 "29%",    "14%",               "57%",          306,
+                        "Virginia",                 "43%",    "18%",               "39%",          882,
+                      "Washington",                 "33%",    "23%",               "44%",          714,
+                   "West Virginia",                 "43%",    "16%",               "41%",          309,
+                       "Wisconsin",                 "42%",    "16%",               "42%",          600,
+                         "Wyoming",                 "57%",    "18%",               "25%",          316
+           )
+```
+```{r 'Xform Dataset 2'}
+Party <- lapply(Party, gsub, pattern='\\%', replacement='')
+Party <- as.data.frame(Party,stringsAsFactors = F,)
+reclass <- function(df, vec){
+  df[] <- Map(function(x, f){
+    #switch below shows the accepted values in the vector
+    #you can modify it and/or add more
+    f <- switch(f,
+                as.is  = 'force',
+                factor = 'as.factor',
+                num    = 'as.numeric',
+                char   = 'as.character')
+    #takes the name of the function and fetches the function
+    f <- get(f)
+    #apply the function
+    f(x)
+  },
+      df,
+      vec)
+df
+}
+Party <- reclass(Party, c('char','num','num','num','num'))
+```
+
