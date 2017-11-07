@@ -163,7 +163,7 @@ colnames(Party) <- c("ST","R","N","D","ns")
 **Join Tables for Analysis**
 ```{r 'Join Tables for Analysis'}
 Pty_Hlth <- left_join(Party,US_Hlth,by="ST")
-rm(US)
+rm(US,US_Hlth,Party)
 ```
 
 **Prelim Analysis**
@@ -253,6 +253,12 @@ The variables were reclassed to characters or numbers where necessary. The table
 <div class="q">	Before running a multiple regression, run a few bivariate regressions of Y on some of your X variables. What do you infer? Which of these do you think might change with the addition of multiple variables?
 </div>
 <div class="a">
+```{r '2-Var Regressions'}
+summary(lm(`R`~`0`,Pty_Hlth))
+summary(lm(`R`~`150`,Pty_Hlth))
+summary(lm(`R`~`Veg`,Pty_Hlth))
+```
+
 </div>
 ## 7
 <div class="q">	Run your full multiple regression using lm() and present your results using the output from the stargazer R package. Interpret the coefficients. What do they tell you substantively? Which variables seem to have the biggest substantive impact? Which ones could you actually change with some intervention, and how big a difference do you think that could make?
