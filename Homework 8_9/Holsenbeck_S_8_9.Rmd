@@ -26,6 +26,9 @@ library("tidyverse")
 library("dplyr")
 library("htmltools")
 library("stringr")
+library("forcats")
+library("gridExtra")
+library("magrittr")
 ```
 
 
@@ -54,23 +57,26 @@ d.	Calulate the F statistic using R and confirm it against the regression output
 </div>
 
 
+**Read Data Set 1**
 ```{r 'Read Data Set 1'}
 US <- read_csv("C:\\Users\\Stephen\\Documents\\Northeastern\\PPUA 5301 - Introduction to Computational Statistics\\Homework\\Homework 8_9\\Nutrition__Physical_Activity__and_Obesity_-_Behavioral_Risk_Factor_Surveillance_System.csv")
-names(US)
-US <- US[,-2]
-US_Hlth <- US %>% filter(YearStart==2015 & Class=="Physical Activity" & is.na(Gender)==F & !LocationDesc %in% c("Guam","Puerto Rico","National")) %>%
-  select(1,3, Question, Data_Value,Gender) %>% 
+# names(US)
+(Qs <- unique(US$Question))
+```
+
+```{r 'Xform Datatset 1'}
+US_Hlth <- US %>% filter(YearStart==2015 & Question %in% c("Percent of adults who engage in no leisure-time physical activity","Percent of adults who achieve at least 150 minutes a week of moderate-intensity aerobic physical activity or 75 minutes a week of vigorous-intensity aerobic activity (or an equivalent combination)","Percent of adults aged 18 years and older who have an overweight classification","Percent of adults who report consuming vegetables less than one time daily") & is.na(Gender)==F & !LocationDesc %in% c("Guam","Puerto Rico","National")) %>%
+  select(YearStart,LocationDesc, Question, Data_Value,Gender) %>% 
   group_by(LocationDesc, Question) %>%
   arrange(LocationDesc,Question) %>%
   summarize(Perc=mean(Data_Value))
-colnames(US_Hlth) <- c("ST","Activity","Per.Sed")
-US_Hlth$Activity <- as.factor(US_Hlth$Activity)
-US_Hlth$Activity <- US_Hlth$Activity %>% fct_recode("0"="Percent of adults who engage in no leisure-time physical activity","150"="Percent of adults who achieve at least 150 minutes a week of moderate-intensity aerobic physical activity or 75 minutes a week of vigorous-intensity aerobic activity (or an equivalent combination)","300"="Percent of adults who achieve at least 300 minutes a week of moderate-intensity aerobic physical activity or 150 minutes a week of vigorous-intensity aerobic activity (or an equivalent combination)")
-US_Hlth<- US_Hlth %>% ungroup() %>%  filter(Activity %in% c("0","150","300")) %>% spread("Activity","Per.Sed")
-unique(US_Hlth$Activity)
-
+colnames(US_Hlth) <- c("ST","Hlth_M","Perc")
+US_Hlth$Hlth_M <- as.factor(US_Hlth$Hlth_M)
+US_Hlth$Hlth_M <- US_Hlth$Hlth_M %>% fct_recode("0"="Percent of adults who engage in no leisure-time physical activity","150"="Percent of adults who achieve at least 150 minutes a week of moderate-intensity aerobic physical activity or 75 minutes a week of vigorous-intensity aerobic activity (or an equivalent combination)","Veg"="Percent of adults who report consuming vegetables less than one time daily","Wgt"="Percent of adults aged 18 years and older who have an overweight classification")
+US_Hlth<- US_Hlth %>% ungroup() %>%  filter(Hlth_M %in% c("0","150","Veg","Wgt")) %>% spread("Hlth_M","Perc")
 ```
 
+**Read Dataset 2**
 ```{r 'Read Dataset 2'}
 Party <- tibble::tribble(
                             ~State, ~Republican.lean.Rep., ~No.lean, ~Democrat.lean.Dem., ~Sample.Size,
@@ -127,6 +133,7 @@ Party <- tibble::tribble(
                          "Wyoming",                 "57%",    "18%",               "25%",          316
            )
 ```
+**Xform Dataset 2**
 ```{r 'Xform Dataset 2'}
 Party <- lapply(Party, gsub, pattern='\\%', replacement='')
 Party <- as.data.frame(Party,stringsAsFactors = F,)
@@ -153,18 +160,33 @@ names(Party)
 colnames(Party) <- c("ST","R","N","D","ns")
 ```
 
+**Join Tables for Analysis**
 ```{r 'Join Tables for Analysis'}
-Pty_Sed <- left_join(Party,US_Hlth,by="ST")
+Pty_Hlth <- left_join(Party,US_Hlth,by="ST")
 rm(US)
+```
+
+**Prelim Analysis**
+```{r 'Prelim Analysis', fig.width=10,fig.height=5}
+Pty_Hlth<- Pty_Hlth %>% arrange(R)
+ggplot(data=Pty_Hlth,mapping=aes(x=reorder(ST,R),y=`R`))+
+  geom_point()+
+  geom_smooth(method="lm")+
+  geom_point(mapping=aes(y=`0`),color="red")+
+  geom_point(mapping=aes(y=`150`),color="blue")+
+  geom_point(mapping=aes(y=`Veg`),color="green")+
+  geom_point(mapping=aes(y=`Wgt`),color="orange")+
+  theme(legend.position="none",axis.text.x = element_text(angle = 90, hjust = 1,lineheight = 1))
+#The Wgt variable is obviously not correlated, so this will be left out of further analyses
 ```
 
 ## 1
 <div class="q">	Describe your substantive interest and the general questions(s) you would like to answer (eg, “Does more education cause people to become more liberal?”). Be sure to frame it in a such a way that you are proposing a hypothesis (or multiple hypotheses) that might be either confirmed or disproven by the results of your analysis.
 </div>
 <div class="a">
-Selecting the data for comparison was quite difficult given the restraints of having the data not include temporal or categorical data. All of my interests included data that had a temporal index or categorical data involved. Eventually, I decided to use this data since it fits within the restraints and *might* be interesting.
+Selecting the data for comparison was quite difficult given the restraints of having the data not include temporal or categorical data. All of my interests included data that had a temporal index or categorical data involved. I wanted to look at health related measures, and decided to carry on the question from the class theme about partisanship, hence the topic of the two datasets. The data used herein fits the restraints and *might* prove to yield interesting correlations.
 <br>
-The hypothesis is a question of whether there is a correlation between health behaviors and party affiliation within states.
+The hypothesis is a question of whether there is a correlation between various health behaviors and party affiliation within states.
 $H_1$ Is the proportion of individuals living a sedentary lifestyle correlated with a party affilation?
 $H_2$ Is the proportion of individuals meeting minimum recommendations for physical activity correlated with a party affilation?
 $H_3$ Is the proportion of individuals exercising well beyond minimum recommendations for physical activity correlated with a party affilation?
@@ -180,19 +202,53 @@ The data about party affilation by state came from the <a href="http://www.pewfo
 ## 3
 <div class="q">	What is your dependent variable? Why are you interested in explaining it? What do you hypothesize are the major factors that influence or cause it?
 </div>
-<div class="a">The dependent variable is the party affiliation. The variable is complex, but there may be a correlation between sedentary lifestyle, and the tendency to identify as Republican. The decision to lead a sedentary lifestyle (assuming its a choice)  could be due to lack of exposure to quality health related information from the education system and/or information sources or lack of access to medical professionals etc. There's evidence relating <a href="https://scholar.google.com/scholar?q=physical+exercise+and+executive+function&hl=en&as_sdt=0&as_vis=1&oi=scholart&sa=X&ved=0ahUKEwiDprWHwKvXAhWD5iYKHatJCmAQgQMIJDAA" target="_blank">physical exercise and executive function</a>, and <a href="https://scholar.google.com/scholar?hl=en&as_sdt=0%2C22&as_vis=1&q=physical+activity+on+cognition&oq=physical+exercise+and+executive+function" target="_blank">physical exercise to cognition</a>. Thus there might be some explanatory value relating executive function & cognition (or lack thereof) to political party affiliation that would undoubtedly be extremely controversial if the evidence exists.
+<div class="a">The dependent variable is the percentage of the state pop. identfied as Republican, or Republican leaning. The variable is complex with numerous influencing factors. During the in-class explorations we have looked at potential influencing factors such as race, income, and education level on party affiliation via data from the ANES survey.
+<br>
+Intuitively, party affiliation could also be influenced or predicted in part by religion, affiliation of parents, place of residence, affiliation of peers in social network, or potentially to particular psychological traits such as openness.
+<br>
+In this study, we'll be looking at the percentage of each state's pop. exhibiting particular health behaviors, discussed further below. The decision to lead a sedentary lifestyle (assuming its a choice) could be due to lack of exposure to quality health related information while in the education system and/or lack of exposure to quality health related information sources. It could also be related to lack of access to health care services, medical professionals etc. If a person is living a lifestyle that involves behaviors identified as risk factors, there are often concurrent cognitive indicators resulting from poor health. 
+<br>For example, there's evidence relating <a href="https://scholar.google.com/scholar?q=physical+exercise+and+executive+function&hl=en&as_sdt=0&as_vis=1&oi=scholart&sa=X&ved=0ahUKEwiDprWHwKvXAhWD5iYKHatJCmAQgQMIJDAA" target="_blank">physical exercise and executive function</a>, and <a href="https://scholar.google.com/scholar?hl=en&as_sdt=0%2C22&as_vis=1&q=physical+activity+on+cognition&oq=physical+exercise+and+executive+function" target="_blank">physical exercise to cognition</a>. Thus, there might be some explanatory value in relating activity levels (or lack thereof) to political party affiliation that would undoubtedly be controversial if the evidence exists. 
 </div>
 ## 4
 <div class="q">	What are your independent variables, and why have you chosen these? Prior to running your regression, what effects do you expect them to have on the dependent variable? Which of these variables do you think affect other of the independent variables, and how might that affect your final results?
 </div>
 <div class="a">
+This brief analysis will look at whether there is correlation between the following independent variables:
+<ul style="list-style-type:none">
+<li>$x_1$: % of pop. living sedentary lifestyle</li>
+<li>$x_2$: % of pop. living lifestyle meeting minimum physical activity recommendations</li>
+<li>$x_3$: % of pop. that consumes vegetables less than 1 time daily</li>
+</ul>
+and the dependent variable $y$: the identification as Republican.
+<br>
+There might be a positive correlation between the percent of a state's pop. that exhibits health behaviors identified as risk factors $x_1,x_3$ and the percent of a state's pop. that identifies as Republican or Republican leaning. There is likely an inverse colinear relationship between $x_1$ and $x_2$ because they are mutually exclusive categories along a scale of 5 categories (not all of which are mutually exclusive.) See variable Qs, for the original categories. There could also be a correlation between states with a larger percentage of the population meeting minimum physical activity recommendations, and those whom are consuming vegetables more than 1 time a day, due to a theoretical common variable of health knowledge. The linear regression will be affected --insert answer here--
+
 
 </div>
 ## 5
 <div class="q">	Explain and show in detail how you rename and recode the variables you are examining, and what units each are measured in.
 </div>
 <div class="a">
+The variables have been recoded in the chunks entitled "Xform Datatset 1" & "Xform Datatset 2." The renaming and recoding procedures are explained below:
+*Dataset 1*
+The data is filtered for the year 2015, the only year with data for each question that is closest to the year in which the data was gathered in dataset 2, the relevant questions, the 50 states plus the District of Columbia (as in dataset 2), and the gender stratification. The "Questions" column from the original dataset is renamed Hlth_M (Health Measures). The percentages of the pop. reporting a yes to the question are filtered by the gender stratification, such that only 2 percentages need be averaged to get a single % for the entire population. The answers to the questions are then recoded using the forcats package as follows:
+<ol>
+<li>"0"="Percent of adults who engage in no leisure-time physical activity." Referred to as sedentary lifestyle above.</li>
+<li>"150"="Percent of adults who achieve at least 150 minutes a week of moderate-intensity aerobic physical activity or 75 minutes a week of vigorous-intensity aerobic activity (or an equivalent combination)." Referred to as minimum exercise recommendations above.</li>
+<li>"Veg"="Percent of adults who report consuming vegetables less than one time daily."</li>
+<li>"Wgt"="Percent of adults aged 18 years and older who have an overweight classification." Removed from experiment due to no correlation.</li>
+</ol>
+The factors are the spread into columns.  
+*Dataset 2*
+The dataset variables were transformed as follows:
+<ol>
+<li>R="Republican/Republican Leaning"</li>
+<li>D="Democrat/Democrat Leaning"</li>
+<li>N="No affiliation"</li>
+</ol>
+The variables were reclassed to characters or numbers where necessary. The tables are joined by State.
 </div>
+
 ## 6
 <div class="q">	Before running a multiple regression, run a few bivariate regressions of Y on some of your X variables. What do you infer? Which of these do you think might change with the addition of multiple variables?
 </div>
@@ -209,10 +265,9 @@ The data about party affilation by state came from the <a href="http://www.pewfo
 <div class="a">
 </div>
 ## 9
-<div class="q">	How does what you see match, or not, your hypotheses from (</div>
+<div class="q">	How does what you see match, or not, your hypotheses from (4)? Why did/didn’t it match what you expected?</div>
 <div class="a">
 </div>
-4)? Why did/didn’t it match what you expected?
 ## 10
 <div class="q">	What do the $R^2$ and adjusted $R^2$ tell you about your model?</div>
 <div class="a">
