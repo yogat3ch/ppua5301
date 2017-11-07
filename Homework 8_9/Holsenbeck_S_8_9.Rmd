@@ -31,8 +31,29 @@ library("stringr")
 
 <button data-toggle="collapse" data-target="#demo" class="btn">Homework Outline</button>
 <div id="demo" class="collapse">
-
+1	Describe your substantive interest and the general questions(s) you would like to answer (eg, “Does more education cause people to become more liberal?”). Be sure to frame it in a such a way that you are proposing a hypothesis (or multiple hypotheses) that might be either confirmed or disproven by the results of your analysis.
+2	Describe the data set you have found, including its source, its contents, and why it was collected originally.
+3	What is your dependent variable? Why are you interested in explaining it? What do you hypothesize are the major factors that influence or cause it?
+4	What are your independent variables, and why have you chosen these? Prior to running your regression, what effects do you expect them to have on the dependent variable? Which of these variables do you think a˙ect other of the independent variables, and how might that a˙ect your final results?
+5	Explain and show in detail how you rename and recode the variables you are examining, and what units each are measured in.
+6	Before running a multiple regression, run a few bivariate regressions of Y on some of your X variables. What do you infer? Which of these do you think might change with the addition of multiple variables?
+7	Run your full multiple regression using lm() and present your results using the output from the stargazer R package. Interpret the coefficients. What do they tell you substantively? Which variables seem to have the biggest substantive impact? Which ones could you actually change with some intervention, and how big a di˙erence do you think that could make?
+8	How have any of the coefficients changed from the bivariate regressions? What can you infer from that?How do you think your various independent variables interact and a˙ect each other? Try to find an example where a variable appears signficant in the bivariate regression, but not in the full regression. Is this an example of a spurious or a chained causal pathway?
+9	How does what you see match, or not, your hypotheses from (4)? Why did/didn’t it match what you expected?
+10	What do the R2 and adjusted R2 tell you about your model?
+11	How would you use one of the variable selection methods to choose a model with fewer variables? Select one of the methods (either one of the stepwise or criterion-based methods) and show which variables it would lead you to keep. Do you agree with its results?
+12	What are your overall conclusions? What are the weaknesses of your results, and how could you improve them with better or different data?
+13	Calculations (using R):
+a.	Derive the coeÿcients from your regression using the (X0X)−1X0Y formula. (If you run into problems using solve(), try using ginv() instead, which does the same thing but is a bit more robust.)
+b.	For one of the coeÿcients, confirm its p value as shown in the regression output using the coeÿcient, its standard error, and pt() in R.
+c.	Calculate the R2 and adjusted R2 using R, and confirm that your results match the regression output.
+d.	Calulate the F statistic using R and confirm it against the regression output.
+14	Add at least one quadratic term into your model and interpret the results. Is it significant? What is the effect of a 1-unit increase in that variable at its mean value?
+15	Add at least one interaction term to you model and interpret the results. Is it significant? What is the effect of a 1-unit increase in one of those interacted variables holding the other at its mean value?
+16	Test either the model in 14 or the model in 15 using the F test for nested models. That is, estimate the full model with the variable and quadratic term, or the variable and interaction, and then estimate the reduced model without either, and run the F test to establish whether those variables significantly improve your model.
 </div>
+
+
 ```{r 'Read Data Set 1'}
 US <- read_csv("C:\\Users\\Stephen\\Documents\\Northeastern\\PPUA 5301 - Introduction to Computational Statistics\\Homework\\Homework 8_9\\Nutrition__Physical_Activity__and_Obesity_-_Behavioral_Risk_Factor_Surveillance_System.csv")
 names(US)
@@ -42,7 +63,7 @@ US14 <- US %>% filter(YearStart==2014 & Class=="Physical Activity" & is.na(Gende
   group_by(LocationDesc) %>%
   arrange(LocationDesc) %>% 
   summarize(Perc=mean(Data_Value))
-unique(US$Question)
+colnames(US14) <- c("ST","Per.Sed")
 ```
 
 ```{r 'Read Dataset 2'}
@@ -123,5 +144,97 @@ reclass <- function(df, vec){
 df
 }
 Party <- reclass(Party, c('char','num','num','num','num'))
+library("forcats")
+names(Party)
+colnames(Party) <- c("ST","R","N","D","ns")
 ```
+
+```{r 'Join Tables for Analysis'}
+Pty_Sed <- left_join(Party,US14,by="ST")
+```
+
+## 1
+<div class="q">	Describe your substantive interest and the general questions(s) you would like to answer (eg, “Does more education cause people to become more liberal?”). Be sure to frame it in a such a way that you are proposing a hypothesis (or multiple hypotheses) that might be either confirmed or disproven by the results of your analysis.
+</div>
+<div class="a">
+Selecting the data for comparison was quite difficult given the restraints of having the data not include temporal or categorical data. All of my interests included data that had a temporal index or categorical data involved. Eventually, I decided to use this data since it fits within the restraints and *might* be interesting.
+<br>
+The hypothesis is that states with higher proportions of conservatives will tend to have higher rates of people living sedentary lifestyles.
+</div>
+## 2
+<div class="q">	Describe the data set you have found, including its source, its contents, and why it was collected originally.
+</div>
+<div class="a">
+The data with proportion of the poulation living a lifestyle is a subset of the <a href="https://catalog.data.gov/dataset/nutrition-physical-activity-and-obesity-behavioral-risk-factor-surveillance-system" target="_blank">Nutrition, Physical Activity, and Obesity - Behavioral Risk Factor Surveillance System data set</a> from the CDC. 
+</div>
+## 3
+<div class="q">	What is your dependent variable? Why are you interested in explaining it? What do you hypothesize are the major factors that influence or cause it?
+</div>
+<div class="a">
+</div>
+## 4
+<div class="q">	What are your independent variables, and why have you chosen these? Prior to running your regression, what effects do you expect them to have on the dependent variable? Which of these variables do you think affect other of the independent variables, and how might that affect your final results?
+</div>
+<div class="a">
+</div>
+## 5
+<div class="q">	Explain and show in detail how you rename and recode the variables you are examining, and what units each are measured in.
+</div>
+<div class="a">
+</div>
+## 6
+<div class="q">	Before running a multiple regression, run a few bivariate regressions of Y on some of your X variables. What do you infer? Which of these do you think might change with the addition of multiple variables?
+</div>
+<div class="a">
+</div>
+## 7
+<div class="q">	Run your full multiple regression using lm() and present your results using the output from the stargazer R package. Interpret the coefficients. What do they tell you substantively? Which variables seem to have the biggest substantive impact? Which ones could you actually change with some intervention, and how big a difference do you think that could make?
+</div>
+<div class="a">
+</div>
+## 8
+<div class="q">	How have any of the coefficients changed from the bivariate regressions? What can you infer from that? How do you think your various independent variables interact and affect each other? Try to find an example where a variable appears signficant in the bivariate regression, but not in the full regression. Is this an example of a spurious or a chained causal pathway?
+</div>
+<div class="a">
+</div>
+## 9
+<div class="q">	How does what you see match, or not, your hypotheses from (</div>
+<div class="a">
+</div>
+4)? Why did/didn’t it match what you expected?
+## 10
+<div class="q">	What do the $R^2$ and adjusted $R^2$ tell you about your model?</div>
+<div class="a">
+</div>
+## 11
+<div class="q">	How would you use one of the variable selection methods to choose a model with fewer variables? Select one of the methods (either one of the stepwise or criterion-based methods) and show which variables it would lead you to keep. Do you agree with its results?
+</div>
+<div class="a">
+</div>
+## 12
+<div class="q">	What are your overall conclusions? What are the weaknesses of your results, and how could you improve them with better or different data?
+</div>
+<div class="a">
+</div>
+## 13
+<div class="q">	Calculations (using R):
+a.	Derive the coefficients from your regression using the (X0X)−1X0Y formula. (If you run into problems using solve(), try using ginv() instead, which does the same thing but is a bit more robust.)
+b.	For one of the coefficients, confirm its p value as shown in the regression output using the coeffcient, its standard error, and pt() in R.
+c.	Calculate the R2 and adjusted R2 using R, and confirm that your results match the regression output.
+d.	Calulate the F statistic using R and confirm it against the regression output.
+</div>
+<div class="a">
+</div>
+## 14
+<div class="q">	Add at least one quadratic term into your model and interpret the results. Is it significant? What is the effect of a 1-unit increase in that variable at its mean value?</div>
+<div class="a">
+</div>
+## 15
+<div class="q">	Add at least one interaction term to you model and interpret the results. Is it significant? What is the effect of a 1-unit increase in one of those interacted variables holding the other at its mean value?</div>
+<div class="a">
+</div>
+## 16
+<div class="q">	Test either the model in 14 or the model in 15 using the F test for nested models. That is, estimate the full model with the variable and quadratic term, or the variable and interaction, and then estimate the reduced model without either, and run the F test to establish whether those variables significantly improve your model.</div>
+<div class="a">
+</div>
 
