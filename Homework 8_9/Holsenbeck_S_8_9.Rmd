@@ -29,7 +29,6 @@ library("forcats")
 library("stargazer")
 library("sjPlot")
 library("car")
-library("bsplus")
 ```
 
 
@@ -494,11 +493,11 @@ vif(RObs300Fru)
 ```{r '8c - cont'}
 R0VegObs <- lm(R~act0+conVeg+wgtObs,Pty_Hlth)
 vif(R0VegObs)
-summary(R0VegObs)
+sjt.lm(R0VegObs)
 ```
 
 <p>
-The overall p-value for the model is now statistically significant, as well as for the coefficient of <u>wgtObs</u>. The coefficients are higher in value, and the $R^2$ is similar to other models. What still remains confusing is the negative coefficient for  <u>act0</u>, which when regressed with wgtObs and conVeg, and R individually, are all positive.</p>
+The p-value for the coefficient of <u>wgtObs</u> is now statistically significant. The coefficients are higher in value, and the $R^2$ is similar to other models. What still remains confusing is the negative coefficient for  <u>act0</u>, which when regressed with wgtObs and conVeg, and R individually, are all positive.</p>
 ```{r}
 Veg0 <- lm(act0~conVeg,Pty_Hlth)
 Obs0 <- lm(act0~wgtObs,Pty_Hlth)
@@ -520,7 +519,7 @@ summary(RObs)
 summary(R300)
 ```
 
-None of which are reflected in the multivariate regression, likely due to the reasons mentioned in the previous answer regarding inverse relationships and resulting dampening of the coefficient values. There may be confounding variables between <u>conFru</u> and <u>wgtObs</u>. If all risk factors and healthy behaviors were grouped together respectively, variables delineating each might be overall health knowledge, access to health information etc. as discussed prior. There is definite mutual exclusivity between <u>wgtObs</u> and <u>act300</u>, which isn't spurious or chained but important to note. It could logically be conceived that <u>act0</u> and <u>wgtObs</u> would be chained in causation, but the results from previous answers make this relationship difficult to discern.
+None of which are reflected in the multivariate regression, likely due to the reasons mentioned in the previous answer regarding inverse relationships and resulting in suppression of the coefficient values. There may be confounding variables between <u>conFru</u> and <u>wgtObs</u>. If all risk factors and healthy behaviors were grouped together respectively, variables delineating each might be overall health knowledge, access to health information etc. as discussed prior. There is definite mutual exclusivity between <u>wgtObs</u> and <u>act300</u>, which isn't spurious or chained but could be causiing suppression when the two are included in the same model. It could logically be conceived that <u>act0</u> and <u>wgtObs</u> would be chained in causation, but the results from previous answers make this relationship difficult to discern.  
 </div>
 
 ## 9  
@@ -537,27 +536,92 @@ sumRFO3 <- summary(RObs300Fru)
 sumRFO3$r.squared
 sumRFO3$adj.r.squared
 ```
-The $R^2$ value indicates that ~.31% of the variance in R is explained by the IV's included in the model. The Adjusted $R^2$ is more accurate for this multivariate analysis as it accounts for the number of variables included in the model. 
+The $R^2$ value indicates that ~.31% of the variance in R is explained by the IV's included in the model. The Adjusted $R^2$ is more accurate for multivariate analysis as it accounts for the number of variables included in the model. 
 </div>
 
 ## 11
 <div class="q">	How would you use one of the variable selection methods to choose a model with fewer variables? Select one of the methods (either one of the stepwise or criterion-based methods) and show which variables it would lead you to keep. Do you agree with its results?
 </div>
 <div class="a">
+From previous discussion, the inverse effect of <u>act300</u> is likely being suppressed by two variables with positive correlation. If we eliminate this variable from the regression and create the model:
+```{r '11'}
+RObsFru <- lm(R~wgtObs+conFru,Pty_Hlth)
+sjt.lm(RObsFru)
+```
+We have a slightly smaller $R^2$ due to the removal of the variable, but no statistically significant correlations. This implies that our variables might not have strong enough correlations for a 3-variable regression to show fit even without suppression occuring.
+If we substitute <u>act300</u> with <u>act0</u>: 
+```{r '11 - cont'}
+sjt.lm(RObsFru0)
+```
+we find a higher $R^2$ and coefficients, as well as greater significance since these could all be considered risk factors.
+<br>
+Referring back to the graphs, it appears that the two variables with the highest correlation are <u>wgtObs</u> and <u>conVeg</u>. To test:
+```{r '11 - cont3'}
+RObsVeg <- lm(R~wgtObs+conVeg,Pty_Hlth)
+sjt.lm(RObsVeg)
+```
+It does appear that <u>wgtObs</u> achieves significance in this 3-Var model, but the adjusted R^2 also declined slightly.
 </div>
 ## 12
 <div class="q">	What are your overall conclusions? What are the weaknesses of your results, and how could you improve them with better or different data?
 </div>
 <div class="a">
+Overall, the data does not allow for robust explanation of the dependent variable. Data with observations on individuals (as one would find in a survey) with continuous variables for given measures such as weight, number of minutes in various activities per week, dietary choices, and party affiliation might yield more significant results, and would make the modeling process much easier. 
 </div>
 ## 13
 <div class="q">	Calculations (using R):
 a.	Derive the coefficients from your regression using the (X0X)−1X0Y formula. (If you run into problems using solve(), try using ginv() instead, which does the same thing but is a bit more robust.)
-b.	For one of the coefficients, confirm its p value as shown in the regression output using the coeffcient, its standard error, and pt() in R.
+b.	For one of the coefficients, confirm its p value as shown in the regression output using the coefficient, its standard error, and pt() in R.
 c.	Calculate the R2 and adjusted R2 using R, and confirm that your results match the regression output.
 d.	Calulate the F statistic using R and confirm it against the regression output.
 </div>
 <div class="a">
+### a  
+$(X'X)^{-1}X'Y = \beta$
+```{r '13a'}
+mRObsFru300 <- as.matrix(cbind(1,Pty_Hlth$wgtObs,Pty_Hlth$conFru,Pty_Hlth$act300))
+head(mRObsFru300)
+solve( t(mRObsFru300) %*% mRObsFru300 )   %*%   t(mRObsFru300) %*% Pty_Hlth$R
+RObs300Fru$coefficients
+```
+
+### b  
+```{r '13b'}
+#conFru
+pt(sumRFO3$coefficients[2,1]/sumRFO3$coefficients[2,2],4,low=F)
+sumRFO3$coefficients
+```
+The $p_value$ for <u>conFru</u> seems to be calculated in the linear regression output via a different algorithm than pt() as indicated by the difference in the two values.
+
+### c  
+$R^{2} = \frac{TSS - SSE}{TSS}$
+```{r '13c'}
+ypred <- predict(RObs300Fru)
+y <- Pty_Hlth$R
+tss <- sum((y - mean(y))^2)
+sse <- sum((y-ypred)^2)
+r2 <- (tss-sse)/tss
+r2
+sumRFO3$r.squared
+```
+$\textrm{adjusted } R^2 = \frac{TSS/df_t - SSE/df_e}{TSS/df_t}$
+```{r '13c - cont'}
+n <- length(y)
+k <- ncol(mRObsFru300)-1
+dft <- n - 1
+dfe <- n - k - 1
+(tss/dft - sse/dfe)/ (tss/dft)
+sumRFO3$adj.r.squared
+```
+
+### d  
+$F = \frac{R^2 / k}{(1-R^2)/(n-k-1)}$
+```{r '13d'}
+f <- (r2/k) / ((1-r2)/(n-k-1))
+f
+sumRFO3$fstatistic
+```
+
 </div>
 ## 14
 <div class="q">	Add at least one quadratic term into your model and interpret the results. Is it significant? What is the effect of a 1-unit increase in that variable at its mean value?</div>
@@ -571,8 +635,6 @@ d.	Calulate the F statistic using R and confirm it against the regression output
 <div class="q">	Test either the model in 14 or the model in 15 using the F test for nested models. That is, estimate the full model with the variable and quadratic term, or the variable and interaction, and then estimate the reduced model without either, and run the F test to establish whether those variables significantly improve your model.</div>
 <div class="a">
 </div>
-```{r}
-Obs0 <- lm(wgtObs~act0,Pty_Hlth)
-summary(Obs0)
-```
+
+
 
