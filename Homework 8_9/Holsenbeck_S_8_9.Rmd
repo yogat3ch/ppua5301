@@ -64,6 +64,7 @@ US <- read_csv("C:\\Users\\Stephen\\Documents\\Northeastern\\PPUA 5301 - Introdu
 (Qs <- unique(US$Question))
 ```
 
+**Xform Dataset 1**
 ```{r 'Xform Dataset 1',eval=F}
 US_Hlth <- US %>% filter(YearStart==2015 & Question %in% c("Percent of adults who engage in no leisure-time physical activity","Percent of adults who achieve at least 150 minutes a week of moderate-intensity aerobic physical activity or 75 minutes a week of vigorous-intensity aerobic activity (or an equivalent combination)","Percent of adults aged 18 years and older who have an overweight classification","Percent of adults who report consuming vegetables less than one time daily") & is.na(Gender)==F & !LocationDesc %in% c("Guam","Puerto Rico","National")) %>%
   select(YearStart,LocationDesc, Question, Data_Value,Gender) %>% 
@@ -75,6 +76,7 @@ US_Hlth$Hlth_M <- as.factor(US_Hlth$Hlth_M)
 US_Hlth$Hlth_M <- US_Hlth$Hlth_M %>% fct_recode("0"="Percent of adults who engage in no leisure-time physical activity","150"="Percent of adults who achieve at least 150 minutes a week of moderate-intensity aerobic physical activity or 75 minutes a week of vigorous-intensity aerobic activity (or an equivalent combination)","Veg"="Percent of adults who report consuming vegetables less than one time daily","Wgt"="Percent of adults aged 18 years and older who have an overweight classification")
 US_Hlth<- US_Hlth %>% ungroup() %>%  filter(Hlth_M %in% c("0","150","Veg","Wgt")) %>% spread("Hlth_M","Perc")
 ```
+**Xform Dataset 1 - Revised**
 ```{r 'Xform Dataset 1 - Revised'}
 US_Hlth <- US %>% filter(YearStart==2015 & is.na(Gender)==F & !LocationDesc %in% c("Guam","Puerto Rico","National")) %>%
   select(YearStart,LocationDesc, Question, Data_Value,Gender) %>% 
@@ -94,6 +96,7 @@ US_Hlth$Hlth_M <- US_Hlth$Hlth_M %>% fct_recode("wgtObs" = "Percent of adults ag
 "act0" = "Percent of adults who engage in no leisure-time physical activity")
 US_Hlth<- US_Hlth %>% ungroup() %>%  spread("Hlth_M","Perc")
 ```
+
 
 **Read Dataset 2**
 ```{r 'Read Dataset 2'}
@@ -152,6 +155,7 @@ Party <- tibble::tribble(
                          "Wyoming",                 "57%",    "18%",               "25%",          316
            )
 ```
+
 **Xform Dataset 2**
 ```{r 'Xform Dataset 2'}
 Party <- lapply(Party, gsub, pattern='\\%', replacement='')
@@ -216,7 +220,7 @@ ggcon
 <div class="q">	Describe your substantive interest and the general questions(s) you would like to answer (eg, “Does more education cause people to become more liberal?”). Be sure to frame it in a such a way that you are proposing a hypothesis (or multiple hypotheses) that might be either confirmed or disproven by the results of your analysis.
 </div>
 <div class="a">
-Selecting the data for comparison was quite difficult given the restraints of having the data not include temporal or categorical data. All of my interests included data that had a temporal index or categorical data involved. Resolving to include health related measures, I decided to continue with the inquiry from class about partisanship, these two data sets allow for correlation between these topics. The data within fits the restraints and *might* yield interesting correlations.
+Selecting the data for comparison was quite difficult given the restraints of having the data not include temporal or categorical data. All of my interests included data that had a temporal index or categorical data involved. Resolving to include health related measures, I decided to continue with the inquiry from class about partisanship, and combine these two data sets to allow for correlation between these topics. The data within fits the restraints and *might* yield interesting correlations.
 <br>
 The hypothesis is a question of whether there is a correlation between various health behaviors and party affiliation within states.
 *After Revision*  
@@ -248,14 +252,9 @@ The data about party affilation by state came from the <a href="http://www.pewfo
 <br>
 Intuitively, party affiliation could also be influenced or predicted in part by religion, affiliation of parents, place of residence, affiliation of one's peers in one's social network. It could also be related to psychological traits, or, as we will explore, health behaviors.
 <br>
-In this study, we'll be looking at the percentage of each state's pop. exhibiting particular health behaviors, these behaviors will be described in further detail below. An individual presenting a risk factor of obesity might also have a lack of exposure to quality health related information during ther time in the education system and/or lack of exposure to quality health related information sources at present. The diagnosis could also be related to lack of access to health care services and medical professionals etc. If a person is living a lifestyle that involves behaviors identified as risk factors, there are often concurrent cognitive indicators resulting from poor health. 
-<br>For example, there's evidence relating <a href="https://scholar.google.com/scholar?q=physical+exercise+and+executive+function&hl=en&as_sdt=0&as_vis=1&oi=scholart&sa=X&ved=0ahUKEwiDprWHwKvXAhWD5iYKHatJCmAQgQMIJDAA" target="_blank">physical exercise and executive function</a><sup>4</sup>, and <a href="https://scholar.google.com/scholar?hl=en&as_sdt=0%2C22&as_vis=1&q=physical+activity+on+cognition&oq=physical+exercise+and+executive+function" target="_blank">physical exercise to cognition</a><sup>5</sup>. Thus, there might be some explanatory value in relating activity levels (or lack thereof) to political party affiliation that would undoubtedly be controversial if the evidence exists. 
-With regard to whether or not the "Percent of adults who report consuming fruit less than one time daily" influences the percent of the state pop. identifying as Republican it is likely that the two are not related. Thugh the variable might not have much explanatory value, it was the only variable from the dietary behaviors questions that did not exhibit colinearity with variables from the other classes.
-<blockquote style="font-size:0.5em">
-<sup>4</sup>https://scholar.google.com/scholar?q=physical+exercise+and+executive+function&hl=en&as_sdt=0&as_vis=1&oi=scholart&sa=X&ved=0ahUKEwiDprWHwKvXAhWD5iYKHatJCmAQgQMIJDAA
-<br>
-<sup>5</sup>https://scholar.google.com/scholar?hl=en&as_sdt=0%2C22&as_vis=1&q=physical+activity+on+cognition&oq=physical+exercise+and+executive+function
-</blockquote>
+In this study, we'll be looking at the percentage of each state's pop. exhibiting particular health behaviors, these behaviors will be described in further detail below. An state with a high rate of obesity <u>wgtObs</u> might also lack a system of education about health related information and/or a cultural bias that occludes access to quality health related information. The obesity rate could also be related to lack of access to health care services and medical professionals etc. 
+With regard to whether or not the "Percent of adults who report consuming fruit less than one time daily" influences the percent of the state pop. identifying as Republican it is likely that the two are not related. Though the variable might not have much explanatory value, it was the only variable from the dietary behaviors questions that did graphically did not appear to exhibit colinearity with variables from the other classes.
+
 </div>
 ## 4
 <div class="q">	What are your independent variables, and why have you chosen these? Prior to running your regression, what effects do you expect them to have on the dependent variable? Which of these variables do you think affect other of the independent variables, and how might that affect your final results?
@@ -307,6 +306,9 @@ All variables are measured in % of state population.
 <div class="a">
 <blockquote>
 *These linear regressions without results contained in this blockquote were used to identify that the variables in question were colinear. The assignment was then revised. The revised answer to this question begins where the blockquote ends.*
+<br>
+*Upon further reading, I had an incorrect method for attempting to spot multicolinearity, and the revision may not have even been necessary.*
+**2-Var Regressions**
 ```{r '2-Var Regressions',eval=F}
 `r0`<- summary(lm(`R`~`0`,Pty_Hlth))
 `r150`<- summary(lm(`R`~`150`,Pty_Hlth))
@@ -319,6 +321,7 @@ All variables are measured in % of state population.
 While there is statistical significance at the 95% confidence level in the correlations between R and 150, and Veg, it can also be noted the $R^2$ values indicate that little of the variation is explained by the model. As variables are added in a multiple variable regression, the $R^2$ value will inevitably increase, though it is important to note the low $R^2$ in these 2-Variable models.
 <br>
 The comparison of `0` and `150` show that the variables are indeed colinear, and will be confounding variables if combined. It may be necessary to add an additional health variable that is not colinear with any of the other variables.</p>
+**Add Statistic on Obesity for Multiple Linear Regression**
 ```{r 'Add Statistic on Obesity for Multiple Linear Regression',eval=F}
 USob <- US %>% filter(YearStart==2015 & Question %in% c("Percent of adults aged 18 years and older who have obesity") & is.na(Gender)==F & !LocationDesc %in% c("Guam","Puerto Rico","National")) %>%
   select(YearStart,LocationDesc, Question, Data_Value,Gender) %>% 
@@ -336,6 +339,7 @@ rm(USob)
 ```
 
 It appears that obesity is also colinear with a sedentary lifestyle, logically, this linkage makes sense. Let's have a look at the fruit variable.
+**Add Fruit Variable**
 ```{r 'Add Fruit Variable',eval=F}
 USF <- US %>% filter(YearStart==2015 & Question %in% c("Percent of adults who report consuming fruit less than one time daily") & is.na(Gender)==F & !LocationDesc %in% c("Guam","Puerto Rico","National")) %>%
   select(YearStart,LocationDesc, Question, Data_Value,Gender) %>% 
@@ -353,6 +357,7 @@ Pty_Hlth <- left_join(Pty_Hlth,USF,by="ST")
 #Colinear```
 ```
 Healthy lifestyle traits show high degrees of correlation, while risk factors are also highly correlated. 
+**Add Weight Lifting Variable**
 ```{r 'Add Weight Lifting Variable',eval=F}
 USWl <- US %>% filter(YearStart==2015 & Question %in% c("Percent of adults who engage in muscle-strengthening activities on 2 or more days a week") & is.na(Gender)==F & !LocationDesc %in% c("Guam","Puerto Rico","National")) %>%
   select(YearStart,LocationDesc, Question, Data_Value,Gender) %>% 
@@ -379,6 +384,7 @@ After revision, the three variables that appear not to be colinear are:
 <li>"% of adults who achieve at least 300 minutes a week of moderate-intensity aerobic physical activity or 150 minutes a week of vigorous-intensity aerobic activity (or an equivalent combination)", <u>act300</u></li>
 </ol>
 
+**2-Variable Regressions - Revised**
 ```{r '2-Variable Regressions - Revised',results='asis'}
 Obs150 <- lm(wgtObs~act150,Pty_Hlth)
 ObsFru <- lm(wgtObs~conFru,Pty_Hlth)
@@ -388,13 +394,13 @@ RObs <- lm(R~wgtObs,Pty_Hlth)
 RFru <- lm(R~conFru,Pty_Hlth)
 R300 <- lm(R~act300,Pty_Hlth)
 
-stargazer(Obs150, no.space=TRUE,omit.stat=c("ll"),header=FALSE,type="html")
-stargazer(ObsFru, no.space=TRUE,omit.stat=c("ll"),header=FALSE,type="html")
-stargazer(Obs300, no.space=TRUE,omit.stat=c("ll"),header=FALSE,type="html")
-stargazer(Fru300, no.space=TRUE,omit.stat=c("ll"),header=FALSE,type="html")
-stargazer(RFru, no.space=TRUE,omit.stat=c("ll"),header=FALSE,type="html")
-stargazer(RObs, no.space=TRUE,omit.stat=c("ll"),header=FALSE,type="html")
-stargazer(R300, no.space=TRUE,omit.stat=c("ll"),header=FALSE,type="html")
+sjt.lm(Obs150)
+sjt.lm(ObsFru)
+sjt.lm(Obs300)
+sjt.lm(Fru300)
+sjt.lm(RFru)
+sjt.lm(RObs)
+sjt.lm(R300)
 ```
 
 The $R^2$ values appear to be low enough where the degree of multicollinearity will not be so substantial as to render the predictive value of the model inaccurate. With the addition of multiple variables, the signficance of the individual health behavioral variables will likely decrease. The $R^2$ will also decrease as the amount of variance will be cumulative as more variables are added to the model.
@@ -408,18 +414,16 @@ The $R^2$ values appear to be low enough where the degree of multicollinearity w
 </ol>  
 </div>
 <div class="a">
+**7**
 ```{r '7'}
 RObs300Fru <- lm(R~wgtObs+conFru+act300,Pty_Hlth)
 vif(RObs300Fru)
 sjt.lm(RObs300Fru)
-
-# stargazer(RObs300Fru) for PDF
-# stargazer(R150VegObs)
 ```
 
-```{r '7 - Stargazer',results='asis'}
-stargazer(RObs300Fru, no.space=TRUE, dep.var.labels=c("% identified as Republican"), 
-          omit.stat=c("ll"),header=FALSE,type="html")
+**7 - Stargazer**
+```{r '7 - Stargazer',results='hide',eval=F}
+stargazer(RObs300Fru, no.space=TRUE, dep.var.labels=c("% identified as Republican"),omit.stat=c("ll"),header=FALSE)
 ```
 
 ### a
@@ -460,6 +464,7 @@ If there was a survey conducted with a statistically significant sample of a giv
 </div>
 <div class="a">
 ### a  
+**8a**
 ```{r '8a'}
 RFru$coefficients
 RObs$coefficients
@@ -470,12 +475,14 @@ RObs300Fru$coefficients
 This coefficients have dropped in value from the bivariate to the multivariate.  Also, we can see that including all three of these variables has mitigated the negative correlaton with act300 and actually made it a positive correlation. This does not seem to be a spurious or chained causal pathway, but rather the influence of two positively correlated values and one negatively correlated value included in the same linear model.
 
 ### b  
-It can be inferred, that were variables with all positive correlations chosen for the multivariate regression, a more pronounced positive effect on the coefficients will be observed. To test this, we can add <u>act0</u> - "Percent of adults who engage in no leisure-time physical activity" to the model. It is expected that due to the likely multicolinearity between this variable and <u>wgtObs</u>, we will observe larger coefficients, increased significance, but also a high VIF. To test:
+It can be inferred, that were variables with all positive correlations chosen for the multivariate regression, a more pronounced positive effect on the coefficients will be observed. To test this, we can add <u>act0</u> - "Percent of adults who engage in no leisure-time physical activity" to the model. It is expected that due to the likely multicolinearity between this variable and <u>wgtObs</u>, we will observe larger coefficients, increased significance, but also have a high VIF. To test:
+**8b**
 ```{r '8b'}
 RObsFru0 <- lm(R~wgtObs+conFru+act0,Pty_Hlth)
-#stargazer(RObsFru0,type="html")
 RObs300Fru$coefficients
+summary(RObs300Fru)$adj.r.squared
 RObsFru0$coefficients
+summary(RObsFru0)$adj.r.squared
 vif(RObsFru0)
 R0 <- lm(R~act0,Pty_Hlth)
 R0$coefficients
@@ -483,13 +490,15 @@ R0$coefficients
 As inferred, the coefficients did increase in value, as did the VIF scores. However, unexpectedly, the act0 coefficient is negative, even though it is positive in the bivariate regression with the dependent variable, and with its other IVs. The y-intercept shifted dramatically between the two models, which could indicate that when individuals in act300 are included, the % of individuals identifying as Republican starts at a much lower percent, and goes up by small amounts with each unit shift in the IVs, whereas when act0 is included, there is a larger % of those identifying as Republican, which goes down by 0.71 with each unit shift in X. Admittedly, these results are confusing, and this is just a conjecture.
 
 ### c  
+**8c**
 ```{r '8c'}
 vif(RObs300Fru)
 ```
 
 *VIF*  
-<p>According to this <a href="https://statisticalhorizons.com/multicollinearity" target="_blank">resource</a><sup>6</sup>, the VIF is a multiplier by which the variance could be inflated due to multicollinearity. From our VIF values, we can see that the variance could be significantly inflated in the models due to multicollinearity. Looking at the values for VIF between the models, it appears that the variables in <u>R150VegObs</u> (the originally proposed model) have more distributed multicollinearity between them than in the original model, though the multicollinearity between wgtObs and R in the revised model is more pronounced. </p>
+<p>According to this <a href="https://statisticalhorizons.com/multicollinearity" target="_blank">resource</a><sup>4</sup>, the VIF is a multiplier by which the variance could be inflated due to multicollinearity. From our VIF values, we can see that the variance could be significantly inflated in the models due to multicollinearity. Looking at the values for VIF between the models, it appears that the variables in <u>R150VegObs</u> (the originally proposed model) have more distributed multicollinearity between them than in the original model, though the multicollinearity between wgtObs and R in the revised model is more pronounced. </p>
 <p>By evaluating the variables, it's apparent that <u>wgtObs</u> and <u>act300</u> are going to be mutually exclusive, and likely going to dampen the coefficients and significance of one another when included in the same model. We can confirm this by adding all variables that are likely to all be correlated:</p>
+**8c - cont**
 ```{r '8c - cont'}
 R0VegObs <- lm(R~act0+conVeg+wgtObs,Pty_Hlth)
 vif(R0VegObs)
@@ -498,7 +507,7 @@ sjt.lm(R0VegObs)
 
 <p>
 The p-value for the coefficient of <u>wgtObs</u> is now statistically significant. The coefficients are higher in value, and the $R^2$ is similar to other models. What still remains confusing is the negative coefficient for  <u>act0</u>, which when regressed with wgtObs and conVeg, and R individually, are all positive.</p>
-```{r}
+```{r '8c - cont2'}
 Veg0 <- lm(act0~conVeg,Pty_Hlth)
 Obs0 <- lm(act0~wgtObs,Pty_Hlth)
 Veg0$coefficients
@@ -508,18 +517,19 @@ R0$coefficients
 
 
 <blockquote style="font-size:0.5em">
-<sup>6</sup>https://statisticalhorizons.com/multicollinearity
+<sup>4</sup>https://statisticalhorizons.com/multicollinearity
 </blockquote>
 
 ### d  
 The bivariate models indicate numerous statistically significant correlations:
+**8d**
 ```{r '8d',eval=F}
 summary(RFru)
 summary(RObs)
 summary(R300)
 ```
 
-None of which are reflected in the multivariate regression, likely due to the reasons mentioned in the previous answer regarding inverse relationships and resulting in suppression of the coefficient values. There may be confounding variables between <u>conFru</u> and <u>wgtObs</u>. If all risk factors and healthy behaviors were grouped together respectively, variables delineating each might be overall health knowledge, access to health information etc. as discussed prior. There is definite mutual exclusivity between <u>wgtObs</u> and <u>act300</u>, which isn't spurious or chained but could be causiing suppression when the two are included in the same model. It could logically be conceived that <u>act0</u> and <u>wgtObs</u> would be chained in causation, but the results from previous answers make this relationship difficult to discern.  
+None of which are reflected in the multivariate regression, likely due to the reasons mentioned in the previous answer regarding inverse relationships and resulting in suppression of the coefficient values. There may be confounding variables between <u>conFru</u> and <u>wgtObs</u>. If all risk factors and healthy behaviors were grouped together respectively, variables delineating each might be overall health knowledge, access to health information etc. as discussed prior. There is definite mutual exclusivity between <u>wgtObs</u> and <u>act300</u>, which isn't spurious or chained but could be causiing suppression when the two are included in the same model. It could be conceived that <u>act0</u> and <u>wgtObs</u> might have chained causation as being obese would necessarily imply a sedentary lifestyle, but sedentary lifestyle is a larger set of people of which those whom are obese are a subset. Previous results indicate that sedentary lifestyle and obesity are not multicolinear, likely for this reason.  
 </div>
 
 ## 9  
@@ -531,6 +541,7 @@ explored above. The hypothesis was a stretch to begin with, and more a result of
 ## 10
 <div class="q">	What do the $R^2$ and adjusted $R^2$ tell you about your model?</div>
 <div class="a">
+**10**
 ```{r '10'}
 sumRFO3 <- summary(RObs300Fru)
 sumRFO3$r.squared
@@ -544,23 +555,57 @@ The $R^2$ value indicates that ~.31% of the variance in R is explained by the IV
 </div>
 <div class="a">
 From previous discussion, the inverse effect of <u>act300</u> is likely being suppressed by two variables with positive correlation. If we eliminate this variable from the regression and create the model:
+**11**
 ```{r '11'}
 RObsFru <- lm(R~wgtObs+conFru,Pty_Hlth)
 sjt.lm(RObsFru)
 ```
 We have a slightly smaller $R^2$ due to the removal of the variable, but no statistically significant correlations. This implies that our variables might not have strong enough correlations for a 3-variable regression to show fit even without suppression occuring.
 If we substitute <u>act300</u> with <u>act0</u>: 
-```{r '11 - cont'}
+**11 - cont2**
+```{r '11 - cont2'}
 sjt.lm(RObsFru0)
 ```
 we find a higher $R^2$ and coefficients, as well as greater significance since these could all be considered risk factors.
-<br>
-Referring back to the graphs, it appears that the two variables with the highest correlation are <u>wgtObs</u> and <u>conVeg</u>. To test:
-```{r '11 - cont3'}
-RObsVeg <- lm(R~wgtObs+conVeg,Pty_Hlth)
-sjt.lm(RObsVeg)
-```
 It does appear that <u>wgtObs</u> achieves significance in this 3-Var model, but the adjusted R^2 also declined slightly.
+<br>
+If we look at all the variables systematically, it appears that the three variables with the highest correlation are <u>wgtObs</u>, <u>conVeg</u>, and <u>conFru</u>. If we combine these variables for the best fitting 4 var model:
+**11 - cont3**
+```{r '11 - cont3'}
+RObs <- lm(R~wgtObs,Pty_Hlth)
+ROvr <- lm(R~wgtOvr,Pty_Hlth)
+RFru <- lm(R~conFru,Pty_Hlth)
+RVeg <- lm(R~conVeg,Pty_Hlth)
+R300 <- lm(R~act300,Pty_Hlth)
+R150 <- lm(R~act150,Pty_Hlth)
+RWL <- lm(R~actWL,Pty_Hlth)
+R150WL <- lm(R~act150WL,Pty_Hlth)
+R0 <- lm(R~act0,Pty_Hlth)
+
+sum_RObs <- summary(RObs)
+sum_RObs$adj.r.squared
+sum_ROvr <- summary(ROvr)
+sum_ROvr$adj.r.squared
+sum_RFru <- summary(RFru)
+sum_RFru$adj.r.squared
+sum_RVeg <- summary(RVeg)
+sum_RVeg$adj.r.squared
+sum_R300 <- summary(R300)
+sum_R300$adj.r.squared
+sum_R150 <- summary(R150)
+sum_R150$adj.r.squared
+sum_RWL <- summary(RWL)
+sum_RWL$adj.r.squared
+sum_R150WL <- summary(R150WL)
+sum_R150WL$adj.r.squared
+sum_R0 <- summary(R0)
+sum_R0$adj.r.squared 
+
+RObsFruVeg <- lm(R~wgtObs+conFru+conVeg,Pty_Hlth)
+sjt.lm(RObsFruVeg)
+
+```
+Surprisingly, the adjusted $R^2$ is actually lower than the model including <u>act0</u>, though the adjusted $R^2$ was higher across <u>wgtObs</u>, <u>conFru</u>, and <u>conVeg</u> than <u>wgtObs</u>, <u>conFru</u>, and <u>act0</u>.
 </div>
 ## 12
 <div class="q">	What are your overall conclusions? What are the weaknesses of your results, and how could you improve them with better or different data?
@@ -578,6 +623,7 @@ d.	Calulate the F statistic using R and confirm it against the regression output
 <div class="a">
 ### a  
 $(X'X)^{-1}X'Y = \beta$
+**13a**
 ```{r '13a'}
 mRObsFru300 <- as.matrix(cbind(1,Pty_Hlth$wgtObs,Pty_Hlth$conFru,Pty_Hlth$act300))
 head(mRObsFru300)
@@ -586,6 +632,7 @@ RObs300Fru$coefficients
 ```
 
 ### b  
+**13b**
 ```{r '13b'}
 #conFru
 pt(sumRFO3$coefficients[2,1]/sumRFO3$coefficients[2,2],4,low=F)
@@ -595,6 +642,7 @@ The $p_value$ for <u>conFru</u> seems to be calculated in the linear regression 
 
 ### c  
 $R^{2} = \frac{TSS - SSE}{TSS}$
+**13c**
 ```{r '13c'}
 ypred <- predict(RObs300Fru)
 y <- Pty_Hlth$R
@@ -605,6 +653,7 @@ r2
 sumRFO3$r.squared
 ```
 $\textrm{adjusted } R^2 = \frac{TSS/df_t - SSE/df_e}{TSS/df_t}$
+**13c - cont**
 ```{r '13c - cont'}
 n <- length(y)
 k <- ncol(mRObsFru300)-1
@@ -616,6 +665,7 @@ sumRFO3$adj.r.squared
 
 ### d  
 $F = \frac{R^2 / k}{(1-R^2)/(n-k-1)}$
+**13d**
 ```{r '13d'}
 f <- (r2/k) / ((1-r2)/(n-k-1))
 f
@@ -635,6 +685,8 @@ sumRFO3$fstatistic
 <div class="q">	Test either the model in 14 or the model in 15 using the F test for nested models. That is, estimate the full model with the variable and quadratic term, or the variable and interaction, and then estimate the reduced model without either, and run the F test to establish whether those variables significantly improve your model.</div>
 <div class="a">
 </div>
+
+
 
 
 
