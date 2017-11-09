@@ -220,12 +220,11 @@ ggcon
 Selecting the data for comparison was quite difficult given the restraints of having the data not include temporal or categorical data. All of my interests included data that had a temporal index or categorical data involved. Resolving to include health related measures, I decided to continue with the inquiry from class about partisanship, these two data sets allow for correlation between these topics. The data within fits the restraints and *might* yield interesting correlations.
 <br>
 The hypothesis is a question of whether there is a correlation between various health behaviors and party affiliation within states.
-<blockquote>*Original* $H_1$ Is the proportion of individuals whom qualify as ?
-$H_2$ Is the proportion of individuals meeting minimum recommendations for physical activity correlated with a party affilation?
-$H_3$ Is the proportion of individuals exercising well beyond minimum recommendations for physical activity correlated with a party affilation</blockquote>
 *After Revision*  
 $H_1$ Is the "Percent of adults aged 18 years and older who have obesity" correlated with the % identifying as Republican? If so, what is the sign of $\beta_1$?
+<br>
 $H_2$ Is the "Percent of adults who report consuming fruit less than one time daily" correlated with the % identifying as Republican? If so, what is the sign of $\beta_2$?
+<br>
 $H_3$ Is the "Percent of adults who achieve at least 300 minutes a week of moderate-intensity aerobic physical activity or 150 minutes a week of vigorous-intensity aerobic activity (or an equivalent combination)" a predictor variable for the % identifying as Republican? If so what is the sign of $\beta_3$?
 </div>
 ## 2
@@ -281,15 +280,17 @@ This brief analysis will look at whether there is correlation between the follow
 <li>$x_3$: % of adults who achieve at least 300 minutes a week of moderate-intensity aerobic physical activity or 150 minutes a week of vigorous-intensity aerobic activity (or an equivalent combination)</li>
 </ul>
 and the dependent variable $y$: the percent of the state pop. identifying as Republican.
-The % of adults aged 18 years and older who have obesity ($x_1$) will likely correlate positively with the % of the state pop. identified as Republican. The % of adults who report consuming fruit less than one time daily will likely have no correlation with % of the state pop. identified as Republican. There will likely be an negative correlation between % of adults who achieve at least 300 minutes a week of moderate-intensity aerobic physical activity or 150 minutes a week of vigorous-intensity aerobic activity (or an equivalent combination). However, the latter two variables are likely more related to the latitude, and longitude of a state (as a predictor of outdoor weather patterns conducive to outdoor activity), as well as the popularity and diversity of various athletic recreational activities within the state.
+The % of adults aged 18 years and older who have obesity ($x_1$) might correlate positively with the % of the state pop. identified as Republican. The % of adults who report consuming fruit less than one time daily will likely have no correlation with % of the state pop. identified as Republican. There might be a negative correlation between % of adults who achieve at least 300 minutes a week of moderate-intensity aerobic physical activity or 150 minutes a week of vigorous-intensity aerobic activity (or an equivalent combination). However, the latter two variables are likely more related to the latitude, and longitude of a state (as a predictor of outdoor weather patterns conducive to outdoor activity), as well as the popularity and diversity of various athletic recreational activities within the state.
 </div>
 ## 5
 <div class="q">	Explain and show in detail how you rename and recode the variables you are examining, and what units each are measured in.
 </div>
 <div class="a">
 The variables have been recoded in the chunks entitled "Xform Dataset 1 - Revised" & "Xform Dataset 2." The renaming and recoding procedures are explained below:
+<br>
 *Dataset 1*  
 The data is filtered for the year 2015, the only year with data for each question that is closest to the year in which the data was gathered in dataset 2, the relevant questions, the 50 states plus the District of Columbia (as in dataset 2), and the gender stratification. The "Questions" column from the original dataset is renamed Hlth_M (Health Measures). The percentages of the pop. reporting a yes to the question are filtered by the gender stratification, such that only 2 percentages need be averaged to get a single % for the entire population. The answers to the questions are then recoded using the forcats package, see the chunk entitled Xform Dataset 1 - Revised for details on variable names. The factors are then spread into columns.
+<br>
 *Dataset 2*  
 The dataset variables were transformed as follows:
 <ol>
@@ -395,10 +396,9 @@ stargazer(Fru300, no.space=TRUE,omit.stat=c("ll"),header=FALSE,type="html")
 stargazer(RFru, no.space=TRUE,omit.stat=c("ll"),header=FALSE,type="html")
 stargazer(RObs, no.space=TRUE,omit.stat=c("ll"),header=FALSE,type="html")
 stargazer(R300, no.space=TRUE,omit.stat=c("ll"),header=FALSE,type="html")
-
 ```
 
-It looks like some multicollinearity may be unavoidable with these particular health behaviors. The $R^2$ values appear to be low enough where the degree of multicollinearity will not be so substantial as to render the predictive value of the model inaccurate. With the addition of multiple variables, the signficance of the individual health behavioral variables will likely decrease. The $R^2$ will also decrease as the amount of variance will be cumulative as more variables are added to the model.
+The $R^2$ values appear to be low enough where the degree of multicollinearity will not be so substantial as to render the predictive value of the model inaccurate. With the addition of multiple variables, the signficance of the individual health behavioral variables will likely decrease. The $R^2$ will also decrease as the amount of variance will be cumulative as more variables are added to the model.
 </div>
 ## 7
 <div class="q">	Run your full multiple regression using lm() and present your results using the output from the stargazer R package. 
@@ -437,12 +437,15 @@ Where:
 <li>$x_3$: % of adults who achieve at least 300 minutes a week of moderate-intensity aerobic physical activity or 150 minutes a week of vigorous-intensity aerobic activity (or an equivalent combination)</li>
 </ul>
 The $\beta$ coefficient for a given variable indicates that for a unit increment in that variable, the resulting value $\hat{y}$ will be incremented by the value of $\beta$.  
-### b
+
+### b  
 *Variables with Substantive Impact*  
 The <u>conFru</u> variable in linear model <u>RObs300Fru</u> comes close to being significant at the 95% confidence level, though the adjusted $R^2$ value for the model is .267. The <u>wgtObs</u> variable in the <u>R150VegObs</u> model is significant at the 99% confidence level, but the adjusted $R^2$ value for the model is lower at .235. Given these outcomes, the model is not going to provide an accurate predictive model for the dependent variable.
-### c
+
+### c  
 *Treatment Scenario to Control Independent Variables*  
 Each of the independent variables are health behaviors, and/or risk factors. An intervention in influence the variable might be implementing mandatory nutrition & health education in grades K-12. If upon graduation, graduates were offered access to insurance coverage conditional with premiums ranging from deeply discounted to full price based on a spectrum of compliance with exercise and diet guidelines determined from statistical averages across the state, then you might be able to substantially drive down the rates of risk factors, and the percentages of people with risk-bearing health behaviors. If it was noted that a steep decline in the aforementioned variables did occur to the degree that it was statistically significant, it could be investigated whether there was also a significant drop in the % of people identifying as Republican. By controlling the health related variables more directly it will show whether party affiliation is effected.
+<br>
 *Survey Intervention*  
 If there was a survey conducted with a statistically significant sample of a given population (such as within a state) in which individuals were asked about party affiliation in addition to data on health behaviors, as in the CDC study, it would be a straightforward process to run statistical analyses on the health behavior/risk factor question answers stratified by party affiliation. Maybe the CDC would be up for adding a question to their survey?
 </div>
@@ -453,11 +456,11 @@ If there was a survey conducted with a statistically significant sample of a giv
 <li>How have any of the coefficients changed from the bivariate regressions? </li>
 <li>What can you infer from that? </li>
 <li>How do you think your various independent variables interact and affect each other? </li>
-<li>Try to find an example where a variable appears signficant in the bivariate regression, but not in the full regression. Is this an example of a spurious or a chained causal pathway?</li>
+<li>Try to find an example where a variable appears significant in the bivariate regression, but not in the full regression. Is this an example of a spurious or a chained causal pathway?</li>
 </ol>
 </div>
 <div class="a">
-## a
+### a  
 ```{r '8a'}
 RFru$coefficients
 RObs$coefficients
@@ -465,9 +468,10 @@ R300$coefficients
 RObs300Fru$coefficients
 ```
 
-This coefficients have dropped in value, as attempting to make a correlation between independent variables that might have a more direct effect (assuming there is a correlation between prevalence risk factors and Republicanism in a state) are included with the health variable act300, which is inversely correlated in the bivariate regressions. We can see that including all three of these variables has also mitigated the negative correlaton with act300 and actually made it positive. 
-## b
-It can be inferred, that were variables with all positive correlations chosen for the multivariate regression, are more pronounced effect will be observed. To test this, we can add <u>act0</u> - "Percent of adults who engage in no leisure-time physical activity" to the model. It is expected that due to the likely multicolinearity between this variable and <u>wgtObs</u>, we will observed larger coefficients, increased significance, but also a high VIF. To test:
+This coefficients have dropped in value from the bivariate to the multivariate.  Also, we can see that including all three of these variables has mitigated the negative correlaton with act300 and actually made it a positive correlation. This does not seem to be a spurious or chained causal pathway, but rather the influence of two positively correlated values and one negatively correlated value included in the same linear model.
+
+### b  
+It can be inferred, that were variables with all positive correlations chosen for the multivariate regression, a more pronounced positive effect on the coefficients will be observed. To test this, we can add <u>act0</u> - "Percent of adults who engage in no leisure-time physical activity" to the model. It is expected that due to the likely multicolinearity between this variable and <u>wgtObs</u>, we will observe larger coefficients, increased significance, but also a high VIF. To test:
 ```{r '8b'}
 RObsFru0 <- lm(R~wgtObs+conFru+act0,Pty_Hlth)
 #stargazer(RObsFru0,type="html")
@@ -477,26 +481,24 @@ vif(RObsFru0)
 R0 <- lm(R~act0,Pty_Hlth)
 R0$coefficients
 ```
-As inferred, the coefficients did increase in value, as did the VIF scores. However, unexpectedly, the act0 coefficient is negative, even though it is positive in the bivariate regression. The y-intercept shifted dramatically between the two models, which could indicate that when individuals in act300 are included, the % of individuals identifying as Republican starts at a much lower percent, and goes up by small amounts with each unit shift in the IVs, whereas when act0 is included, there is a larger % of those identifying as Republican, which goes down by 0.71 with each unit shift in X. Admittedly, these results are confusing, and this is just a conjecture.
-## c
+As inferred, the coefficients did increase in value, as did the VIF scores. However, unexpectedly, the act0 coefficient is negative, even though it is positive in the bivariate regression with the dependent variable, and with its other IVs. The y-intercept shifted dramatically between the two models, which could indicate that when individuals in act300 are included, the % of individuals identifying as Republican starts at a much lower percent, and goes up by small amounts with each unit shift in the IVs, whereas when act0 is included, there is a larger % of those identifying as Republican, which goes down by 0.71 with each unit shift in X. Admittedly, these results are confusing, and this is just a conjecture.
+
+### c  
 ```{r '8c'}
 vif(RObs300Fru)
 ```
 
 *VIF*  
-<p>According to this <a href="https://statisticalhorizons.com/multicollinearity" target="_blank">resource</a><sup>6</sup>, the VIF is a multiplier by which the variance could be inflated due to multicollinearity. From our VIF values, we can see that the variance could be significantly inflated in the models due to multicollinearity. Looking at the values for VIF between the models, it appears that the variables in R150VegObs (the originally proposed model) have more distributed multicollinearity between them than in the original model, though the multicollinearity between wgtObs and R in the revised model is more pronounced. </p>
-<br>
-<p>By evaluating the variables, it's apparent that wgtObs and act300 are going to be mutually exclusive, and likely going to dampen the coefficients and significance of one another when included in the same model. We can confirm this by adding all variables that are likely to all be correlated:</p>
+<p>According to this <a href="https://statisticalhorizons.com/multicollinearity" target="_blank">resource</a><sup>6</sup>, the VIF is a multiplier by which the variance could be inflated due to multicollinearity. From our VIF values, we can see that the variance could be significantly inflated in the models due to multicollinearity. Looking at the values for VIF between the models, it appears that the variables in <u>R150VegObs</u> (the originally proposed model) have more distributed multicollinearity between them than in the original model, though the multicollinearity between wgtObs and R in the revised model is more pronounced. </p>
+<p>By evaluating the variables, it's apparent that <u>wgtObs</u> and <u>act300</u> are going to be mutually exclusive, and likely going to dampen the coefficients and significance of one another when included in the same model. We can confirm this by adding all variables that are likely to all be correlated:</p>
 ```{r '8c - cont'}
 R0VegObs <- lm(R~act0+conVeg+wgtObs,Pty_Hlth)
 vif(R0VegObs)
 summary(R0VegObs)
-stargazer(R0VegObs, no.space=TRUE, dep.var.labels=c("% identified as Republican"), 
-          omit.stat=c("ll"),header=FALSE,type="html")
 ```
 
 <p>
-The overall p-value for the model is now statistically significant, as well as the coefficient for wgtObs. The coefficients are higher, and the $R^2$ is similar to other models. What still remains confusing is the negative coefficient for act0, which when regressed with wgtObs and conVeg, and R individually, are all positive.
+The overall p-value for the model is now statistically significant, as well as for the coefficient of <u>wgtObs</u>. The coefficients are higher in value, and the $R^2$ is similar to other models. What still remains confusing is the negative coefficient for  <u>act0</u>, which when regressed with wgtObs and conVeg, and R individually, are all positive.</p>
 ```{r}
 Veg0 <- lm(act0~conVeg,Pty_Hlth)
 Obs0 <- lm(act0~wgtObs,Pty_Hlth)
@@ -505,11 +507,12 @@ Obs0$coefficients
 R0$coefficients
 ```
 
-</p>
+
 <blockquote style="font-size:0.5em">
 <sup>6</sup>https://statisticalhorizons.com/multicollinearity
 </blockquote>
-## d
+
+### d  
 The bivariate models indicate numerous statistically significant correlations:
 ```{r '8d',eval=F}
 summary(RFru)
@@ -517,14 +520,15 @@ summary(RObs)
 summary(R300)
 ```
 
-None of which are reflected in the multivariate regression, likely due to the reasons mentioned in the previous answer regarding inverse relationships and resulting dampening of the coefficient values. There may be confounding variables between conFru and wgtObs, and all risk factors or healthy behaviors were they grouped together, that being overall health knowledge, access to health information etc. as discussed prior. There is definite mutual exclusivity between wgtObs and act300, which isn't spurious or chained but important to note. It could logically be conceived that act0 and wgtObs would be chained in causation, but the results from previous answers make this relationship difficult to discern.
-
+None of which are reflected in the multivariate regression, likely due to the reasons mentioned in the previous answer regarding inverse relationships and resulting dampening of the coefficient values. There may be confounding variables between <u>conFru</u> and <u>wgtObs</u>. If all risk factors and healthy behaviors were grouped together respectively, variables delineating each might be overall health knowledge, access to health information etc. as discussed prior. There is definite mutual exclusivity between <u>wgtObs</u> and <u>act300</u>, which isn't spurious or chained but important to note. It could logically be conceived that <u>act0</u> and <u>wgtObs</u> would be chained in causation, but the results from previous answers make this relationship difficult to discern.
 </div>
-## 9
+
+## 9  
 <div class="q">	How does what you see match, or not, your hypotheses from (4)? Why did/didn’t it match what you expected?</div>
 <div class="a">
 The hypothesis from (4) is not supported by the multivariate regression analyses
 explored above. The hypothesis was a stretch to begin with, and more a result of trying to fit the two datasets into a hypothesis test. The data didn't fit the hypothesis likely because the logic that lead to the hypothesis was coarse, and the datasets are not ideal for actually exploring these hypotheses. A more direct way of exploring the hypothesis would be the survey intervention proposed in 7c.</div>
+
 ## 10
 <div class="q">	What do the $R^2$ and adjusted $R^2$ tell you about your model?</div>
 <div class="a">
@@ -535,6 +539,7 @@ sumRFO3$adj.r.squared
 ```
 The $R^2$ value indicates that ~.31% of the variance in R is explained by the IV's included in the model. The Adjusted $R^2$ is more accurate for this multivariate analysis as it accounts for the number of variables included in the model. 
 </div>
+
 ## 11
 <div class="q">	How would you use one of the variable selection methods to choose a model with fewer variables? Select one of the methods (either one of the stepwise or criterion-based methods) and show which variables it would lead you to keep. Do you agree with its results?
 </div>
