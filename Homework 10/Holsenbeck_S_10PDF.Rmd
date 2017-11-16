@@ -153,12 +153,9 @@ RObs300Fru <- lm(R~wgtObs+conFru+act300,Pty_Hlth)
 RObs300sqFru <- lm(R~wgtObs+conFru+act300+I(act300^2),Pty_Hlth)
 ```
 ```{r,results='asis'}
-stargazer::stargazer(RObs300sqFru, object.names = T,ci = T,single.row = T,star.char = c("<.1", "<.05", "<.01"),notes.append = F)
+stargazer::stargazer(RObs300sqFru,RObs300Fru, object.names = T,ci = T,single.row = T,star.char = c("<.1", "<.05", "<.01"),omit.table.layout = "n")
 ```
 
-```{r,results='asis'}
-stargazer::stargazer(RObs300Fru, object.names = T,ci = T,single.row = T,star.char = c("<.1", "<.05", "<.01"),notes.append = F)
-```
 
 
 
@@ -177,11 +174,15 @@ RObsFru0intF0 <- lm(R ~ wgtObs + conFru + act0+conFru*act0, Pty_Hlth)
 RObsFru0intO0 <- lm(R ~ wgtObs + conFru + act0+wgtObs*act0, Pty_Hlth)
 ```
 ```{r,results='asis'}
-stargazer::stargazer(RObsFru0,RObsFru0intF0,RObsFru0intO0, object.names = T,ci = T,single.row = T,star.char = c("<.1", "<.05", "<.01"),notes.append = F)
+stargazer::stargazer(RObsFru0,RObsFru0intF0,RObsFru0intO0, object.names = T,ci = T,single.row = T,star.char = c("<.1", "<.05", "<.01"),omit.table.layout = "n")
 ```
 ```{r}
 ```
-With the tables side-by-side the results are somewhat confusing. When the lack of fruit consumption is interacting with sedentary lifestyle, most notable is the sign shift of act0 alone from -.71 to 1.05 with a concurrent drastic change in the y-intercept from -1.25 to -50.02, the only negative values remaining in the interaction model are the interaction itself and the y-intercept. We see similar changes in the interaction between <u>wgtObs & act0</u> with slight successive decreases in fit (adj $R^2$) with the interaction models. The best explanation I can come up with for this phenomena is that in the reduced model without the interactions, the y-intercept indicates we start with states with a moderate % of Republicans, and states with more sedentary individuals is correlated with fewer % of the population as Republicans perhaps due to high density, urban coastal areas that are often liberal and the combination of convenience and lack of accessible outdoor recreation inclines people towards sedentary lifestyles, explaining the negative correlation. With the addition of interactive terms, the y-intercept jumps into very liberal territory at -50.02 and sedentary lifestyle has a far less significant and now positive correlation due to it's being fitted to a linear model that includes the confluence of lack of fruit consumption and sedentariness (indicating poor diet in addition to sedentary behavior) and being obese and sedentary respectively. Why the interaction terms are negative remains baffling, though the confidence intervals show that they span 0 and are statistically insignificant and thus may not be all too important. The lack of fruit being positively correlated with % of Republicans could be explained by the midwestern states where monocropped grains and factory farmed animals make up a large proportion of the agricultural product and therefore diet in contrast to places like Hawaii, California and coastal areas where fruit is more abundant.
+With the tables side-by-side the results are somewhat confusing. When the lack of fruit consumption is interacting with sedentary lifestyle, most notable is the sign shift of act0 alone from -.71 to 1.05 with a concurrent drastic change in the y-intercept from -1.25 to -50.02, the only negative values remaining in the interaction model are the interaction itself and the y-intercept. We see similar changes in the interaction between <u>wgtObs & act0</u> with slight successive decreases in fit (adj $R^2$) with the interaction models. 
+<p>The best explanation I can come up with for this phenomena is that in the reduced model without the interactions, the y-intercept indicates we start with states with a moderate % of Republicans, and states with more sedentary individuals is correlated with fewer % of the population as Republicans perhaps due to high density, urban coastal areas that are often liberal and the combination of convenience and lack of accessible outdoor recreation inclines people towards sedentary lifestyles, explaining the negative correlation. 
+</p>
+<p>In the model with interactive terms, the y-intercept jumps into very liberal territory at -50.02 and sedentary lifestyle has a far less significant and now positive correlation due to it's being fitted to a linear model that includes the confluence of lack of fruit consumption and sedentariness (indicating poor diet in addition to sedentary behavior) and being obese and sedentary respectively. Why the interaction terms are negative remains baffling, though the confidence intervals show that they span 0 and are statistically insignificant and thus may not be all too important. The lack of fruit being positively correlated with % of Republicans could be explained by the midwestern states where monocropped grains and factory farmed animals make up a large proportion of the agricultural product and therefore diet in contrast to places like Hawaii, California and coastal areas where fruit is more abundant.
+</p>
 </div>
 ## 16
 <div class="q">	Test either the model in 14 or the model in 15 using the F test for nested models. That is, estimate the full model with the variable and quadratic term, or the variable and interaction, and then estimate the reduced model without either, and run the F test to establish whether those variables significantly improve your model.</div>
@@ -206,7 +207,7 @@ anes <- read_csv(file="anes_2008tr.csv")
 Rep.AgeRacIncIde <- glm(vote_rep~age+race_white+income+ideology_con,family = "binomial",anes)
 ```
 ```{r,results='asis'}
-stargazer::stargazer(Rep.AgeRacIncIde, object.names = T,ci = T,single.row = T,star.char = c("<.1", "<.05", "<.01"),notes.append = F)
+stargazer::stargazer(Rep.AgeRacIncIde, object.names = T,ci = T,single.row = T,star.char = c("<.1", "<.05", "<.01"),omit.table.layout = "n")
 ```
 
 
@@ -219,16 +220,14 @@ I'm unsure as to whether the probability this question is asking for is best rep
 Repint.rWhAgeIncIde <- glm(vote_rep~age*race_white*income*ideology_con,family="binomial",anes)
 ```
 ```{r,results='asis'}
-stargazer::stargazer(Repint.rWhAgeIncIde, object.names = T,ci = T,single.row = T,star.char = c("<.1", "<.05", "<.01"),notes.append = F)
+stargazer::stargazer(Repint.rWhAgeIncIde, object.names = T,ci = T,single.row = T,star.char = c("<.1", "<.05", "<.01"),omit.table.layout = "n")
 ```
 ```{r}
-
 input <- data.frame(race_white=1,age=mean(anes$age),income=mean(anes$income),ideology_con=mean(anes$ideology_con))
 (Wh <- predict.glm(Rep.AgeRacIncIde,input,type="response"))
-(Whodds <- predict.glm(Rep.AgeRacIncIde,input))
 ```
 
-A white person of average age, income, and ideology has a probability of .49 of voting Republican, or about a 50/50 chance. This is consistent with the odds ratio of 1 in the linear model with interaction terms.</div>
+A white person of average age, income, and ideology has a probability of .49 of voting Republican, or about a 50/50 chance.</div>
 ### b
 <div class="q">
 What’s the change in probability of voting Republican for a person of average age, income, and ideology who switches from black to white?</div>
@@ -314,10 +313,9 @@ Now run the regression with all the other variables in anes_2008tr (except for v
 Rep.AgeRacGenEduIncIdePid <- glm(vote_rep~age+race_white+gender_male+education+income+ideology_con+partyid_rep,family = "binomial",anes)
 ```
 ```{r,results='asis'}
-stargazer::stargazer(Rep.AgeRacGenEduIncIdePid,Rep.AgeRacIncIde, object.names = T,ci = T,single.row = T,star.char = c("<.1", "<.05", "<.01"),notes.append = F)
+stargazer::stargazer(Rep.AgeRacGenEduIncIdePid,Rep.AgeRacIncIde, object.names = T,ci = T,single.row = T,star.char = c("<.1", "<.05", "<.01"),omit.table.layout = "n")
 ```
 ```{r}
-Rep.AgeRacGenEduIncIdePid$terms
 sumCom <- summary(Rep.AgeRacGenEduIncIdePid)
 ```
 
