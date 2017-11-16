@@ -1,0 +1,344 @@
+---
+title: "Holsenbeck_S_10"
+author: "Stephen Synchronicity"
+date: '`r format(Sys.time(), "%Y-%m-%d")`'
+always_allow_html: yes
+header-includes:
+   - \usepackage{dcolumn}
+output: 
+  pdf_document: 
+  toc: no
+  latex_engine: xelatex
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message=FALSE,warning=FALSE,cache=TRUE, fig.align='center', fig.height=3.5, fig.width=5, tidy=TRUE, tidy.opts=list(width.cutoff=80))
+rmarkdown::html_dependency_jquery()
+rmarkdown::html_dependency_bootstrap("readable")
+rmarkdown::html_dependency_jqueryui()
+set.seed(1)
+```
+```{r Libraries, echo=T, results='hide'}
+library("tidyverse")
+library("dplyr")
+library("htmltools")
+library("forcats")
+library("stargazer")
+library("sjPlot")
+library("car")
+```
+```{r 'Read Data Set 1', results='hide',echo=F}
+US <- read_csv("C:\\Users\\Stephen\\Documents\\Northeastern\\PPUA 5301 - Introduction to Computational Statistics\\Homework\\Homework 8_9\\Nutrition__Physical_Activity__and_Obesity_-_Behavioral_Risk_Factor_Surveillance_System.csv")
+# names(US)
+```
+```{r 'Xform Dataset 1 - Revised', results='hide',echo=F}
+US_Hlth <- US %>% filter(YearStart==2015 & is.na(Gender)==F & !LocationDesc %in% c("Guam","Puerto Rico","National")) %>%
+  select(YearStart,LocationDesc, Question, Data_Value,Gender) %>% 
+  group_by(LocationDesc, Question) %>%
+  arrange(LocationDesc,Question) %>%
+  summarize(Perc=mean(Data_Value))
+colnames(US_Hlth) <- c("ST","Hlth_M","Perc")
+US_Hlth$Hlth_M <- as.factor(US_Hlth$Hlth_M)
+US_Hlth$Hlth_M <- US_Hlth$Hlth_M %>% fct_recode("wgtObs" = "Percent of adults aged 18 years and older who have obesity",
+"wgtOvr" = "Percent of adults aged 18 years and older who have an overweight classification",
+"conFru" = "Percent of adults who report consuming fruit less than one time daily",
+"conVeg" = "Percent of adults who report consuming vegetables less than one time daily",
+"actWL" = "Percent of adults who engage in muscle-strengthening activities on 2 or more days a week",
+"act150" = "Percent of adults who achieve at least 150 minutes a week of moderate-intensity aerobic physical activity or 75 minutes a week of vigorous-intensity aerobic activity (or an equivalent combination)",
+"act150WL" = "Percent of adults who achieve at least 150 minutes a week of moderate-intensity aerobic physical activity or 75 minutes a week of vigorous-intensity aerobic physical activity and engage in muscle-strengthening activities on 2 or more days a week",
+"act300" = "Percent of adults who achieve at least 300 minutes a week of moderate-intensity aerobic physical activity or 150 minutes a week of vigorous-intensity aerobic activity (or an equivalent combination)",
+"act0" = "Percent of adults who engage in no leisure-time physical activity")
+US_Hlth<- US_Hlth %>% ungroup() %>%  spread("Hlth_M","Perc")
+```
+```{r 'Read Dataset 2', results='hide',echo=F}
+Party <- tibble::tribble(
+                            ~State, ~Republican.lean.Rep., ~No.lean, ~Democrat.lean.Dem., ~Sample.Size,
+                         "Alabama",                 "52%",    "13%",               "35%",          511,
+                          "Alaska",                 "39%",    "29%",               "32%",          310,
+                         "Arizona",                 "40%",    "21%",               "39%",          653,
+                        "Arkansas",                 "46%",    "16%",               "38%",          311,
+                      "California",                 "30%",    "21%",               "49%",         3697,
+                        "Colorado",                 "41%",    "17%",               "42%",          504,
+                     "Connecticut",                 "32%",    "18%",               "50%",          377,
+                        "Delaware",                 "29%",    "17%",               "55%",          301,
+            "District of Columbia",                 "11%",    "15%",               "73%",          303,
+                         "Florida",                 "37%",    "19%",               "44%",         2020,
+                         "Georgia",                 "41%",    "18%",               "41%",          968,
+                          "Hawaii",                 "28%",    "20%",               "51%",          312,
+                           "Idaho",                 "49%",    "19%",               "32%",          320,
+                        "Illinois",                 "33%",    "19%",               "48%",         1326,
+                         "Indiana",                 "42%",    "20%",               "37%",          654,
+                            "Iowa",                 "41%",    "19%",               "40%",          330,
+                          "Kansas",                 "46%",    "23%",               "31%",          307,
+                        "Kentucky",                 "44%",    "13%",               "43%",          439,
+                       "Louisiana",                 "41%",    "16%",               "43%",          465,
+                           "Maine",                 "36%",    "17%",               "47%",          303,
+                        "Maryland",                 "31%",    "14%",               "55%",          644,
+                   "Massachusetts",                 "27%",    "17%",               "56%",          704,
+                        "Michigan",                 "34%",    "19%",               "47%",          982,
+                       "Minnesota",                 "39%",    "15%",               "46%",          563,
+                     "Mississippi",                 "44%",    "14%",               "42%",          309,
+                        "Missouri",                 "41%",    "18%",               "42%",          642,
+                         "Montana",                 "49%",    "21%",               "30%",          312,
+                        "Nebraska",                 "47%",    "17%",               "36%",          312,
+                          "Nevada",                 "37%",    "18%",               "46%",          314,
+                   "New Hampshire",                 "35%",    "20%",               "44%",          303,
+                      "New Jersey",                 "30%",    "19%",               "51%",          886,
+                      "New Mexico",                 "37%",    "15%",               "48%",          312,
+                        "New York",                 "28%",    "19%",               "53%",         1966,
+                  "North Carolina",                 "41%",    "17%",               "43%",         1022,
+                    "North Dakota",                 "50%",    "18%",               "33%",          338,
+                            "Ohio",                 "42%",    "18%",               "40%",         1132,
+                        "Oklahoma",                 "45%",    "15%",               "40%",          391,
+                          "Oregon",                 "32%",    "21%",               "47%",          419,
+                    "Pennsylvania",                 "39%",    "15%",               "46%",         1366,
+                    "Rhode Island",                 "30%",    "22%",               "48%",          305,
+                  "South Carolina",                 "43%",    "18%",               "39%",          495,
+                    "South Dakota",                 "53%",    "10%",               "37%",          305,
+                       "Tennessee",                 "48%",    "15%",               "36%",          661,
+                           "Texas",                 "39%",    "21%",               "40%",         2535,
+                            "Utah",                 "54%",    "16%",               "30%",          315,
+                         "Vermont",                 "29%",    "14%",               "57%",          306,
+                        "Virginia",                 "43%",    "18%",               "39%",          882,
+                      "Washington",                 "33%",    "23%",               "44%",          714,
+                   "West Virginia",                 "43%",    "16%",               "41%",          309,
+                       "Wisconsin",                 "42%",    "16%",               "42%",          600,
+                         "Wyoming",                 "57%",    "18%",               "25%",          316
+           )
+```
+```{r 'Xform Dataset 2', results='hide',echo=F}
+Party <- lapply(Party, gsub, pattern='\\%', replacement='')
+Party <- as.data.frame(Party,stringsAsFactors = F,)
+reclass <- function(df, vec){
+  df[] <- Map(function(x, f){
+    #switch below shows the accepted values in the vector
+    #you can modify it and/or add more
+    f <- switch(f,
+                as.is  = 'force',
+                factor = 'as.factor',
+                num    = 'as.numeric',
+                char   = 'as.character')
+    #takes the name of the function and fetches the function
+    f <- get(f)
+    #apply the function
+    f(x)
+  },
+      df,
+      vec)
+df
+}
+Party <- reclass(Party, c('char','num','num','num','num'))
+names(Party)
+colnames(Party) <- c("ST","R","N","D","ns")
+```
+```{r 'Join Tables for Analysis', results='hide',echo=F}
+Pty_Hlth <- left_join(Party,US_Hlth,by="ST")
+rm(US_Hlth,Party,US)
+```
+
+
+
+
+<button data-toggle="collapse" data-target="#demo" class="btn">Homework Outline</button>
+<div id="demo" class="collapse">
+</div>
+
+## 14
+<div class="q">	Add at least one quadratic term into your model and interpret the results. Is it significant? What is the effect of a 1-unit increase in that variable at its mean value?</div>
+<div class="a">
+Returning to the graphs in the preliminary analysis from Homework8_9 and looking for variables that might be better explained by a quadratic term does not yield any candidates. For the purposes of answering the problem, I'll pick the % of the population with 300 min of exercise of more per week (<u>act300</u>), and determine whether states with moderate percentages of Republican identified individuals show higher numbers of those at this activity level and whether this percentage decreases for states with larger percentages of Republican identified individuals.
+
+```{r '14'}
+RObs300Fru <- lm(R~wgtObs+conFru+act300,Pty_Hlth)
+RObs300sqFru <- lm(R~wgtObs+conFru+act300+I(act300^2),Pty_Hlth)
+```
+```{r,results='asis'}
+stargazer::stargazer(RObs300sqFru, object.names = T,ci = T,single.row = T,star.char = c("<.1", "<.05", "<.01"),notes.append = F)
+```
+
+```{r,results='asis'}
+stargazer::stargazer(RObs300Fru, object.names = T,ci = T,single.row = T,star.char = c("<.1", "<.05", "<.01"),notes.append = F)
+```
+
+
+
+
+
+As expected based on the graphical inspection, exploring act300 as a quadratic term did not better explain the variable's interaction with the dependent variable. The $\beta$ is near 0 and did not switch sign indicating it does not decline in states with higher % of Republican identified individuals. The adjusted $R^2$ value has also decreased because of the addition of this quadratic term that does not fit the data.
+</div>
+
+## 15
+<div class="q">	Add at least one interaction term to you model and interpret the results. Is it significant? What is the effect of a 1-unit increase in one of those interacted variables holding the other at its mean value?</div>
+<div class="a">
+Based on the findings in Q11 from Homework8_9 there appears to be an interactive effect between states with higher % of individuals living a sedentary lifestyle, and not consuming fruit in one's diet and the % of individuals identifying as Republican. We will also look at a possible interaction between <u>wgtObs & act0</u> due to the logical association between the two. 
+```{r '15'}
+RObsFru0 <- lm(R ~ wgtObs + conFru + act0, Pty_Hlth)
+RObsFru0intF0 <- lm(R ~ wgtObs + conFru + act0+conFru*act0, Pty_Hlth)
+RObsFru0intO0 <- lm(R ~ wgtObs + conFru + act0+wgtObs*act0, Pty_Hlth)
+```
+```{r,results='asis'}
+stargazer::stargazer(RObsFru0,RObsFru0intF0,RObsFru0intO0, object.names = T,ci = T,single.row = T,star.char = c("<.1", "<.05", "<.01"),notes.append = F)
+```
+```{r}
+```
+With the tables side-by-side the results are somewhat confusing. When the lack of fruit consumption is interacting with sedentary lifestyle, most notable is the sign shift of act0 alone from -.71 to 1.05 with a concurrent drastic change in the y-intercept from -1.25 to -50.02, the only negative values remaining in the interaction model are the interaction itself and the y-intercept. We see similar changes in the interaction between <u>wgtObs & act0</u> with slight successive decreases in fit (adj $R^2$) with the interaction models. The best explanation I can come up with for this phenomena is that in the reduced model without the interactions, the y-intercept indicates we start with states with a moderate % of Republicans, and states with more sedentary individuals is correlated with fewer % of the population as Republicans perhaps due to high density, urban coastal areas that are often liberal and the combination of convenience and lack of accessible outdoor recreation inclines people towards sedentary lifestyles, explaining the negative correlation. With the addition of interactive terms, the y-intercept jumps into very liberal territory at -50.02 and sedentary lifestyle has a far less significant and now positive correlation due to it's being fitted to a linear model that includes the confluence of lack of fruit consumption and sedentariness (indicating poor diet in addition to sedentary behavior) and being obese and sedentary respectively. Why the interaction terms are negative remains baffling, though the confidence intervals show that they span 0 and are statistically insignificant and thus may not be all too important. The lack of fruit being positively correlated with % of Republicans could be explained by the midwestern states where monocropped grains and factory farmed animals make up a large proportion of the agricultural product and therefore diet in contrast to places like Hawaii, California and coastal areas where fruit is more abundant.
+</div>
+## 16
+<div class="q">	Test either the model in 14 or the model in 15 using the F test for nested models. That is, estimate the full model with the variable and quadratic term, or the variable and interaction, and then estimate the reduced model without either, and run the F test to establish whether those variables significantly improve your model.</div>
+<div class="a">
+It's apparent what the result is going to be given the Adjusted $R^2$ values, but for the sake of practice the model with interaction between <u>wgtObs & act0</u> will be tested against the reduced (original) model. 
+$$F = \frac{(R_c^2 - R_r^2) / df_1}{(1-R_c^2)/df_2}$$
+```{r '16'}
+rr_org <- summary(RObsFru0)$r.squared
+rc_int <- summary(RObsFru0_O0)$r.squared
+(f <- ((rc_int - rr_org)/1)/((1-rc_int)/(51-4-1)))
+anova(RObsFru0,RObsFru0_O0)
+```
+The $F_{stat}$ and $P_{value}$ from the F-test indicate that the interaction model was not an improvement over the original model towards a better fit for the explaining the dependent variable in a statistically significant way.
+</div>
+
+## 1
+Using the anes_2008tr.csv dataset in Course Resources, model vote_rep (whether the respondent voted Republican in the last election) as a function of age, race, income, and ideology. 
+```{r 'Read Data'}
+anes <- read_csv(file="anes_2008tr.csv")
+```
+```{r '1'}
+Rep.AgeRacIncIde <- glm(vote_rep~age+race_white+income+ideology_con,family = "binomial",anes)
+```
+```{r,results='asis'}
+stargazer::stargazer(Rep.AgeRacIncIde, object.names = T,ci = T,single.row = T,star.char = c("<.1", "<.05", "<.01"),notes.append = F)
+```
+
+
+### a
+<div class="q">
+ What’s the probability of voting Republican for a white person of average age, income, and ideology?</div>
+<div class="a">
+I'm unsure as to whether the probability this question is asking for is best represented by the interacting terms model, or by a prediction based on the original model, so I've used both methods. Intuitively, I would guess that the prediction is what is being asked for.
+```{r '1a'}
+Repint.rWhAgeIncIde <- glm(vote_rep~age*race_white*income*ideology_con,family="binomial",anes)
+```
+```{r,results='asis'}
+stargazer::stargazer(Repint.rWhAgeIncIde, object.names = T,ci = T,single.row = T,star.char = c("<.1", "<.05", "<.01"),notes.append = F)
+```
+```{r}
+
+input <- data.frame(race_white=1,age=mean(anes$age),income=mean(anes$income),ideology_con=mean(anes$ideology_con))
+(Wh <- predict.glm(Rep.AgeRacIncIde,input,type="response"))
+(Whodds <- predict.glm(Rep.AgeRacIncIde,input))
+```
+
+A white person of average age, income, and ideology has a probability of .49 of voting Republican, or about a 50/50 chance. This is consistent with the odds ratio of 1 in the linear model with interaction terms.</div>
+### b
+<div class="q">
+What’s the change in probability of voting Republican for a person of average age, income, and ideology who switches from black to white?</div>
+<div class="a">
+```{r '1b'}
+input$race_white <- 0
+(`dp_BtoWh`<- Wh-(nWh <- predict.glm(Rep.AgeRacIncIde,input,type="response")))
+```
+The change in probability is +~.41 between a black person and a white person voting Republican when age, income and ideology are accounted for.
+</div>
+### c
+<div class="q">
+Using the $e^\beta$ formula from the lesson, what’s the effect on the odds ratio of shifting from black to white?</div>
+<div class="a">
+The change in probability:
+$$\begin{aligned} \hat{P}(y=1|x=a) - \hat{P}(y=1|x=b) = \textrm{invlogit}(a) - \textrm{invlogit}(b) =\\\frac{e^{\beta_0 + \beta_1 a_1 + \beta_2 a_2 + \beta_3 a_3 + \beta_4 a_4}}{1+e^{\beta_0 + \beta_1 a_1 + \beta_2 a_2 + \beta_3 a_3 + \beta_4 a_4}} - \frac{e^{\beta_0 + \beta_1 b_1 + \beta_2 b_2 + \beta_3 b_3 + \beta_4 b_4}}{1+e^{\beta_0 + \beta_1 b_1 + \beta_2 b_2 + \beta_3 b_3 + \beta_4 b_4}} \end{aligned}$$
+$$\begin{aligned}
+\frac{e^{\beta_0 + \beta_1 a}}{1+e^{\beta_0 + \beta_1 a}} - \frac{e^{\beta_0 + \beta_1 b}}{1+e^{\beta_0 + \beta_1 b}} \\
+\frac{e^{-8.077 + 0.005(46.451)+2.437(1)+0.405(2.705)+1.042(4.098)}}{1+e^{-8.077 + 0.005(46.451)+2.437(0)+0.405(2.705)+1.042(4.098)}} - \frac{e^{-8.077 + 0.005(46.451)+2.437(0)+0.405(2.705)+1.042(4.098)}}{1+e^{-8.077 + 0.005(46.451)+2.437(0)+0.405(2.705)+1.042(4.098)}}
+\end{aligned}$$
+Using R to solve that craziness...
+```{r '1c'}
+b_yint <- Rep.AgeRacIncIde$coef[1]
+b_age <- Rep.AgeRacIncIde$coef[2]
+b_rWh <- Rep.AgeRacIncIde$coef[3]
+b_inc <- Rep.AgeRacIncIde$coef[4]
+b_ide <- Rep.AgeRacIncIde$coef[5]
+(`1cd_BtoWh` <- (exp(b_yint+b_age*input[2]+b_rWh*1+b_inc*input[3]+b_ide*input[4])/(1+exp(b_yint+b_age*input[2]+b_rWh*1+b_inc*input[3]+b_ide*input[4])))-(exp(b_yint+b_age*input[2]+b_rWh*0+b_inc*input[3]+b_ide*input[4])/(1+exp(b_yint+b_age*input[2]+b_rWh*0+b_inc*input[3]+b_ide*input[4]))))
+#% Error
+as.numeric((`dp_BtoWh`-`1cd_BtoWh`)*100)
+```
+The change in odds:
+ 
+$$\begin{aligned}
+\frac{\frac{P(y=1|x=a)}{1-P(y=1|x=a)}}{\frac{P(y=1|x=b)}{1-P(y=1|x=b)}} = \\ \frac{e^{\beta_0} (e^{\beta_1})^{a_1}(e^{\beta_2})^{a_2}(e^{\beta_3})^{a_3}(e^{\beta_4})^{a_4}}{e^{\beta_0} (e^{\beta_1})^{b_1}(e^{\beta_2})^{b_2}(e^{\beta_3})^{b_3}(e^{\beta_4})^{b_4}} = \\ \frac{(e^{\beta_2})^{a_2}}{(e^{\beta_2})^{b_2}} = \\
+\frac{(e^{2.437})^{1}} {(e^{2.437})^{0}}
+\end{aligned}$$
+Again using R to solve...
+
+
+```{r '1c - Odds effect'}
+exp(Rep.AgeRacIncIde$coefficients)
+(`1cdodds_BtoWh` <- (exp(b_rWh)^1)/(exp(b_rWh)^0))
+```
+The calculation by hand indicates an 11.43x higher chance of voting Republican if one is white v black given all other variables remain constant. I'm not sure how to check this answer with the predict() function.
+
+</div>
+### d
+<div class="q">
+What has a greater effect on the probability of voting Republican: an age increase of 50 years, or an increase of one income bracket? (You may choose your own baseline, such as from 25 years below average to 25 years above average; and similarly for income.)</div>
+<div class="a">
+```{r '1d - nWh'}
+dage_lw <- input
+dage_hi <- input
+dinc_lw <- input
+dinc_hi <- input
+dage_lw[2] <- input[2]-25
+dage_hi[2] <- input[2]+25
+dinc_lw[3] <- input[3]-1
+dinc_hi[3] <- input[3]+1
+(`50yrs` <- predict.glm(Repint.rWhAgeIncIde,dage_hi,type="response")-predict.glm(Repint.rWhAgeIncIde,dage_lw,type="response"))
+(inc_1 <- predict.glm(Repint.rWhAgeIncIde,dinc_hi,type="response")-predict.glm(Repint.rWhAgeIncIde,dinc_lw,type="response"))
+inc_1/`50yrs`
+```
+If you are of non-white race, the change in the probability of voting Republican from an age of 21.5 to 71.5 is +~3%, whereas the the change in probability of voting Republican from one income bracket below average to one income bracket above average is +~11%. In other words, a non-white person is ~3.78 times more likely to vote Republican by moving up two income brackets than by aging 50 years. 
+
+```{r '1d - Wh'}
+dage_lw[1] <- 1
+dage_hi[1] <- 1
+dinc_lw[1] <- 1
+dinc_hi[1] <- 1
+(`50yrswh` <- predict.glm(Repint.rWhAgeIncIde,dage_hi,type="response")-predict.glm(Repint.rWhAgeIncIde,dage_lw,type="response"))
+(inc_1wh <- predict.glm(Repint.rWhAgeIncIde,dinc_hi,type="response")-predict.glm(Repint.rWhAgeIncIde,dinc_lw,type="response"))
+inc_1wh/`50yrswh`
+```
+If you are white, the change in the probability of voting Republican from an age of 21.5 to 71.5 is +~2%, whereas the the change in probability of voting Republican from one income bracket below average to one income bracket above average is +~13%. In other words, a white person is ~6.64 times more likely to vote Republican by moving up two income brackets than by aging 50 years.
+</div>
+### e
+<div class="q">
+Now run the regression with all the other variables in anes_2008tr (except for voted) How do your coefficients change? What do you think explains any coefficient that became or lost significance?</div>
+<div class="a">
+```{r '1e'}
+Rep.AgeRacGenEduIncIdePid <- glm(vote_rep~age+race_white+gender_male+education+income+ideology_con+partyid_rep,family = "binomial",anes)
+```
+```{r,results='asis'}
+stargazer::stargazer(Rep.AgeRacGenEduIncIdePid,Rep.AgeRacIncIde, object.names = T,ci = T,single.row = T,star.char = c("<.1", "<.05", "<.01"),notes.append = F)
+```
+```{r}
+Rep.AgeRacGenEduIncIdePid$terms
+sumCom <- summary(Rep.AgeRacGenEduIncIdePid)
+```
+
+
+Considering each factor individually:
+<ul class="alt-list">
+<li>age</li>
+<li>Age is a significant factor in the model that includes all available variables and insignificant in the reduced model, indicating that age plays a significant role in voting Republican when gender, education and party_id are factored in. However, it's influence accounts for only a 2% change in voting Republican with each additional year.</li>
+<li>race_white</li>
+<li>Race is by and large the most significant and influential predictive variable in voting Republican. In the reduced model, it accounts for ~11.4x increase in the chance of voting Republican. When gender, education, and party_id are included the influence of the variable is mitigated to increasing the odds by ~5.1x. This could be due to a suppression effect with the addition of the liberalizing factor, education (liberalizing for all but those whom attained a high school degree and decided not to continue their education), or a sharing of influence with party_id where higher values also indicate conservatism and is therefore also closely linked to voting Republican.</li>
+<li>gender_male</li>
+<li>The addition of gender has a insignificant slightly negative effect on the probability of voting Republican in the model, this is likely due to a suppression effect in a model with significantly stronger predictors.</li>
+<li>education</li>
+<li>Education has a insignificant albeit slightly positive effect on P(vote_rep), perhaps due to it's inclusion in a linear model when we know from previous exploration that it has a quadratic effect.</li>
+<li>income</li>
+<li>Income is a stronger, highly significant influence in the reduced model, and retains it's significance though with a more muted effect in the complete model. This could be due to multicollinearity between education and income, given we know education has a quadratic effect. In other words, given those who have more education are likely to have greater income, and are also less likely to vote Republican, the effect of income would be suppressed in a model where age is statistically significant and that includes education.</li>
+<li>ideology_con</li>
+<li>A conservative ideology is going to exhibit colinearity with the response (dependent) variable which we can observe reflected in its significance level in both models. It's effect is mitigated in the complete model, possibly due to its chained causation with the stronger indicator of party_id.</li>
+<li>partyid_rep</li>
+<li>Being affiliated with the Republican party is going to have the strongest colinearity with voting Republican, reflected in it's significance and placeholder as the 2nd highest coefficient. It's magnitude of effect is second to that of being white. However, this variable has a wide-range of values which are minimally explained:
+<blockquote><code>partyid_rep</code> is the party ID of the respondent, with Republican being the higher value</blockquote>
+I could not find in the ANES documentation what variable and or question on the survey this was matched to, which would help to better explain it.</li>
+</ul>
+</div>
